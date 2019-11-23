@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """
+
 Name: fitForecast.py
 Author: Collin Rooney
 Last Updated: 7/18/2017
