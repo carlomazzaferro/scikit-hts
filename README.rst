@@ -1,10 +1,6 @@
 ========
-nlplib
+scikit-hts
 ========
-
-
-Tooling for NLP
-
 
 
 Features
