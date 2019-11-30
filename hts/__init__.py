@@ -8,3 +8,5 @@ __version__ = '0.1.0'
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
+from hts.algos.foreacast.hierarchy import HierarchicalProphet
