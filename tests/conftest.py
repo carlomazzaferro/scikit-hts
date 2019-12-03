@@ -1,6 +1,6 @@
 import pytest
 
-from hts.helpers.hierarchy import HierarchyTree
+from hts.core.hierarchy import HierarchyTree
 
 
 @pytest.fixture

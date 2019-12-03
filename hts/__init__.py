@@ -8,6 +8,6 @@ __version__ = '0.1.0'
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
-from hts.foreacast.hierarchy import HierarchicalProphet
-from hts.foreacast.method import CrossValidation, OLS, WLSS, WLSV, FP, AHP, PHA, BU
+from hts.core.hierarchy import HierarchyTree
+from hts.core.forecast import HierarchicalProphet
+from hts.core.revision import CrossValidation, OLS, WLSS, WLSV, FP, AHP, PHA, BU
