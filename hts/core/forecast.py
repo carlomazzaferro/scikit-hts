@@ -1,12 +1,11 @@
-
+from scipy.special._ufuncs import inv_boxcox
 from scipy.stats import boxcox
-from scipy.special import inv_boxcox
 from sklearn.base import BaseEstimator, RegressorMixin
 
-from hts.types import NAryTreeT
-from hts.foreacast.method import Methods
-from hts.foreacast.helpers import to_sum_mat
+from hts.core.functions import to_sum_mat
+from hts.core.revision import Methods
 from hts.transforms import FunctionTransformer
+from hts.core.types import NAryTreeT
 
 
 class HierarchicalProphet(BaseEstimator, RegressorMixin):
@@ -81,7 +80,7 @@ class HierarchicalProphet(BaseEstimator, RegressorMixin):
 
     def fit(self, nodes: NAryTreeT):
         self.sum_mat = to_sum_mat(nodes)
-        df = nodes.to_pandas()
+        df = nodes.to_pandas().reset_index()
         self.df = self._transform(df)
         self._create_model(df=self.df,
                            sum_mat=self.sum_mat,

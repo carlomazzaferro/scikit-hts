@@ -1,15 +1,14 @@
 import string
-
+from itertools import chain
 import numpy
 from h3 import h3
 
 from hts import logger
-from hts.types import NAryTreeT, HierarchyVisualizerT
-from hts.helpers import flatten
+from hts.core.types import NAryTreeT, HierarchyVisualizerT
 
 
 def get_min_max_ll(geos):
-    fl = list(flatten([g[0] for g in geos]))
+    fl = list(chain.from_iterable([g[0] for g in geos]))
     mx_lat = max([x[0] for x in fl])
     mx_lon = max([x[1] for x in fl])
 

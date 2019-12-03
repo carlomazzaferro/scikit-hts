@@ -5,7 +5,7 @@ import pandas
 from fbprophet import Prophet
 
 from hts import logger
-from hts.foreacast.helpers import optimal_combination, y_hat_matrix, proportions, forecast_proportions
+from hts.core.functions import y_hat_matrix, optimal_combination, proportions, forecast_proportions
 
 
 class RevisionMethod(object):

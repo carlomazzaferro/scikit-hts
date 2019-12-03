@@ -1,14 +1,14 @@
 from __future__ import annotations
+
 import weakref
 from collections import deque
-from typing import List
-
+from itertools import chain
+from typing import Tuple, Union, List, Optional
 
 import pandas
 
-from hts.types import NAryTreeT
+from hts.core.types import NAryTreeT
 from hts.viz.geo import HierarchyVisualizer
-from hts.helpers import flatten
 
 
 class HierarchyTree(NAryTreeT):
@@ -17,12 +17,33 @@ class HierarchyTree(NAryTreeT):
     it's children.
     """
 
+    @classmethod
+    def from_events(cls,
+                    df: pandas.DataFrame,
+                    lat_col: str,
+                    lon_col: str,
+                    nodes: Tuple,
+                    levels: Tuple[int, int] = (6, 7),
+                    resample_freq: str = '1H',
+                    min_count: Union[float, int] = 0.2,
+                    ):
+
+        from hts.helpers import hexify, groupify
+        hexified = hexify(df, lat_col, lon_col, levels=levels)
+        return groupify(hexified, nodes=nodes, freq=resample_freq, min_count=min_count)
+
     def __init__(self, key=None, item=None, children=None, parent=None):
         self.key = key
         self.item = item
         self.children = children or []
         self._parent = weakref.ref(parent) if parent else None
         self.visualizer = HierarchyVisualizer(self)
+
+    def get_node(self, key: str) -> Optional[NAryTreeT]:
+        for node in self.traversal():
+            if node.key == key:
+                return node
+        return None
 
     def traversal(self) -> List[NAryTreeT]:
         l = [self]
@@ -31,7 +52,7 @@ class HierarchyTree(NAryTreeT):
         return l
 
     def num_nodes(self) -> int:
-        return sum(flatten(self.level_order_traversal()))
+        return sum(chain.from_iterable(self.level_order_traversal()))
 
     def is_leaf(self):
         return len(self.children) == 0

@@ -1,7 +1,7 @@
 import numpy as np
 import pandas
 
-from hts.types import NAryTreeT
+from hts.core.types import NAryTreeT
 
 
 def to_sum_mat(ntree: NAryTreeT):
@@ -116,7 +116,6 @@ def forecast_proportions(forecasts, nodes):
     Cons:
        Produces biased revised forecasts even if base forecasts are unbiased
     """
-
     n_cols = len(list(forecasts.keys())) + 1
     ##
     # Find proportions of forecast at each step ahead, and then alter forecasts
