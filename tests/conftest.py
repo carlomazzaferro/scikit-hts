@@ -1,6 +1,6 @@
 import pytest
 
-from hts.helpers.hierarchy import NTree
+from hts.helpers.hierarchy import HierarchyTree
 
 
 @pytest.fixture
@@ -49,7 +49,7 @@ def n_tree():
           ('bab', 6), ('bba', 5), ('bbb', 6), ('caa', 5), ('cab', 6),
           ('cba', 5), ('cbb', 6)]
 
-    test_t = NTree(key=t[0], item=t[1])
+    test_t = HierarchyTree(key=t[0], item=t[1])
     for i, j in t1:
         test_t.add_child(key=i, item=j)
 

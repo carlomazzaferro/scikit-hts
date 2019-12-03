@@ -6,9 +6,6 @@
 import pytest
 
 
-from nlplib import algos, abstractions
-
-
 @pytest.fixture
 def response():
     """Sample pytest fixture.

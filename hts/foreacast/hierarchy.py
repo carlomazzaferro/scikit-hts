@@ -3,16 +3,31 @@ from scipy.stats import boxcox
 from scipy.special import inv_boxcox
 from sklearn.base import BaseEstimator, RegressorMixin
 
-from hts.algos.foreacast.method import Methods
-from hts.algos.foreacast.helpers import summing_mat
-from hts.algos.transforms import FunctionTransformer
+from hts.types import NAryTreeT
+from hts.foreacast.method import Methods
+from hts.foreacast.helpers import to_sum_mat
+from hts.transforms import FunctionTransformer
 
 
 class HierarchicalProphet(BaseEstimator, RegressorMixin):
 
+    """
+    Parameters
+    ----------
+    periods
+    nodes
+    method
+    freq
+    transform
+    include_history
+    capacity
+    capacity_future
+    n_jobs
+    kwargs
+    """
+
     def __init__(self,
                  periods=1,
-                 nodes=None,
                  method='OLS',
                  freq='D',
                  transform=None,
@@ -22,9 +37,6 @@ class HierarchicalProphet(BaseEstimator, RegressorMixin):
                  n_jobs=-1,
                  **kwargs):
 
-        if nodes is None:
-            nodes = [[2]]
-        self.nodes = nodes
         self.periods = periods
         self.freq = freq
         self.capacity = capacity
@@ -37,11 +49,14 @@ class HierarchicalProphet(BaseEstimator, RegressorMixin):
                                                        inv_func=inv_boxcox)
             else:
                 self.transformer = FunctionTransformer(transform)
+        else:
+            self.transformer = FunctionTransformer(func=lambda x: (x, None),
+                                                   inv_func=lambda x: (x, None))
         self.include_history = include_history
         self.n_jobs = n_jobs
         self.method = method
-        self.sum_mat = summing_mat(nodes)
         self.df = None
+        self.sum_mat = None
         self.baseline = None
         self.model = None
         self.kwargs = kwargs
@@ -64,7 +79,9 @@ class HierarchicalProphet(BaseEstimator, RegressorMixin):
         transf[time] = result[time]
         return result
 
-    def fit(self, df):
+    def fit(self, nodes: NAryTreeT):
+        self.sum_mat = to_sum_mat(nodes)
+        df = nodes.to_pandas()
         self.df = self._transform(df)
         self._create_model(df=self.df,
                            sum_mat=self.sum_mat,
@@ -72,7 +89,7 @@ class HierarchicalProphet(BaseEstimator, RegressorMixin):
                            capacity_future=self.capacity_future,
                            periods=self.periods,
                            freq=self.freq,
-                           nodes=self.nodes,
+                           nodes=nodes,
                            transformer=self.transformer,
                            **self.kwargs)
 

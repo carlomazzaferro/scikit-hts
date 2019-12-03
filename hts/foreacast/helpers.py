@@ -1,21 +1,31 @@
 import numpy as np
 import pandas
 
+from hts.types import NAryTreeT
 
-def summing_mat(nodes):
+
+def to_sum_mat(ntree: NAryTreeT):
     """
     This function creates a summing matrix for the bottom up and optimal combination approaches
     All the inputs are the same as above
     The output is a summing matrix, see Rob Hyndman's "Forecasting: principles and practice" Section 9.4
+
+    Parameters
+    ----------
+    ntree
+
+    Returns
+    -------
+
     """
+    nodes = ntree.level_order_traversal()
     num_at_level = list(map(sum, nodes))
-    num_levels = len(num_at_level)
-    top = np.ones(num_at_level[-1])  # Create top row, which is just all ones
-    bl_mat = np.identity(num_at_level[-1])  # Create Identity Matrix for Bottom level Nodes
+    columns = num_at_level[-1]
+    bl_mat = np.identity(columns)
+    top = np.ones(columns)
     final_mat = bl_mat
-    ##
-    # These two loops build the matrix from bottom to top
-    ##
+    num_levels = len(num_at_level)
+
     for lev in range(num_levels - 1):
         summing = nodes[-(lev + 1)]
         count = 0
@@ -31,9 +41,7 @@ def summing_mat(nodes):
                 B = np.vstack((B, a.sum(axis=0)))
         final_mat = np.vstack((B, final_mat))
         bl_mat = B
-    ##
-    # Append the Top array to the Matrix and then return it
-    ##
+
     final_mat = np.vstack((top, final_mat))
     return final_mat
 

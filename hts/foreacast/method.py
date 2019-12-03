@@ -1,13 +1,11 @@
-import contextlib
-import os
 from enum import Enum
 
 import numpy
 import pandas
 from fbprophet import Prophet
 
-
-from hts.algos.foreacast.helpers import optimal_combination, y_hat_matrix, proportions, forecast_proportions
+from hts import logger
+from hts.foreacast.helpers import optimal_combination, y_hat_matrix, proportions, forecast_proportions
 
 
 class RevisionMethod(object):
@@ -44,6 +42,7 @@ class RevisionMethod(object):
     def baseline_fit(self, df):
         for node in range(self.n_forecasts):
             node_to_forecast = pandas.concat([df.iloc[:, [0]], df.iloc[:, node + 1]], axis=1)
+            logger.info(f'Producing forecast for node: {node_to_forecast.columns[1]}')
             capacity = self.capacity.iloc[:, node] if self.capacity else None
             capacity_future = self.capacity_future.iloc[:, node] if self.capacity_future else None
             # changepoints = self.changepoints[:, node]
@@ -51,7 +50,7 @@ class RevisionMethod(object):
 
             # Put the forecasts into a dictionary of dataframes
             # with contextlib.redirect_stdout(open(os.devnull, "w")):
-                # Prophet related stuff
+            # Prophet related stuff
             node_to_forecast = node_to_forecast.rename(columns={node_to_forecast.columns[0]: 'ds'})
             node_to_forecast = node_to_forecast.rename(columns={node_to_forecast.columns[1]: 'y'})
             if self.capacity_future is None:
@@ -210,7 +209,6 @@ class FP(RevisionMethod):
 
 
 class Methods(Enum):
-
     CV = CrossValidation
     OLS = OLS
     WLSS = WLSS
