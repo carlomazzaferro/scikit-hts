@@ -1,8 +1,8 @@
 
 
-class NLPException(Exception):
+class HTSException(Exception):
     ...
 
 
-class FileIterationException(NLPException):
+class InvalidArgumentException(HTSException):
     ...
