@@ -56,7 +56,7 @@ def groupify(df, freq='1H', nodes=None, min_count=0.1) -> NAryTreeT:
         for child in children:
             sub_df = df[df[child_group] == child]
             if isinstance(min_count, float):
-                allowance = len(total) * 0.1
+                allowance = len(total) * min_count
             elif isinstance(min_count, int):
                 allowance = min_count
             else:

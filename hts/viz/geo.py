@@ -37,6 +37,7 @@ class HierarchyVisualizer(HierarchyVisualizerT):
         try:
             from folium import Map
             from folium.vector_layers import Polygon
+            import branca.colormap as cm
         except ImportError:
             logger.error('Mapping requires folium==0.10.0 to be installed')
             return
@@ -45,18 +46,18 @@ class HierarchyVisualizer(HierarchyVisualizerT):
         geos = self.get_geos()
         max_lat, max_lon, min_lat, min_lon = get_min_max_ll(geos)
 
-        geos = [(i, numpy.log(j), k) for i, j, k in geos]
+        geos = [(i, numpy.log(j + 1) / (self.tree.get_node_height(k) + 1), k) for i, j, k in geos]
         mx, mn = max([j for i, j, k in geos]), min([j for i, j, k in geos])
         geos = [(i, (j - mn) / (mx - mn), k) for i, j, k in geos]
 
-        for points, count, h in geos:
+        for points, count, h in sorted(geos, key=lambda x: x[1]):
             tooltip = f"hex: {h}"
             polygon = Polygon(locations=points,
                               tooltip=tooltip,
                               fill=True,
-                              color='#ff0000',
-                              fill_color='#ff0000',
-                              fill_opacity=count,
+                              color=cm.linear.OrRd_03.rgb_hex_str(count),
+                              fill_color=cm.linear.OrRd_03.rgb_hex_str(count),
+                              fill_opacity=0.3,
                               weight=3,
                               opacity=0.4)
             polygon.add_to(_map)
