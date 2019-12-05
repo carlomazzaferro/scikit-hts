@@ -40,7 +40,6 @@ class HierarchicalProphet(BaseEstimator, RegressorMixin):
         self.freq = freq
         self.capacity = capacity
         self.capacity_future = capacity_future
-        self.transformer = None
         self.transform = transform
         if self.transform:
             if not isinstance(self.transform, dict):
@@ -82,6 +81,7 @@ class HierarchicalProphet(BaseEstimator, RegressorMixin):
         self.sum_mat = to_sum_mat(nodes)
         df = nodes.to_pandas().reset_index()
         self.df = self._transform(df)
+
         self._create_model(df=self.df,
                            sum_mat=self.sum_mat,
                            capacity=self.capacity,
@@ -94,7 +94,7 @@ class HierarchicalProphet(BaseEstimator, RegressorMixin):
 
         self.baseline = self.model.baseline_fit(self.df)
         if self.transform:
-            for node in range(self.model.n_forecasts):
+            for i, node in range(self.model.n_forecasts):
                 self.baseline[node].yhat = self.transformer.inverse_transform(self.baseline[node].yhat)
                 self.baseline[node].trend = self.transformer.inverse_transform(self.baseline[node].trend)
                 for component in ["seasonal", "daily", "weekly", "yearly", "holidays"]:

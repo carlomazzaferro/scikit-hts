@@ -35,18 +35,20 @@ class RevisionMethod(object):
         self.freq = freq
         self.kwargs = kwargs
         self.transformer = transformer
+        self.models = dict()
         self.mse = dict()
         self.residuals = dict()
         self.forecasts = dict()
 
     def baseline_fit(self, df):
-        for node in range(self.n_forecasts):
-            node_to_forecast = pandas.concat([df.iloc[:, [0]], df.iloc[:, node + 1]], axis=1)
-            logger.info(f'Producing forecast for node: {node_to_forecast.columns[1]}')
-            capacity = self.capacity.iloc[:, node] if self.capacity else None
-            capacity_future = self.capacity_future.iloc[:, node] if self.capacity_future else None
-            # changepoints = self.changepoints[:, node]
-            # n_changepoints = self.n_changepoints[node]
+        for i, node in enumerate(self.df.columns[1:]):
+
+            node_to_forecast = pandas.concat([df.iloc[:, [0]], df.iloc[:, i + 1]], axis=1)
+            logger.info(f'Producing forecast for node: {node}')
+            capacity = self.capacity.iloc[:, i] if self.capacity else None
+            capacity_future = self.capacity_future.iloc[:, i] if self.capacity_future else None
+            # changepoints = self.changepoints[:, i]
+            # n_changepoints = self.n_changepoints[i]
 
             # Put the forecasts into a dictionary of dataframes
             # with contextlib.redirect_stdout(open(os.devnull, "w")):
@@ -74,9 +76,9 @@ class RevisionMethod(object):
             # Base Forecasts, Residuals, and MSE
             self.forecasts[node] = m.predict(future)
 
-            self.residuals[node] = df.iloc[:, node + 1] - self.forecasts[node].yhat[:-self.periods].values
+            self.residuals[node] = df.iloc[:, i + 1] - self.forecasts[node].yhat[:-self.periods].values
             self.mse[node] = numpy.mean(numpy.array(self.residuals[node]) ** 2)
-
+            self.models[node] = m
             # If logistic use exponential function, so that values can be added correctly
             if self.capacity_future is not None:
                 self.forecasts[node].yhat = numpy.exp(self.forecasts[node].yhat)
@@ -86,9 +88,10 @@ class RevisionMethod(object):
         raise NotImplementedError
 
     def _reformat(self, transformed):
-        for key in self.forecasts.keys():
-            values = transformed[:, key]
+        for i, key in enumerate(self.forecasts.keys()):
+            values = transformed[:, i]
             self.forecasts[key].yhat = values
+
             # If Logistic fit values with natural log function to revert back to format of input
             if self.capacity_future is not None:
                 self.forecasts[key].yhat = numpy.log(self.forecasts[key].yhat)
