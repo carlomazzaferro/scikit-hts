@@ -81,3 +81,6 @@ class NAryTreeT(metaclass=abc.ABCMeta):
 
     def to_pandas(self) -> pandas.DataFrame:
         ...
+
+    def get_node_height(self, key: str) -> int:
+        ...

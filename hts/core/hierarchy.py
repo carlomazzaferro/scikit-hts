@@ -51,6 +51,20 @@ class HierarchyTree(NAryTreeT):
             l += child.traversal()
         return l
 
+    def traversal_level(self) -> List[NAryTreeT]:
+        if self is None:
+            return []
+        res = []
+        q = deque([(self, 0)])
+        while q:
+            n, li = q.popleft()
+            if len(res) < li + 1:
+                res.append([])
+            for i in n.children:
+                q.append((i, li + 1))
+            res[li].extend(n.children)
+        return list(chain.from_iterable(res[:-1]))
+
     def num_nodes(self) -> int:
         return sum(chain.from_iterable(self.level_order_traversal()))
 
@@ -67,6 +81,12 @@ class HierarchyTree(NAryTreeT):
 
     def get_height(self) -> int:
         return len(self.level_order_traversal())
+
+    def get_node_height(self, key: str) -> int:
+        for node in self.traversal():
+            if node.key == key:
+                return node.get_height()
+        return -1
 
     def level_order_traversal(self: NAryTreeT) -> List[List[int]]:
         if self is None:
@@ -91,7 +111,6 @@ class HierarchyTree(NAryTreeT):
         return sum(self.level_order_traversal()[-1])
 
     def to_pandas(self):
-        df = pandas.concat([c.item for c in self.traversal()], 1)
+        df = pandas.concat([self.item] + [c.item for c in self.traversal_level()], 1)
         df.index.name = 'ds'
-        # df = df.reset_index()
         return df
