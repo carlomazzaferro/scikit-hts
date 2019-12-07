@@ -1,3 +1,5 @@
+from typing import Dict
+
 import numpy as np
 import pandas
 
@@ -68,10 +70,30 @@ def y_hat_matrix(forecasts, keys=None):
     return y_hat_mat
 
 
-def optimal_combination(forecasts, sum_mat, method, mse):
-    hat_mat = y_hat_matrix(forecasts)
+def optimal_combination(forecasts: Dict[pandas.DataFrame], sum_mat: np.ndarray, method: str, mse: Dict[str, float]):
+    """
+    Produces the optimal combination of forecasts by trace minimization (as described by
+    Wickramasuriya, Athanasopoulos, Hyndman in "Optimal Forecast Reconciliation for Hierarchical and Grouped Time
+    Series Through Trace Minimization")
 
-    # Multiply the Summing Matrix Together S*inv(S'S)*S'
+    Parameters
+    ----------
+    forecasts : dict
+        Dictionary of pandas.DataFrames containing the future predictions
+    sum_mat : np.ndarray
+        The summing  matrix
+    method : str
+        One of:
+            - OLS (ordinary least squares)
+            - WLSS (structurally weighted least squares)
+            - WLSV (variance weighted least squares)
+    mse
+
+    Returns
+    -------
+
+    """
+    hat_mat = y_hat_matrix(forecasts)
     transpose = np.transpose(sum_mat)
 
     if method == 'OLS':
@@ -85,6 +107,7 @@ def optimal_combination(forecasts, sum_mat, method, mse):
     else:
         raise ValueError('Invalid method')
 
+    # S*inv(S'S)*S'
     optimal_mat = np.dot(
         np.dot(np.dot(sum_mat, np.linalg.inv(np.dot(np.dot(transpose, np.linalg.inv(diag)), sum_mat))),
                transpose), np.linalg.inv(diag))
@@ -144,5 +167,4 @@ def forecast_proportions(forecasts, nodes):
             new_mat[:, first_node:last_node] = np.divide(np.multiply(np.transpose(base_fcst), rev_top), fore_sum)
             column += 1
             first_node += num_child
-
     return new_mat

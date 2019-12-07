@@ -59,6 +59,10 @@ class HierarchicalProphet(BaseEstimator, RegressorMixin):
         self.model = None
         self.kwargs = kwargs
 
+    @property
+    def models(self):
+        return self.model.models
+
     def _create_model(self, **kwargs):
         self.model = Methods[self.method].value(**kwargs)
         return self.model
