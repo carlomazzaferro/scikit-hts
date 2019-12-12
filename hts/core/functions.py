@@ -48,7 +48,7 @@ def to_sum_mat(ntree: NAryTreeT):
     return final_mat
 
 
-def project(hat_mat, sum_mat, optimal_mat):
+def project(hat_mat: np.ndarray, sum_mat: np.ndarray, optimal_mat: np.ndarray) -> np.ndarray:
     new_mat = np.empty([hat_mat.shape[0], sum_mat.shape[0]])
     for i in range(hat_mat.shape[0]):
         new_mat[i, :] = np.dot(optimal_mat, np.transpose(hat_mat[i, :]))
