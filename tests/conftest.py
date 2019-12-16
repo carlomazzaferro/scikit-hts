@@ -1,6 +1,27 @@
+from io import StringIO
+
+import pandas
 import pytest
 
 from hts.core.hierarchy import HierarchyTree
+
+
+@pytest.fixture
+def events():
+    s = """ts,start_latitude,start_longitude,city
+    2019-12-06 12:29:16.789,53.565173,9.959418,hamburg
+    2019-12-06 12:28:37.326,50.120962,8.674268,frankfurt
+    2019-12-06 12:27:07.055,52.521168,13.410618,berlin
+    2019-12-06 12:26:25.989,51.492683,7.417612,dortmund
+    2019-12-06 12:25:40.222,52.537730,13.417372,berlin
+    2019-12-06 12:25:25.309,50.948847,6.951802,cologne
+    2019-12-06 12:23:53.633,48.166799,11.577420,munich
+    2019-12-06 12:23:05.292,50.113883,8.675192,frankfurt
+    2019-12-06 12:22:56.059,50.114847,8.672653,frankfurt
+    2019-12-06 12:22:39.471,50.943082,6.959962,cologne"""
+    df = pandas.read_csv(StringIO(s), index_col='ts', sep=',')
+    df.index = pandas.to_datetime(df.index)
+    return df
 
 
 @pytest.fixture
