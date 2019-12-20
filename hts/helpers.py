@@ -45,7 +45,7 @@ def groupify(df, freq='1H', nodes=None, min_count=0.1) -> NAryTreeT:
     for child in children:
         sub_df = df[df[child_group] == child]
         resampled = resample_count(sub_df, freq, child)
-        hierarchy.add_child(key=child, item=resampled)
+        hierarchy.add_child(key=child, item=resampled, exogenous=None)
 
     # add the rest
     for node in nodes[1:]:
@@ -65,8 +65,7 @@ def groupify(df, freq='1H', nodes=None, min_count=0.1) -> NAryTreeT:
                 continue
             parent_name = sub_df[parent_group].value_counts().index[0]
             resampled = resample_count(sub_df, freq, child)
-            for c in hierarchy.traversal():
+            for c in hierarchy.traversal_level():
                 if c.key == parent_name:
-                    c.add_child(key=child, item=resampled)
-
+                    c.add_child(key=child, item=resampled, exogenous=None)
     return hierarchy

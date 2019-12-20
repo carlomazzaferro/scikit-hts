@@ -1,7 +1,8 @@
 from __future__ import annotations
 import abc
 import weakref
-from typing import List, Optional
+from enum import Enum
+from typing import List, Optional, Callable, NamedTuple, NewType, Union
 
 import pandas
 
@@ -11,6 +12,45 @@ try:
     from folium import Map
 except ImportError:
     logger.waring('Folium not installed, not all visualization will work')
+
+
+class ExtendedEnum(Enum):
+
+    @classmethod
+    def list(cls):
+        return list(map(lambda c: c.value, cls))
+
+    @classmethod
+    def names(cls):
+        return list(map(lambda c: c.name, cls))
+
+
+class Model(ExtendedEnum):
+    prophet = 'prophet'
+    holt_winters = 'holt-winters'
+    auto_arima = 'auto-arima'
+    varmax = 'varmax'
+    sarimax = 'sarimax'
+
+
+class UnivariateModel(ExtendedEnum):
+    arima = 'arima'
+    auto_arima = 'auto-arima'
+    prophet = 'prophet'
+    holt_winters = 'holt-winters'
+
+
+class MultivariateModel(ExtendedEnum):
+    varmax = 'varmax'
+    sarimax = 'sarimax'
+
+
+Models = NewType('Model', Model)
+
+
+class Transform(NamedTuple):
+    func: Callable
+    inv_func: Callable
 
 
 class HierarchyVisualizerT(metaclass=abc.ABCMeta):
@@ -25,7 +65,8 @@ class NAryTreeT(metaclass=abc.ABCMeta):
     Type definition of an NAryTree
     """
     key: str
-    item: pandas.Series
+    item: Union[pandas.Series, pandas.DataFrame]
+    exogenous: List[str] = None
     children: List[Optional[NAryTreeT]]
     _parent: Optional[weakref.ref[NAryTreeT]]
     visualizer: HierarchyVisualizerT
@@ -52,9 +93,6 @@ class NAryTreeT(metaclass=abc.ABCMeta):
     def __str__(self):
         return '{} : {}'.format(self.key, self.item)
 
-    def traversal(self) -> List[NAryTreeT]:
-        ...
-
     def num_nodes(self) -> int:
         ...
 
@@ -73,8 +111,11 @@ class NAryTreeT(metaclass=abc.ABCMeta):
     def level_order_traversal(self: NAryTreeT) -> List[List[int]]:
         ...
 
-    def add_child(self, key=None, item=None) -> NAryTreeT:
-       ...
+    def traversal_level(self) -> List[NAryTreeT]:
+        ...
+
+    def add_child(self, key=None, item=None, exogenous=None) -> NAryTreeT:
+        ...
 
     def leaf_sum(self) -> int:
         ...
@@ -84,3 +125,7 @@ class NAryTreeT(metaclass=abc.ABCMeta):
 
     def get_node_height(self, key: str) -> int:
         ...
+
+
+m = Model.prophet.name
+print(UnivariateModel.names())
