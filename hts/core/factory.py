@@ -7,7 +7,7 @@ from statsmodels.tsa.statespace.varmax import VARMAX
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
-from hts.core.types import Model, UnivariateModel, MultivariateModel
+from hts.core.types import Model, UnivariateModel, MultivariateModel, NAryTreeT
 from hts.exceptions import InvalidArgumentException
 
 
@@ -28,7 +28,7 @@ class TimeSeriesModel:
 
     def __init__(self,
                  kind: str,
-                 data: pandas.DataFrame,
+                 node: NAryTreeT,
                  endogenous: Union[str, List[str]] = 'y',
                  exogenous: Optional[List[str]] = None,
                  **kwargs):
@@ -40,10 +40,8 @@ class TimeSeriesModel:
             if kind in UnivariateModel.names():
                 raise InvalidArgumentException(f'Multiple endogenous variables are allowed only for multivariate models:'
                                                f'{" ".join(MultivariateModel.names())}')
-        self.end = endogenous
-        self.ex = exogenous
-        self.data = data
         self.kind = kind
+        self.node = node
         self.model = self.create_model(**kwargs)
         self._add_exogenous_on_fit = False
         self._add_endogenous_on_fit = False
@@ -52,12 +50,12 @@ class TimeSeriesModel:
         if self.kind == Model.prophet.name:
             self._add_endogenous_on_fit = False
             model = Prophet(**kwargs)
-            if self.ex:
-                for ex in self.ex:
+            if self.node.exogenous:
+                for ex in self.node.exogenous:
                     model.add_regressor(ex)
 
         elif self.kind == Model.holt_winters.name:
-            data = self.data[self.end]
+            data = self.node.item
             model = ExponentialSmoothing(endog=data, **kwargs)
 
         elif self.kind == Model.arima.name:
@@ -65,25 +63,23 @@ class TimeSeriesModel:
             self._add_endogenous_on_fit = True
             return AutoARIMA(**kwargs)
 
-        elif self.kind == Model.varmax.name:
-            data = self.data[self.end]
-            ex = self.data[self.ex]
-            return VARMAX(endog=data, exog=ex, **kwargs)
-
-        elif self.kind == Model.sarimax.name:
-            data = self.data[self.end]
-            ex = self.data[self.ex]
-            return SARIMAX(endog=data, exog=ex, **kwargs)
+        elif self.kind == Model.varmax.name or self.kind == Model.sarimax.name:
+            data = self.node.item[self.node.key]
+            ex = self.node.item[self.node.exogenous]
+            if self.kind == Model.varmax.name:
+                return VARMAX(endog=data, exog=ex, **kwargs)
+            else:
+                return SARIMAX(endog=data, exog=ex, **kwargs)
         else:
             raise
         return model
 
     def fit(self, **kwargs):
         if self._add_endogenous_on_fit and self._add_exogenous_on_fit:
-            end = self.data[self.end]
-            ex = self.data[self.ex]
+            end = self.node.item[self.node.key]
+            ex = self.node.item[self.node.exogenous]
             return self.model.fit(y=end, exogenous=ex, **kwargs)
         if self._add_exogenous_on_fit:
-            return self.model.fit(self.data, **kwargs)
+            return self.model.fit(self.node.item, **kwargs)
         else:
             return self.model.fit(**kwargs)

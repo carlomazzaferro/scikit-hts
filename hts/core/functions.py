@@ -70,7 +70,7 @@ def y_hat_matrix(forecasts, keys=None):
     return y_hat_mat
 
 
-def optimal_combination(forecasts: Dict[pandas.DataFrame], sum_mat: np.ndarray, method: str, mse: Dict[str, float]):
+def optimal_combination(forecasts: Dict[str, pandas.DataFrame], sum_mat: np.ndarray, method: str, mse: Dict[str, float]):
     """
     Produces the optimal combination of forecasts by trace minimization (as described by
     Wickramasuriya, Athanasopoulos, Hyndman in "Optimal Forecast Reconciliation for Hierarchical and Grouped Time

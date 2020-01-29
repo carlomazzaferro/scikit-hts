@@ -32,28 +32,30 @@ class HierarchyTree(NAryTreeT):
         hexified = hexify(df, lat_col, lon_col, levels=levels)
         return groupify(hexified, nodes=nodes, freq=resample_freq, min_count=min_count)
 
-    def __init__(self, key=None, item=None, children=None, parent=None):
+    def __init__(self,
+                 key: str = None,
+                 item: Union[pandas.Series, pandas.DataFrame] = None,
+                 exogenous: List[str] = None,
+                 children: List[NAryTreeT] = None,
+                 parent: NAryTreeT = None):
+
         self.key = key
         self.item = item
+        if exogenous:
+            self.exogenous = exogenous
+        else:
+            self.exogenous = []
         self.children = children or []
         self._parent = weakref.ref(parent) if parent else None
         self.visualizer = HierarchyVisualizer(self)
 
     def get_node(self, key: str) -> Optional[NAryTreeT]:
-        for node in self.traversal():
+        for node in self.traversal_level():
             if node.key == key:
                 return node
         return None
 
-    def traversal(self) -> List[NAryTreeT]:
-        l = [self]
-        for child in self.children:
-            l += child.traversal()
-        return l
-
     def traversal_level(self) -> List[NAryTreeT]:
-        if self is None:
-            return []
         res = []
         q = deque([(self, 0)])
         while q:
@@ -83,14 +85,12 @@ class HierarchyTree(NAryTreeT):
         return len(self.level_order_traversal())
 
     def get_node_height(self, key: str) -> int:
-        for node in self.traversal():
+        for node in self.traversal_level():
             if node.key == key:
                 return node.get_height()
         return -1
 
     def level_order_traversal(self: NAryTreeT) -> List[List[int]]:
-        if self is None:
-            return []
         res = []
         q = deque([(self, 0)])
         while q:
@@ -102,8 +102,8 @@ class HierarchyTree(NAryTreeT):
             res[li].append(len(n.children))
         return res[:-1]
 
-    def add_child(self, key=None, item=None) -> NAryTreeT:
-        child = HierarchyTree(key=key, item=item, parent=self)
+    def add_child(self, key=None, item=None, exogenous=None) -> NAryTreeT:
+        child = HierarchyTree(key=key, item=item, exogenous=exogenous, parent=self)
         self.children.append(child)
         return child
 
