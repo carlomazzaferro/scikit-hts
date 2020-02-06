@@ -8,7 +8,7 @@ from hts import logger
 from hts.core.functions import y_hat_matrix, optimal_combination, proportions, forecast_proportions
 
 
-class RevisionMethod(object):
+class RevisionMethod_(object):
 
     def __init__(self,
                  df,
@@ -86,6 +86,38 @@ class RevisionMethod(object):
 
     def predict(self):
         raise NotImplementedError
+
+    def _reformat(self, transformed):
+        for i, key in enumerate(self.forecasts.keys()):
+            values = transformed[:, i]
+            self.forecasts[key].yhat = values
+
+            # If Logistic fit values with natural log function to revert back to format of input
+            if self.capacity_future is not None:
+                self.forecasts[key].yhat = numpy.log(self.forecasts[key].yhat)
+        return self.forecasts
+
+    def _new_mat(self, y_hat_mat):
+        new_mat = numpy.empty([y_hat_mat.shape[0], self.sum_mat.shape[0]])
+        for i in range(y_hat_mat.shape[0]):
+            new_mat[i, :] = numpy.dot(self.sum_mat, numpy.transpose(y_hat_mat[i, :]))
+        return new_mat
+
+
+class RevisionMethod(object):
+
+    def __init__(self,
+                 df,
+                 forecasts,
+                 mse,
+                 sum_mat,
+                 transformer,
+                 ):
+        self.df = df
+        self.forecasts = forecasts
+        self.transformer = transformer
+        self.mse = mse
+        self.sum_mat = sum_mat
 
     def _reformat(self, transformed):
         for i, key in enumerate(self.forecasts.keys()):

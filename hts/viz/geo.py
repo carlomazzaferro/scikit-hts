@@ -4,7 +4,7 @@ import numpy
 from h3 import h3
 
 from hts import logger
-from hts.core.types import NAryTreeT, HierarchyVisualizerT
+from hts._t import NAryTreeT, HierarchyVisualizerT
 
 
 def get_min_max_ll(geos):

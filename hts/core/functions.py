@@ -3,7 +3,7 @@ from typing import Dict
 import numpy as np
 import pandas
 
-from hts.core.types import NAryTreeT
+from hts._t import NAryTreeT
 
 
 def to_sum_mat(ntree: NAryTreeT):

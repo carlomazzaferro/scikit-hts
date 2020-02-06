@@ -2,7 +2,7 @@
 import logging
 
 __author__ = """Carlo Mazzaferro"""
-__email__ = 'carlo.mazzaferro@circ.com'
+__email__ = 'carlo.mazzaferro@gmail.com'
 __version__ = '0.1.0'
 
 logging.basicConfig(level=logging.INFO)

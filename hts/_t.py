@@ -2,7 +2,7 @@ from __future__ import annotations
 import abc
 import weakref
 from enum import Enum
-from typing import List, Optional, Callable, NamedTuple, NewType, Union
+from typing import List, Optional, Callable, NamedTuple, NewType, Union, Tuple
 
 import pandas
 
@@ -12,6 +12,10 @@ try:
     from folium import Map
 except ImportError:
     logger.waring('Folium not installed, not all visualization will work')
+
+
+# TODO: make this a proper recursive type when mypy supports it: https://github.com/python/mypy/issues/731
+HierarchyT = Tuple[str, 'HierarchyT']
 
 
 class ExtendedEnum(Enum):
@@ -125,6 +129,26 @@ class NAryTreeT(metaclass=abc.ABCMeta):
 
     def get_node_height(self, key: str) -> int:
         ...
+
+    def string_repr(self, _prefix='', _last=True):
+        pre = _prefix + "`- " if _last else "|- " + self.key
+        print(pre)
+        _prefix += "   " if _last else "|  "
+        child_count = len(self.children)
+        for i, child in enumerate(self.children):
+            _last = i == (child_count - 1)
+            child.string_repr(_last=_last)
+
+    # def __repr__(self):
+
+
+def pprint_tree(node, _prefix="", _last=True):
+    print(_prefix, "- " if _last else "|- ", node.key, sep="")
+    _prefix += "   " if _last else "|  "
+    child_count = len(node.children)
+    for i, child in enumerate(node.children):
+        _last = i == (child_count - 1)
+        pprint_tree(child, _prefix, _last)
 
 
 m = Model.prophet.name

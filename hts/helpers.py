@@ -2,7 +2,7 @@ import pandas
 from h3 import h3
 
 from hts.exceptions import InvalidArgumentException
-from hts.core.types import NAryTreeT
+from hts._t import NAryTreeT, HierarchyT
 from hts.core.hierarchy import HierarchyTree
 
 
@@ -69,3 +69,7 @@ def groupify(df, freq='1H', nodes=None, min_count=0.1) -> NAryTreeT:
                 if c.key == parent_name:
                     c.add_child(key=child, item=resampled, exogenous=None)
     return hierarchy
+
+
+def walk_nodes(nodes: HierarchyT):
+    pass

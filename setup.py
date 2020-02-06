@@ -4,13 +4,13 @@
 from pathlib import Path
 from setuptools import setup, find_packages
 
-with open('README.rst') as readme_file:
+with open('README.rst',  encoding='utf-8') as readme_file:
     readme = readme_file.read()
 
 # Add here console scripts and other entry points in ini-AppBarStyle format
 entry_points = """
 [console_scripts]
-script_name = jdb.cli:main
+script_name = hts.cli:main
 """
 
 
@@ -41,26 +41,23 @@ test_requires = reqs('test.txt') + install_requires
 
 setup(
     author="Carlo Mazzaferro",
-    author_email='carlo.mazzaferro@u.group',
+    author_email='carlo.mazzaferro@gmail.com',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 2 - Alpha',
         'Intended Audience :: Developers',
         'Natural Language :: English',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
-    description="Tooling for NLP",
+    description="Hierarchical Time Series forecasting",
     install_requires=install_requires,
     long_description=readme,
     include_package_data=True,
-    keywords='circ',
-    name='circ',
-    packages=find_packages(include=['circ']),
+    keywords='scikit-hts',
+    name='scikit-hts',
+    packages=find_packages(include=['hts']),
     test_suite='tests',
     tests_require=test_requires,
     version='0.1.0',

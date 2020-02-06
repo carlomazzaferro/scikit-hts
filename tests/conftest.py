@@ -1,9 +1,12 @@
+from datetime import datetime
 from io import StringIO
 
 import pandas
+import numpy
 import pytest
 
 from hts.core.hierarchy import HierarchyTree
+from hts.utils import hierarchical_sine_data
 
 
 @pytest.fixture
@@ -85,3 +88,10 @@ def n_tree():
                 if i.startswith(c2.key):
                     c2.add_child(key=i, item=j)
     return test_t
+
+
+@pytest.fixture
+def hierarchical_sine_data():
+    s, e = datetime(2019, 1, 15), datetime(2019, 10, 15)
+    return hierarchical_sine_data(s, e)
+

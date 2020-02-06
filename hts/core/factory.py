@@ -7,7 +7,7 @@ from statsmodels.tsa.statespace.varmax import VARMAX
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 
-from hts.core.types import Model, UnivariateModel, MultivariateModel, NAryTreeT
+from hts._t import Model, UnivariateModel, MultivariateModel, NAryTreeT
 from hts.exceptions import InvalidArgumentException
 
 

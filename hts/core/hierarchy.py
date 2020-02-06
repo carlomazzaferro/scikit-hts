@@ -7,7 +7,7 @@ from typing import Tuple, Union, List, Optional
 
 import pandas
 
-from hts.core.types import NAryTreeT
+from hts._t import NAryTreeT
 from hts.viz.geo import HierarchyVisualizer
 
 
@@ -31,6 +31,13 @@ class HierarchyTree(NAryTreeT):
         from hts.helpers import hexify, groupify
         hexified = hexify(df, lat_col, lon_col, levels=levels)
         return groupify(hexified, nodes=nodes, freq=resample_freq, min_count=min_count)
+
+    @classmethod
+    def from_df(cls,
+                df: pandas.DataFrame,
+                nodes: Tuple,
+                ):
+        pass
 
     def __init__(self,
                  key: str = None,

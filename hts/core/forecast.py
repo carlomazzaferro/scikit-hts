@@ -5,7 +5,7 @@ from sklearn.base import BaseEstimator, RegressorMixin
 from hts.core.functions import to_sum_mat
 from hts.core.revision import Methods
 from hts.transforms import FunctionTransformer
-from hts.core.types import NAryTreeT
+from hts._t import NAryTreeT
 
 
 class HierarchicalProphet(BaseEstimator, RegressorMixin):
