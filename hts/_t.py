@@ -94,9 +94,6 @@ class NAryTreeT(metaclass=abc.ABCMeta):
         for child in self.children:
             child._parent = weakref.ref(self)
 
-    def __str__(self):
-        return '{} : {}'.format(self.key, self.item)
-
     def num_nodes(self) -> int:
         ...
 
@@ -130,26 +127,16 @@ class NAryTreeT(metaclass=abc.ABCMeta):
     def get_node_height(self, key: str) -> int:
         ...
 
-    def string_repr(self, _prefix='', _last=True):
-        pre = _prefix + "`- " if _last else "|- " + self.key
-        print(pre)
-        _prefix += "   " if _last else "|  "
+    def string_repr(self, prefix='', _last=True):
+        base = ''.join([prefix, "- " if _last else "|- ", self.key, '\n'])
+        prefix += "   " if _last else "|  "
         child_count = len(self.children)
         for i, child in enumerate(self.children):
             _last = i == (child_count - 1)
-            child.string_repr(_last=_last)
+            base += child.string_repr(_last=_last, prefix=prefix)
+        return base
 
-    # def __repr__(self):
+    def __repr__(self):
+        return self.string_repr()
 
-
-def pprint_tree(node, _prefix="", _last=True):
-    print(_prefix, "- " if _last else "|- ", node.key, sep="")
-    _prefix += "   " if _last else "|  "
-    child_count = len(node.children)
-    for i, child in enumerate(node.children):
-        _last = i == (child_count - 1)
-        pprint_tree(child, _prefix, _last)
-
-
-m = Model.prophet.name
-print(UnivariateModel.names())
+    __str__ = __repr__
