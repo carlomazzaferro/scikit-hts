@@ -1,5 +1,14 @@
+from io import StringIO
+
 import numpy
 import pandas
+
+from hts import logger
+try:
+    import requests
+except ImportError:
+    logger.error('Some loading functions might be impaired, install requrests '
+                 'with: \npip install requests\n if you\'d like to use them')
 
 
 def partition_column(column, n=3):
@@ -7,7 +16,7 @@ def partition_column(column, n=3):
     return [[i[j] for i in partitioned] for j in range(n)]
 
 
-def hierarchical_sine_data(start, end, n=10000):
+def load_hierarchical_sine_data(start, end, n=10000):
     dts = (end - start).total_seconds()
     dti = pandas.DatetimeIndex([start + pandas.Timedelta(numpy.random.uniform(0, dts), 's')
                                 for _ in range(n)]).sort_values()
@@ -23,30 +32,12 @@ def hierarchical_sine_data(start, end, n=10000):
     return df
 
 
-class Node:
-    def __init__(self, val):
-        self.val = val
-        self.children = []
-
-
-def createNode(tree, root, b=None, stack=None):
-    if stack is None:
-        stack = []  # stack to store children values
-        root = Node(root)  # root node is created
-        b = root  # it is stored in b variable
-    x = root.val  # root.val = 2 for the first time
-
-    if len(tree[x]) > 0:  # check if there are children of the node exists or not
-        for i in range(len(tree[x])):  # iterate through each child
-            y = Node(tree[x][i])  # create Node for every child
-            root.children.append(y)  # append the child_node to its parent_node
-            stack.append(y)  # store that child_node in stack
-            if y.val == 0:  # if the child_node_val = 0 that is the parent = leaf_node
-                stack.pop()  # pop the 0 value from the stack
-        if len(stack):  # iterate through each child in stack
-            if len(stack) >= 2:  # if the stack length >2, pop from bottom-to-top
-                p = stack.pop(0)  # store the popped val in p variable
-            else:
-                p = stack.pop()  # pop the node top_to_bottom
-        createNode(tree, p, b, stack)  # pass p to the function as parent_node
-    return b
+def load_sample_hierarchical_mv_data():
+    """
+    Original dataset: https://www.kaggle.com/pronto/cycle-share-dataset
+    Returns
+    -------
+    df : pandas.DataFrame
+    """
+    df = requests.get('https://hierarchical-sample-data.s3.amazonaws.com/mobility.csv').content
+    return pandas.read_csv(StringIO(df.decode('utf-8')), index_col='starttime', parse_dates=True)

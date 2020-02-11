@@ -69,7 +69,3 @@ def groupify(df, freq='1H', nodes=None, min_count=0.1) -> NAryTreeT:
                 if c.key == parent_name:
                     c.add_child(key=child, item=resampled, exogenous=None)
     return hierarchy
-
-
-def walk_nodes(nodes: HierarchyT):
-    pass
