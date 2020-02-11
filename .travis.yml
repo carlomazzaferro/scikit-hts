@@ -1,0 +1,14 @@
+language: python
+python:
+    - "3.6"
+install:
+    - pip install -U tox-travis
+    - pip install -e  .
+    - pip install -r requirements/test.txt
+script:
+    - python setup.py test
+after_script:
+    - bash scripts/deploy.sh
+after_success:
+    - pip install coveralls==1.5.1
+    - coveralls
