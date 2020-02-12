@@ -1,9 +1,17 @@
 import pandas
 from h3 import h3
 
+from hts import HierarchyTree
+from hts._t import NAryTreeT
 from hts.exceptions import InvalidArgumentException
-from hts._t import NAryTreeT, HierarchyT
-from hts.core.hierarchy import HierarchyTree
+
+
+def fetch_cols(exogenous, name):
+    if not exogenous:
+        return name
+    exog = exogenous.get(name, None)
+    cols = [name] + exog if exog else name
+    return cols, exog
 
 
 def hexify(df, lat_col, lon_col, levels=(6, 8)):

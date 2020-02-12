@@ -8,6 +8,7 @@ from typing import Tuple, Union, List, Optional, Dict
 import pandas
 
 from hts._t import NAryTreeT
+from hts.hierarchy.utils import fetch_cols, hexify, groupify
 from hts.viz.geo import HierarchyVisualizer
 
 
@@ -44,7 +45,6 @@ class HierarchyTree(NAryTreeT):
 
         """
 
-        from hts.helpers import hexify, groupify
         hexified = hexify(df, lat_col, lon_col, levels=levels)
         return groupify(hexified, nodes=nodes, freq=resample_freq, min_count=min_count)
 
@@ -52,6 +52,7 @@ class HierarchyTree(NAryTreeT):
     def from_nodes(cls,
                    nodes: Dict[str, List[str]],
                    df: pandas.DataFrame,
+                   exogenous: Dict[str, List[str]] = None,
                    root: Union[str, HierarchyTree] = 'total',
                    top: HierarchyTree = None,
                    stack: List = None):
@@ -64,6 +65,7 @@ class HierarchyTree(NAryTreeT):
         ----------
         nodes
         df
+        exogenous
         root
         top
         stack
@@ -103,12 +105,15 @@ class HierarchyTree(NAryTreeT):
 
         if stack is None:
             stack = []
-            root = HierarchyTree(key=root, item=df[root])  # root node is created
+            cols, ex = fetch_cols(exogenous, root)
+            root = HierarchyTree(key=root, item=df[cols], exogenous=ex)  # root node is created
             top = root  # it is stored in b variable
         x = root.key  # root.val = 2 for the first time
         if len(nodes[x]) > 0:  # check if there are children of the node exists or not
             for i in range(len(nodes[x])):  # iterate through each child
-                y = HierarchyTree(key=nodes[x][i], item=df[nodes[x][i]])  # create Node for every child
+                key = nodes[x][i]
+                cols, ex = fetch_cols(exogenous, key)
+                y = HierarchyTree(key=key, item=df[cols], exogenous=ex)  # create Node for every child
                 root.children.append(y)  # append the child_node to its parent_node
                 stack.append(y)  # store that child_node in stack
                 if y.key not in nodes.keys():  # if the child_node_val = 0 that is the parent = leaf
@@ -118,7 +123,12 @@ class HierarchyTree(NAryTreeT):
                     tmp_root = stack.pop(0)
                 else:
                     tmp_root = stack.pop()
-                cls.from_nodes(nodes, df, tmp_root, top, stack)  # pass tmp_root to the function as root
+                cls.from_nodes(nodes=nodes,
+                               df=df,
+                               exogenous=exogenous,
+                               root=tmp_root,
+                               top=top,
+                               stack=stack)  # pass tmp_root to the function as root
         return top
 
     def __init__(self,
