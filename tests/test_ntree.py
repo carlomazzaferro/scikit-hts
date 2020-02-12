@@ -1,7 +1,7 @@
 import pandas
 
 from hts import HierarchyTree
-from hts.core.types import NAryTreeT
+from hts._t import NAryTreeT
 
 
 def test_level_order_traversal(n_tree):
@@ -27,14 +27,14 @@ def test_get_node(n_tree):
 
 
 def test_create_from_events(events):
-    ht = HierarchyTree.from_events(df=events,
-                                   lat_col='start_latitude',
-                                   lon_col='start_longitude',
-                                   nodes=('city', 'hex_index_6', 'hex_index_7', 'hex_index_8'),
-                                   levels=(6, 8),
-                                   resample_freq='1H',
-                                   min_count=0.5
-                                   )
+    ht = HierarchyTree.from_geo_events(df=events,
+                                       lat_col='start_latitude',
+                                       lon_col='start_longitude',
+                                       nodes=('city', 'hex_index_6', 'hex_index_7', 'hex_index_8'),
+                                       levels=(6, 8),
+                                       resample_freq='1H',
+                                       min_count=0.5
+                                       )
     assert isinstance(ht, NAryTreeT)
     assert len(ht.children) == events['city'].nunique()
 
@@ -55,12 +55,12 @@ def test_height(n_tree):
 
 
 def test_to_pandas(events):
-    ht = HierarchyTree.from_events(df=events,
-                                   lat_col='start_latitude',
-                                   lon_col='start_longitude',
-                                   nodes=('city', 'hex_index_6', 'hex_index_7', 'hex_index_8'),
-                                   levels=(6, 8),
-                                   resample_freq='1H',
-                                   min_count=0.5
-                                   )
+    ht = HierarchyTree.from_geo_events(df=events,
+                                       lat_col='start_latitude',
+                                       lon_col='start_longitude',
+                                       nodes=('city', 'hex_index_6', 'hex_index_7', 'hex_index_8'),
+                                       levels=(6, 8),
+                                       resample_freq='1H',
+                                       min_count=0.5
+                                       )
     assert isinstance(ht.to_pandas(), pandas.DataFrame)
