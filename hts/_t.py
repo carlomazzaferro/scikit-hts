@@ -33,7 +33,6 @@ class Model(ExtendedEnum):
     prophet = 'prophet'
     holt_winters = 'holt-winters'
     auto_arima = 'auto-arima'
-    varmax = 'varmax'
     sarimax = 'sarimax'
 
 
@@ -42,11 +41,11 @@ class UnivariateModel(ExtendedEnum):
     auto_arima = 'auto-arima'
     prophet = 'prophet'
     holt_winters = 'holt-winters'
-
-
-class MultivariateModel(ExtendedEnum):
-    varmax = 'varmax'
     sarimax = 'sarimax'
+
+
+# class MultivariateModel(ExtendedEnum):
+
 
 
 Models = NewType('Model', Model)
