@@ -8,4 +8,3 @@ scikit-learn>=0.21.3
 pmdarima==1.5.1
 statsmodels==0.10.2
 holidays==0.9.12
-fbprophet==0.5

@@ -1,9 +1,17 @@
+import logging
+
 import numpy
-from fbprophet import Prophet
 
 from hts.hierarchy import HierarchyTree
 from hts._t import Model
 from hts.model import TimeSeriesModel
+
+logger = logging.getLogger(__name__)
+
+try:
+    from fbprophet import Prophet
+except ImportError:
+    logger.error('Mapping requires folium==0.10.0 to be installed, geo mapping will not work')
 
 
 class FBProphetModel(TimeSeriesModel):
