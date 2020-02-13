@@ -2,11 +2,10 @@ from datetime import datetime
 from io import StringIO
 
 import pandas
-import numpy
 import pytest
 
 from hts.hierarchy import HierarchyTree
-from hts.utils import load_hierarchical_sine_data
+from hts.utils import load_hierarchical_sine_data, load_sample_hierarchical_mv_data
 
 
 @pytest.fixture
@@ -95,3 +94,29 @@ def hierarchical_sine_data():
     s, e = datetime(2019, 1, 15), datetime(2019, 10, 15)
     return load_hierarchical_sine_data(s, e)
 
+
+@pytest.fixture
+def hierarchical_mv_data():
+    return load_sample_hierarchical_mv_data()
+
+
+@pytest.fixture
+def mv_tree(hierarchical_mv_data):
+    hier = {
+        'total': ['CH', 'SLU', 'BT', 'OTHER'],
+        'CH': ['CH-07', 'CH-02', 'CH-08', 'CH-05', 'CH-01'],
+        'SLU': ['SLU-15', 'SLU-01', 'SLU-19', 'SLU-07', 'SLU-02'],
+        'BT': ['BT-01', 'BT-03'],
+        'OTHER': ['WF-01', 'CBD-13']
+    }
+    exogenous = {k: ['precipitation', 'temp'] for k in hierarchical_mv_data.columns if k not in ['precipitation', 'temp']}
+    return HierarchyTree.from_nodes(hier, hierarchical_mv_data, exogenous=exogenous)
+
+
+@pytest.fixture
+def uv_tree(hierarchical_sine_data):
+    hier = {'total': ['a', 'b', 'c'],
+            'a': ['aa', 'ab'], 'aa': ['aaa', 'aab'],
+            'b': ['ba', 'bb'],
+            'c': ['ca', 'cb', 'cc', 'cd']}
+    return HierarchyTree.from_nodes(hier, hierarchical_sine_data)

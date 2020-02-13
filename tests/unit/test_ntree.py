@@ -7,7 +7,6 @@ from hts._t import NAryTreeT
 def test_level_order_traversal(n_tree):
     assert n_tree.level_order_traversal() == [[3], [2, 2, 2], [2, 2, 2, 2, 2, 2]]
     bottom = n_tree.get_node('aab')
-    print(bottom)
     for i in bottom.level_order_traversal():
         assert i is None
 
@@ -64,3 +63,40 @@ def test_to_pandas(events):
                                        min_count=0.5
                                        )
     assert isinstance(ht.to_pandas(), pandas.DataFrame)
+
+
+def test_create_hierarchical_sine_data_tree(hierarchical_sine_data):
+    hier = {'total': ['a', 'b', 'c'],
+            'a': ['aa', 'ab'], 'aa': ['aaa', 'aab'],
+            'b': ['ba', 'bb'],
+            'c': ['ca', 'cb', 'cc', 'cd']}
+    ht = HierarchyTree.from_nodes(hier, hierarchical_sine_data)
+    assert isinstance(ht.to_pandas(), pandas.DataFrame)
+    assert ht.key == 'total'
+    assert len(ht.children) == 3
+    for c in ht.children:
+        if c.key == 'a' or c.key == 'b':
+            assert len(c.children) == 2
+        if c.key == 'c':
+            assert len(c.children) == 4
+
+
+def test_create_mv_tree(hierarchical_mv_data):
+
+    hier = {
+        'total': ['CH', 'SLU', 'BT', 'OTHER'],
+        'CH': ['CH-07', 'CH-02', 'CH-08', 'CH-05', 'CH-01'],
+        'SLU': ['SLU-15', 'SLU-01', 'SLU-19', 'SLU-07', 'SLU-02'],
+        'BT': ['BT-01', 'BT-03'],
+        'OTHER': ['WF-01', 'CBD-13']
+    }
+    exogenous = {k: ['precipitation', 'temp'] for k in hierarchical_mv_data.columns if k not in ['precipitation', 'temp']}
+
+    ht = HierarchyTree.from_nodes(hier, hierarchical_mv_data, exogenous=exogenous)
+    assert isinstance(ht.to_pandas(), pandas.DataFrame)
+    assert ht.key == 'total'
+    assert len(ht.children) == 4
+    assert ht.get_node_height('CH') == 1
+    assert ht.get_node_height('BT-03') == 0
+    assert ht.get_node_height('CBD-13') == 0
+    assert ht.get_node_height('SLU') == 1
