@@ -1,8 +1,8 @@
 import logging
 import string
 from itertools import chain
-import numpy
 
+import numpy
 
 from hts._t import NAryTreeT, HierarchyVisualizerT
 
@@ -48,8 +48,6 @@ class HierarchyVisualizer(HierarchyVisualizerT):
         return
 
     def create_map(self):
-
-
         _map = Map(tiles="cartodbpositron")
         geos = self.get_geos()
         max_lat, max_lon, min_lat, min_lon = get_min_max_ll(geos)

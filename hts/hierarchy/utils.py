@@ -13,7 +13,6 @@ except ImportError:
     logger.error('h3-py must be installed for geo hashing capabilities')
 
 
-
 def fetch_cols(exogenous, name):
     if not exogenous:
         return name

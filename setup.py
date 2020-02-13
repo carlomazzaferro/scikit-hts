@@ -37,7 +37,7 @@ setup(
     author="Carlo Mazzaferro",
     author_email='carlo.mazzaferro@gmail.com',
     classifiers=[
-        'Development Status :: 2 - Alpha',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'Programming Language :: Python :: 3.7',

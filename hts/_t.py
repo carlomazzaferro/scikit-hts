@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import abc
 import logging
 import weakref
@@ -13,7 +14,6 @@ try:
     from folium import Map
 except ImportError:
     logger.warning('Folium not installed, not all visualization will work')
-
 
 # TODO: make this a proper recursive type when mypy supports it: https://github.com/python/mypy/issues/731
 HierarchyT = Tuple[str, 'HierarchyT']
@@ -46,7 +46,6 @@ class UnivariateModel(ExtendedEnum):
 
 
 # class MultivariateModel(ExtendedEnum):
-
 
 
 Models = NewType('Model', Model)
