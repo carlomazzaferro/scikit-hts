@@ -1,10 +1,12 @@
+import logging
 import string
 from itertools import chain
 import numpy
 from h3 import h3
 
-from hts import logger
 from hts._t import NAryTreeT, HierarchyVisualizerT
+
+logger = logging.getLogger(__name__)
 
 
 def get_min_max_ll(geos):

@@ -1,9 +1,12 @@
+import logging
+
 import pandas
 from sklearn.base import BaseEstimator, TransformerMixin
 from scipy.special import inv_boxcox
 from scipy.stats import boxcox
 
-from hts import logger
+
+logger = logging.getLogger(__name__)
 
 
 class FunctionTransformer(BaseEstimator, TransformerMixin):

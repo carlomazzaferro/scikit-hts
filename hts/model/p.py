@@ -1,7 +1,7 @@
 import numpy
 from fbprophet import Prophet
 
-from hts import HierarchyTree
+from hts.hierarchy import HierarchyTree
 from hts._t import Model
 from hts.model import TimeSeriesModel
 

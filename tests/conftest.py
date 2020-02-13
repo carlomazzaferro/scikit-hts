@@ -5,8 +5,8 @@ import pandas
 import numpy
 import pytest
 
-from hts.core.hierarchy import HierarchyTree
-from hts.utils import hierarchical_sine_data
+from hts.hierarchy import HierarchyTree
+from hts.utils import load_hierarchical_sine_data
 
 
 @pytest.fixture
@@ -93,5 +93,5 @@ def n_tree():
 @pytest.fixture
 def hierarchical_sine_data():
     s, e = datetime(2019, 1, 15), datetime(2019, 10, 15)
-    return hierarchical_sine_data(s, e)
+    return load_hierarchical_sine_data(s, e)
 

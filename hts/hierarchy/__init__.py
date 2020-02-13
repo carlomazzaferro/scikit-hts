@@ -8,7 +8,7 @@ from typing import Tuple, Union, List, Optional, Dict
 import pandas
 
 from hts._t import NAryTreeT
-from hts.hierarchy.utils import fetch_cols, hexify, groupify
+from hts.hierarchy.utils import fetch_cols, hexify, groupify, resample_count
 from hts.viz.geo import HierarchyVisualizer
 
 
@@ -27,6 +27,7 @@ class HierarchyTree(NAryTreeT):
                         levels: Tuple[int, int] = (6, 7),
                         resample_freq: str = '1H',
                         min_count: Union[float, int] = 0.2,
+                        root_name: str = 'total'
                         ):
         """
 
@@ -39,6 +40,7 @@ class HierarchyTree(NAryTreeT):
         levels
         resample_freq
         min_count
+        root_name
 
         Returns
         -------
@@ -46,7 +48,14 @@ class HierarchyTree(NAryTreeT):
         """
 
         hexified = hexify(df, lat_col, lon_col, levels=levels)
-        return groupify(hexified, nodes=nodes, freq=resample_freq, min_count=min_count)
+        total = resample_count(hexified, resample_freq, root_name)
+        hierarchy = cls(key=root_name, item=total)
+        return groupify(hierarchy,
+                        df=hexified,
+                        nodes=nodes,
+                        freq=resample_freq,
+                        min_count=min_count,
+                        total=total)
 
     @classmethod
     def from_nodes(cls,

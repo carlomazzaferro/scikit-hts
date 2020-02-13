@@ -1,8 +1,12 @@
+import logging
+
 import numpy
 
-from hts import logger, HierarchyTree
+from hts.hierarchy import HierarchyTree
 from hts._t import Model
 from hts.model import TimeSeriesModel
+
+logger = logging.getLogger(__name__)
 
 try:
     from pmdarima import AutoARIMA

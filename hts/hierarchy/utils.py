@@ -1,7 +1,7 @@
 import pandas
 from h3 import h3
 
-from hts import HierarchyTree
+
 from hts._t import NAryTreeT
 from hts.exceptions import InvalidArgumentException
 
@@ -14,7 +14,7 @@ def fetch_cols(exogenous, name):
     return cols, exog
 
 
-def hexify(df, lat_col, lon_col, levels=(6, 8)):
+def hexify(df, lat_col, lon_col, levels=(6, 8)) -> pandas.DataFrame:
     for r in range(levels[0], levels[1] + 1):
         df[f'hex_index_{r}'] = df.apply(lambda x: h3.geo_to_h3(x[lat_col], x[lon_col], r), 1)
     return df
@@ -25,11 +25,12 @@ def resample_count(df: pandas.DataFrame, freq: str, colname: str) -> pandas.Data
     return _df.resample(freq).agg('count')
 
 
-def groupify(df, freq='1H', nodes=None, min_count=0.1) -> NAryTreeT:
+def groupify(root_node, df, freq='1H', nodes=None, min_count=0.1, total=None) -> NAryTreeT:
     """
 
     Parameters
     ----------
+    root_node : NAryTreeT
     df : pandas.DataFrame
     freq : str
         resample frequency
@@ -38,13 +39,13 @@ def groupify(df, freq='1H', nodes=None, min_count=0.1) -> NAryTreeT:
     min_count : int or float
         Minimum number of observations for a node to be used. If float, it represents a
         fraction of values that need to be non NaNs and must be between 0 and 1
+    total : pandas.DataFrame:
+        Name of root node
+
     Returns
     -------
 
     """
-    root_name = 'total'
-    total = resample_count(df, freq, root_name)
-    hierarchy = HierarchyTree(key=root_name, item=total)
 
     child_group = nodes[0]                    # city
     children = df[child_group].unique()       # berlin, munich, ...
@@ -53,7 +54,7 @@ def groupify(df, freq='1H', nodes=None, min_count=0.1) -> NAryTreeT:
     for child in children:
         sub_df = df[df[child_group] == child]
         resampled = resample_count(sub_df, freq, child)
-        hierarchy.add_child(key=child, item=resampled, exogenous=None)
+        root_node.add_child(key=child, item=resampled, exogenous=None)
 
     # add the rest
     for node in nodes[1:]:
@@ -73,7 +74,7 @@ def groupify(df, freq='1H', nodes=None, min_count=0.1) -> NAryTreeT:
                 continue
             parent_name = sub_df[parent_group].value_counts().index[0]
             resampled = resample_count(sub_df, freq, child)
-            for c in hierarchy.traversal_level():
+            for c in root_node.traversal_level():
                 if c.key == parent_name:
                     c.add_child(key=child, item=resampled, exogenous=None)
-    return hierarchy
+    return root_node

@@ -1,17 +1,18 @@
 from __future__ import annotations
 import abc
+import logging
 import weakref
 from enum import Enum
 from typing import List, Optional, Callable, NamedTuple, NewType, Union, Tuple
 
 import pandas
 
-from hts import logger
+logger = logging.getLogger(__name__)
 
 try:
     from folium import Map
 except ImportError:
-    logger.waring('Folium not installed, not all visualization will work')
+    logger.warning('Folium not installed, not all visualization will work')
 
 
 # TODO: make this a proper recursive type when mypy supports it: https://github.com/python/mypy/issues/731

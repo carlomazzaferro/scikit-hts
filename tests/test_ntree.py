@@ -1,6 +1,6 @@
 import pandas
 
-from hts import HierarchyTree
+from hts.hierarchy import HierarchyTree
 from hts._t import NAryTreeT
 
 
