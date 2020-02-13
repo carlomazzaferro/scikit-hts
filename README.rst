@@ -5,8 +5,8 @@ scikit-hts
 .. image:: https://travis-ci.org/carlomazzaferro/scikit-hts.svg?branch=master
     :target: https://travis-ci.org/carlomazzaferro/scikit-hts
 
-.. image:: https://img.shields.io/pypi/v/racket.svg
-    :target: https://pypi.org/project/scikit-hts
+.. image:: https://badge.fury.io/py/scikit-hts.svg
+    :target: https://badge.fury.io/py/scikit-hts
 
 .. image:: https://readthedocs.org/projects/racket/badge/?version=latest
     :target: https://racket.readthedocs.io/en/latest/?badge=latest
