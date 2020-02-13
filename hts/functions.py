@@ -3,7 +3,7 @@ from typing import Dict
 import numpy as np
 import pandas
 
-from hts._t import NAryTreeT
+from hts._t import NAryTreeT, MethodsT
 
 
 def to_sum_mat(ntree: NAryTreeT):
@@ -96,12 +96,12 @@ def optimal_combination(forecasts: Dict[str, pandas.DataFrame], sum_mat: np.ndar
     hat_mat = y_hat_matrix(forecasts)
     transpose = np.transpose(sum_mat)
 
-    if method == 'OLS':
+    if method == MethodsT.OLS.name:
         ols = np.dot(np.dot(sum_mat, np.linalg.inv(np.dot(transpose, sum_mat))), transpose)
         return project(hat_mat=hat_mat, sum_mat=sum_mat, optimal_mat=ols)
-    elif method == 'WLSS':
+    elif method == MethodsT.WLSS.name:
         diag = np.diag(np.transpose(np.sum(sum_mat, axis=1)))
-    elif method == 'WLSV':
+    elif method == MethodsT.WLSV.name:
         diag = [mse[key] for key in mse.keys()]
         diag = np.diag(np.flip(np.hstack(diag) + 0.0000001, 0))
     else:
@@ -115,17 +115,17 @@ def optimal_combination(forecasts: Dict[str, pandas.DataFrame], sum_mat: np.ndar
     return project(hat_mat=hat_mat, sum_mat=sum_mat, optimal_mat=optimal_mat)
 
 
-def proportions(df, forecasts, sum_mat, method='APH'):
+def proportions(df, forecasts, sum_mat, method=MethodsT.PHA.name):
     n_cols = len(list(forecasts.keys())) + 1
     fcst = forecasts[0].yhat
     fcst = fcst[:, np.newaxis]
     num_bts = sum_mat.shape[1]
     bts_dat = pandas.DataFrame(df.iloc[:, n_cols - num_bts:n_cols])
-    if method == 'APH':
+    if method == MethodsT.AHP.name:
         divs = np.divide(np.transpose(np.array(bts_dat)), np.array(df.iloc[:, 1]))
         props = divs.mean(1)
         props = props[:, np.newaxis]
-    elif method == 'PHA':
+    elif method == MethodsT.PHA.name:
         bts_sum = bts_dat.sum(0)
         top_sum = sum(df.iloc[:, 1])
         props = bts_sum / top_sum

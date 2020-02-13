@@ -1,4 +1,5 @@
 import logging
+from typing import Tuple, Optional, List
 
 import pandas
 
@@ -13,9 +14,9 @@ except ImportError:
     logger.error('h3-py must be installed for geo hashing capabilities')
 
 
-def fetch_cols(exogenous, name):
+def fetch_cols(exogenous, name) -> Tuple[str, Optional[List[str]]]:
     if not exogenous:
-        return name
+        return name, None
     exog = exogenous.get(name, None)
     cols = [name] + exog if exog else name
     return cols, exog

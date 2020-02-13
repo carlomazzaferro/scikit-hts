@@ -6,13 +6,13 @@ import pandas
 from sklearn.base import BaseEstimator, RegressorMixin
 
 from hts._t import Transform, Model
+from hts.revision import Methods
 from hts.exceptions import InvalidArgumentException
 from hts.functions import to_sum_mat
 from hts.hierarchy import HierarchyTree
 from hts.model.ar import AutoArimaModel, SarimaxModel
 from hts.model.es import HoltWintersModel
 from hts.model.p import FBProphetModel
-from hts.revision import Methods
 
 __author__ = """Carlo Mazzaferro"""
 __email__ = 'carlo.mazzaferro@gmail.com'
@@ -137,9 +137,9 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
             raise InvalidArgumentException(f'Model {self.model} not valid. Pick one of: {" ".join(Model.names())}')
 
     def fit_predict(self, **fit_args):
-        for i, node in [self.nodes] + self.nodes.traversal_level():
+        for node in [self.nodes] + self.nodes.traversal_level():
             model = self.model_instance(node=node, transform=self.transform, **self.model_args)
-            model.fit_predict(**fit_args)
+            model = model.fit_predict(**fit_args)
             self.models[node.key] = model
             self.forecasts[node.key] = model.forecast
             self.mse[node.key] = model.mse

@@ -63,12 +63,12 @@ class TimeSeriesModel:
             model = ExponentialSmoothing(endog=data, **kwargs)
 
         elif self.kind == Model.arima.name:
-            return AutoARIMA(**kwargs)
+            model = AutoARIMA(**kwargs)
 
         elif self.kind == Model.sarimax.name:
             data = self.node.item[self.node.key]
             ex = self.node.item[self.node.exogenous]
-            return SARIMAX(endog=data, exog=ex, **kwargs)
+            model = SARIMAX(endog=data, exog=ex, **kwargs)
         else:
             raise
         return model

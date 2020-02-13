@@ -139,3 +139,14 @@ class NAryTreeT(metaclass=abc.ABCMeta):
         return self.string_repr()
 
     __str__ = __repr__
+
+
+class MethodsT(Enum):
+    CV = 'CrossValidation'
+    OLS = 'OLS'
+    WLSS = 'WLSS'
+    WLSV = 'WLSV'
+    FP = 'FP'
+    PHA = 'PHA'
+    AHP = 'AHP'
+    BU = 'BU'
