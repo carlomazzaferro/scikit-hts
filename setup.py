@@ -7,12 +7,6 @@ from setuptools import setup, find_packages
 with open('README.rst',  encoding='utf-8') as readme_file:
     readme = readme_file.read()
 
-# Add here console scripts and other entry points in ini-AppBarStyle format
-entry_points = """
-[console_scripts]
-script_name = hts.cli:main
-"""
-
 
 def strip_comments(l):
     return l.split('#', 1)[0].strip()
@@ -46,8 +40,6 @@ setup(
         'Development Status :: 2 - Alpha',
         'Intended Audience :: Developers',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
