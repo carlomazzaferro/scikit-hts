@@ -2,7 +2,11 @@
 Usage
 =====
 
-To use nlplib in a project::
+To use scikit-hts in a project::
 
-    import nlplib
+
+    from hts import HTSRegressor
+    reg = HTSRegressor()
+
+
 

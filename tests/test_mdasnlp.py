@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Tests for `nlplib` package."""
+"""Tests for `hts` package."""
 
 import pytest
 

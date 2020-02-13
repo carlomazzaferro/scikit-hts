@@ -24,6 +24,53 @@ logger = logging.getLogger(__name__)
 
 class HTSRegressor(BaseEstimator, RegressorMixin):
 
+    """
+    Main regressor class for scikit-hts. Likely the only import you'll need for using
+    this project. It takes a pandas dataframe, the nodes specifying the hierarchies, model kind, revision
+    method, and a few other parameters. See Examples to get an idea of how to use it.
+
+
+    Attributes
+    ----------
+    transform : Union[Callable, bool]
+        Function transform to be applied to input and outputs. If True, it will use ``boxcox_transform`` from ``scipy``
+
+    sum_mat : array_like
+        The summing matrix, explained in depth in `Forecasting <https://otexts.com/fpp2/gts.html>`_
+
+    nodes : Dict[str, List[str]]
+        Nodes representing node, edges of the hierarchy. Keys are nodes, values are list of edges.
+
+
+    df : pandas.DataFrame
+        The dataframe containing the nodes and edges specified above
+
+    revision_method : str
+        One of the revisions methods specified in ...
+
+    models : dict
+        Dictionary that holds the trained models
+
+    mse : dict
+        Dictionary that holds the mse scores for the trained models
+
+    residuals : dict
+        Dictionary that holds the mse residual for the trained models
+
+    forecasts : dict
+        Dictionary that holds the forecasts for the trained models
+
+    model_instance : TimeSeriesModel
+        Reference to the class implementing the actual time series model
+
+    Methods
+    -------
+    colorspace(c='rgb')
+        Represent the photo in the given colorspace.
+    gamma(n=1.0)
+        Change the photo's gamma exposure.
+
+    """
     def __init__(self,
                  df: pandas.DataFrame,
                  nodes: Dict[str, List[str]],
@@ -36,6 +83,23 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
                  root: Union[str, HierarchyTree] = 'total',
                  **kwargs
                  ):
+        """
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+        nodes : Dict[str, List[str]]
+
+        model : str
+
+        periods
+        revision_method
+        exogenous
+        transform
+        n_jobs
+        root
+        kwargs
+        """
 
         self.model = model
         self.periods = periods

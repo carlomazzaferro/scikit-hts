@@ -5,18 +5,26 @@ Module Index
 API
 ---
 
-.. automodule:: hts.HTSRegressor
+.. automodule:: hts
     :members:
 
 
 Internals
 ---------
 
-.. autoclass:: hts.hierarchy.HierarchyTree
+
+.. autoclass:: hts.revision.RevisionMethod
     :members:
 
-.. autoclass:: hts.revision
+
+.. autoclass:: hts.revision.Methods
     :members:
+
+
+
+.. automodule:: hts.hierarchy
+    :members:
+
 
 
 Models

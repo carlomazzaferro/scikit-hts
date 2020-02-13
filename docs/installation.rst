@@ -8,7 +8,7 @@ Installation
 From sources
 ------------
 
-The sources for nlplib can be downloaded from the `Github repo`_.
+The sources for scikit-hts can be downloaded from the `Github repo`_.
 
 You can either clone the public repository:
 

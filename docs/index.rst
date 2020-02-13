@@ -1,4 +1,4 @@
-Welcome to nlplib's documentation!
+Welcome to scikit-hts's documentation!
 ======================================
 
 .. toctree::
