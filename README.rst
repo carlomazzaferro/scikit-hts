@@ -2,6 +2,9 @@
 scikit-hts
 ##########
 
+Hierarchical Time Series with a familiar API
+
+
 .. image:: https://travis-ci.org/carlomazzaferro/scikit-hts.svg?branch=master
     :target: https://travis-ci.org/carlomazzaferro/scikit-hts
 
@@ -21,7 +24,6 @@ scikit-hts
      :alt: Downloads/Month
 
 
-Hierarchical Time Series with a familiar API
 
 
 * Free software: GNU General Public License v3
