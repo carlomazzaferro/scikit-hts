@@ -2,11 +2,23 @@ import logging
 import string
 from itertools import chain
 import numpy
-from h3 import h3
+
 
 from hts._t import NAryTreeT, HierarchyVisualizerT
 
 logger = logging.getLogger(__name__)
+
+try:
+    from folium import Map
+    from folium.vector_layers import Polygon
+    import branca.colormap as cm
+except ImportError:
+    logger.error('Mapping requires folium==0.10.0 to be installed, geo mapping will not work')
+
+try:
+    from h3 import h3
+except ImportError:
+    logger.error('h3-py must be installed for geo hashing capabilities')
 
 
 def get_min_max_ll(geos):
@@ -36,13 +48,7 @@ class HierarchyVisualizer(HierarchyVisualizerT):
         return
 
     def create_map(self):
-        try:
-            from folium import Map
-            from folium.vector_layers import Polygon
-            import branca.colormap as cm
-        except ImportError:
-            logger.error('Mapping requires folium==0.10.0 to be installed')
-            return
+
 
         _map = Map(tiles="cartodbpositron")
         geos = self.get_geos()

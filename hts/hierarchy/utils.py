@@ -1,9 +1,17 @@
-import pandas
-from h3 import h3
+import logging
 
+import pandas
 
 from hts._t import NAryTreeT
 from hts.exceptions import InvalidArgumentException
+
+logger = logging.getLogger(__name__)
+
+try:
+    from h3 import h3
+except ImportError:
+    logger.error('h3-py must be installed for geo hashing capabilities')
+
 
 
 def fetch_cols(exogenous, name):
