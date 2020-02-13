@@ -8,6 +8,10 @@ with open('README.rst',  encoding='utf-8') as readme_file:
     readme = readme_file.read()
 
 
+with open('HISTORY.rst') as history_file:
+    history = history_file.read()
+
+
 def strip_comments(l):
     return l.split('#', 1)[0].strip()
 
@@ -45,7 +49,7 @@ setup(
     ],
     description="Hierarchical Time Series forecasting",
     install_requires=install_requires,
-    long_description=readme,
+    long_description=readme + '\n\n' + history,
     include_package_data=True,
     keywords='scikit-hts',
     name='scikit-hts',

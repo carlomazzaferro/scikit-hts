@@ -14,13 +14,13 @@ You can either clone the public repository:
 
 .. code-block:: console
 
-    $ git clone git://github.com/carlomazzaferro/mdasnlp
+    $ git clone git://github.com/carlomazzaferro/scikit-hts
 
 Or download the `tarball`_:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/carlomazzaferro/mdasnlp/tarball/master
+    $ curl  -OL https://github.com/carlomazzaferro/scikit-hts/tarball/master
 
 Once you have a copy of the source, you can install it with:
 
@@ -29,5 +29,5 @@ Once you have a copy of the source, you can install it with:
     $ python setup.py install
 
 
-.. _Github repo: https://github.com/carlomazzaferro/mdasnlp
-.. _tarball: https://github.com/carlomazzaferro/mdasnlp/tarball/master
+.. _Github repo: https://github.com/carlomazzaferro/scikit-hts
+.. _tarball: https://github.com/carlomazzaferro/scikit-hts/tarball/master
