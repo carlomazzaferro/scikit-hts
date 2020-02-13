@@ -7,3 +7,4 @@ statsmodels==0.10.2
 folium==0.10.0
 h3==3.4.3
 pmdarima==1.5.1
+holidays==0.9.12
