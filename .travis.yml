@@ -11,5 +11,5 @@ script:
 after_script:
     - bash scripts/deploy.sh
 after_success:
-    - pip install coveralls==1.5.1
+    - pip install python-coveralls==2.9.3
     - coveralls

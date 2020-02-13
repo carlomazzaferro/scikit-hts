@@ -35,9 +35,7 @@ Building on the excellent work by Hyndman [1]_, we developed this package in ord
 of general hierarchical time series modeling.
 
 
-.. [1] forecasting_: Forecasting Principles and Practice. Rob J Hyndman and George Athanasopoulos. Monash University, Australia: https://otexts.com/fpp2/
-
-.. _forecasting:  https://otexts.com/fpp2/
+.. [1] `Forecasting Principles and Practice. Rob J Hyndman and George Athanasopoulos. Monash University, Australia <https://otexts.com/fpp2/>`_.
 
 .. note:: **STATUS**: alpha. Active development, but breaking changes may come.
 
@@ -45,8 +43,8 @@ of general hierarchical time series modeling.
 Features
 --------
 
-* Implementation of Bottom-Up, Top-Down, Middle-Out, Forecast Proportions, Average Historic Proportions, Proportions of
-Historic Averages and OLS revision methods
+* Implementation of Bottom-Up, Top-Down, Middle-Out, Forecast Proportions, Average Historic Proportions,
+  Proportions of Historic Averages and OLS revision methods
 * Support for a variety of underlying forecasting models, inlcuding: SARIMAX, ARIMA, Prophet, Holt-Winters
 * Scikit-learn-like API
 * Geo events handling functionality for geospatial data, including visualisation capabilities
