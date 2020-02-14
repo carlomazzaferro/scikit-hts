@@ -6,13 +6,13 @@ import pandas
 from sklearn.base import BaseEstimator, RegressorMixin
 
 from hts._t import Transform, Model
-from hts.revision import Methods
-from hts.exceptions import InvalidArgumentException
+from hts.exceptions import InvalidArgumentException, MissingRegressorException
 from hts.functions import to_sum_mat
 from hts.hierarchy import HierarchyTree
 from hts.model.ar import AutoArimaModel, SarimaxModel
 from hts.model.es import HoltWintersModel
 from hts.model.p import FBProphetModel
+from hts.revision import Methods
 
 __author__ = """Carlo Mazzaferro"""
 __email__ = 'carlo.mazzaferro@gmail.com'
@@ -23,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 
 class HTSRegressor(BaseEstimator, RegressorMixin):
-
     """
     Main regressor class for scikit-hts. Likely the only import you'll need for using
     this project. It takes a pandas dataframe, the nodes specifying the hierarchies, model kind, revision
@@ -65,22 +64,20 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
 
     Methods
     -------
-    colorspace(c='rgb')
-        Represent the photo in the given colorspace.
-    gamma(n=1.0)
-        Change the photo's gamma exposure.
+    fit(self, df, nodes={'total': ['a, 'b']}, exogenous=['temp', 'power'], root='total', **fit_args)
+        Fits underlying models to the data
+
+    predict(exogenous=df, steps_ahead=10)
+        Predicts the 10-step ahead forecast
 
     """
+
     def __init__(self,
-                 df: pandas.DataFrame,
-                 nodes: Dict[str, List[str]],
                  model: str = 'prophet',
                  periods: int = 1,
                  revision_method: str = 'OLS',
-                 exogenous: Dict[str, List[str]] = None,
                  transform: Optional[Union[Transform, bool]] = None,
                  n_jobs: int = -1,
-                 root: Union[str, HierarchyTree] = 'total',
                  **kwargs
                  ):
         """
@@ -109,22 +106,43 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         self.sum_mat = None
         self.nodes = None
         self.df = None
+        self.n_forecasts = None
+        self.model_instance = None
+        self.exogenous = False
         self.revision_method = Methods[self.method].value(**kwargs)
         self.models = dict()
         self.mse = dict()
         self.residuals = dict()
         self.forecasts = dict()
-        self.model_instance = None
-        self.__init_hts(nodes=nodes, df=df, root=root, exogenous=exogenous)
-        self.n_forecasts = self.sum_mat.shape[0]
         self.model_args = kwargs
 
-    def __init_hts(self, nodes, df, root, exogenous):
+    def __init_predict_step(self, exogenous_df: pandas.DataFrame, steps_ahead: int):
+        if self.exogenous and not exogenous_df:
+            raise MissingRegressorException(f'Exogenous variables were provided at fit step, hence are required at '
+                                            f'predict step. Please pass the \'exogenous_df\' variable to predict '
+                                            f'function')
+        if not exogenous_df and not steps_ahead:
+            logger.info(f'No arguments passed for \'steps_ahead\', defaulting to predicting 1-step-ahead')
+            steps_ahead = 1
+        elif exogenous_df:
+            steps_ahead = len(exogenous_df)
+            for node in [self.nodes] + self.nodes.traversal_level():
+                exog_cols = node.exogenous
+                try:
+                    node.item = exogenous_df[exog_cols]
+                except KeyError:
+                    raise MissingRegressorException(f'Node {node.key} has as exogenous variables {node.exogenous} but '
+                                                    f'these columns were not found in \'exogenous_df\'')
+        return steps_ahead
+
+    def __init_hts(self, nodes, df, root, exogenous=None):
+        self.exogenous = exogenous
         self.nodes = HierarchyTree.from_nodes(nodes=nodes, df=df, exogenous=exogenous, root=root)
         self.sum_mat = to_sum_mat(self.nodes)
-        self.get_model_instance()
+        self.n_forecasts = self.sum_mat.shape[0]
+        self._get_model_instance()
 
-    def get_model_instance(self):
+    def _get_model_instance(self):
         if self.model == Model.auto_arima.name:
             self.model_instance = AutoArimaModel
         elif self.model == Model.sarimax.name:
@@ -136,10 +154,27 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         else:
             raise InvalidArgumentException(f'Model {self.model} not valid. Pick one of: {" ".join(Model.names())}')
 
-    def fit_predict(self, **fit_args):
+    def fit(self,
+            df: pandas.DataFrame,
+            nodes: Dict[str, List[str]],
+            exogenous: Dict[str, List[str]] = None,
+            root: Union[str, HierarchyTree] = 'total',
+            **fit_args):
+        self.__init_hts(nodes=nodes, df=df, root=root, exogenous=exogenous)
         for node in [self.nodes] + self.nodes.traversal_level():
             model = self.model_instance(node=node, transform=self.transform, **self.model_args)
-            model = model.fit_predict(**fit_args)
+            model = model.fit(**fit_args)
+            self.models[node.key] = model
+        return self
+
+    def predict(self,
+                exogenous_df: pandas.DataFrame = None,
+                steps_ahead: int = None,
+                **predict_kwargs):
+        steps_ahead = self.__init_predict_step(exogenous_df, steps_ahead)
+        for node in [self.nodes] + self.nodes.traversal_level():
+            model = self.models[node.key]
+            model = model.predict(node=node, steps_ahead=steps_ahead, **predict_kwargs)
             self.models[node.key] = model
             self.forecasts[node.key] = model.forecast
             self.mse[node.key] = model.mse

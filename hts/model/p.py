@@ -51,11 +51,11 @@ class FBProphetModel(TimeSeriesModel):
     def _reformat(self, node):
         if isinstance(node, pandas.Series):
             node = pandas.DataFrame(node)
-        df = node.item.rename(columns={self.node.key: 'y'})
+        df = node.rename(columns={self.node.key: 'y'})
         df['ds'] = df.index
         return df.reset_index(drop=True)
 
-    def fit(self):
+    def fit(self, **fit_args) -> 'TimeSeriesModel':
         df = self._reformat(self.node.item)
         with suppress_stdout_stderr():
             self.model = self.model.fit(df)
@@ -63,13 +63,14 @@ class FBProphetModel(TimeSeriesModel):
 
     def predict(self,
                 node: HierarchyTree,
-                freq='D', periods=1, include_history=True,
+                freq: str = 'D',
+                steps_ahead: int = 1,
                 **predict_args):
 
-        df = self._reformat(node)
-        future = self.model.make_future_dataframe(periods=periods,
+        df = self._reformat(node.item)
+        future = self.model.make_future_dataframe(periods=steps_ahead,
                                                   freq=freq,
-                                                  include_history=include_history)
+                                                  include_history=True)
         if self.cap:
             future['cap'] = self.cap
         if self.floor:
