@@ -32,16 +32,16 @@ class ExtendedEnum(Enum):
 
 class Model(ExtendedEnum):
     prophet = 'prophet'
-    holt_winters = 'holt-winters'
-    auto_arima = 'auto-arima'
+    holt_winters = 'holt_winters'
+    auto_arima = 'auto_arima'
     sarimax = 'sarimax'
 
 
 class UnivariateModel(ExtendedEnum):
     arima = 'arima'
-    auto_arima = 'auto-arima'
+    auto_arima = 'auto_arima'
     prophet = 'prophet'
-    holt_winters = 'holt-winters'
+    holt_winters = 'holt_winters'
     sarimax = 'sarimax'
 
 
