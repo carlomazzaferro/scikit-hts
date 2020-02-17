@@ -26,9 +26,10 @@ Hierarchical Time Series with a familiar API
 
 
 
-* Free software: GNU General Public License v3
+* `MIT License`_
 * Documentation: https://scikit-hts.readthedocs.io/en/latest/
 
+.. _`MIT License`: https://github.com/carlomazzaferro/scikit-hts/blob/master/LICENSE
 
 Overview
 --------
