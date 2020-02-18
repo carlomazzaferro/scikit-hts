@@ -5,7 +5,7 @@ from typing import Union, Optional, List, Dict
 import pandas
 from sklearn.base import BaseEstimator, RegressorMixin
 
-from hts._t import Transform, Model
+from hts._t import Transform, Model, NodesT, ExogT
 from hts.exceptions import InvalidArgumentException, MissingRegressorException
 from hts.functions import to_sum_mat
 from hts.hierarchy import HierarchyTree
@@ -31,15 +31,15 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
 
     Attributes
     ----------
-    transform : Union[Callable, bool]
-        Function transform to be applied to input and outputs. If True, it will use ``boxcox_transform`` from ``scipy``
+    transform : Union[NamedTuple[str, Callable], bool]
+        Function transform to be applied to input and outputs. If True, it will use ``scipy.stats.boxcox``
+         and ``scipy.special._ufuncs.inv_boxcox`` on input and output data
 
     sum_mat : array_like
         The summing matrix, explained in depth in `Forecasting <https://otexts.com/fpp2/gts.html>`_
 
     nodes : Dict[str, List[str]]
         Nodes representing node, edges of the hierarchy. Keys are nodes, values are list of edges.
-
 
     df : pandas.DataFrame
         The dataframe containing the nodes and edges specified above
@@ -64,12 +64,12 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
 
     Methods
     -------
-    fit(self, df, nodes={'total': ['a, 'b']}, exogenous=['temp', 'power'], root='total', **fit_args)
+    fit(self, df: pandas.DataFrame, nodes: Dict, exogenous: List = None, root: str ='total', **fit_args)
         Fits underlying models to the data
 
-    predict(exogenous=df, steps_ahead=10)
-        Predicts the 10-step ahead forecast
-
+    predict(self, exogenous: pandas.DataFrame = None, steps_ahead: int = 10)
+        Predicts the n-step ahead forecast with exogenous variables. Exogenous variables are required if models were
+        fit using them
     """
 
     def __init__(self,
@@ -85,17 +85,24 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         Parameters
         ----------
         df : pandas.DataFrame
-        nodes : Dict[str, List[str]]
+            The dataframe containing the nodes and edges specified in nodes
 
         model : str
+            One of the models supported by ``hts``. These can be found
 
-        periods
-        revision_method
-        exogenous
-        transform
-        n_jobs
-        root
+        periods : int
+        revision_method : str
+        transform : Boolean or NamedTuple
+            If True, ``scipy.stats.boxcox`` and ``scipy.special._ufuncs.inv_boxcox`` will be applied prior and after
+            fitting.
+            If False, no transform is applied.
+            If you desired to use custom functions, use a NamedTuple like: ``{'func': Callable, 'inv_func': Callable}``
+        n_jobs : int
+            Number of parallel jobs to run the forecasting on
+        root : str
+            The name of the root node. Must be one of the dataframe's columns names
         kwargs
+            Keyword arguments to be passed to the underlying model to be instantiated
         """
 
         self.model = model
@@ -156,10 +163,10 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
 
     def fit(self,
             df: pandas.DataFrame,
-            nodes: Dict[str, List[str]],
-            exogenous: Dict[str, List[str]] = None,
+            nodes: NodesT,
+            exogenous: Optional[ExogT] = None,
             root: Union[str, HierarchyTree] = 'total',
-            **fit_args):
+            **fit_args) -> 'HTSRegressor':
         self.__init_hts(nodes=nodes, df=df, root=root, exogenous=exogenous)
         for node in [self.nodes] + self.nodes.traversal_level():
             model = self.model_instance(node=node, transform=self.transform, **self.model_args)
@@ -170,7 +177,7 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
     def predict(self,
                 exogenous_df: pandas.DataFrame = None,
                 steps_ahead: int = None,
-                **predict_kwargs):
+                **predict_kwargs) -> 'HTSRegressor':
         steps_ahead = self.__init_predict_step(exogenous_df, steps_ahead)
         for node in [self.nodes] + self.nodes.traversal_level():
             model = self.models[node.key]

@@ -9,6 +9,7 @@ Welcome to scikit-hts's documentation!
    installation
    usage
    modules
+   models
    contributing
    history
 

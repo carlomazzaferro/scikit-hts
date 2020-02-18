@@ -15,18 +15,8 @@ from hts.transforms import FunctionTransformer
 
 
 class TimeSeriesModel(BaseEstimator, RegressorMixin):
-    """
-    Parameters
-    ----------
-    kind : str
-        One of 'prophet', 'arima', 'auto-arima', 'varmax', 'holt-winters'
-    data : pandas.DataFrame
-        The data to which to fit the model
-    endogenous : List[str]
-        list of columns specifying the endogenous variables
-    exogenous : Union[str, List[str]]
-        Columns specifying the exogenous variables
-    kwargs :
+    """ Base class for the implementation of the underlying models.
+        Inherits from scikit-learn base classes
     """
 
     def __init__(self,
@@ -34,6 +24,18 @@ class TimeSeriesModel(BaseEstimator, RegressorMixin):
                  node: HierarchyTree,
                  transform: Optional[Union[Transform, bool]] = None,
                  **kwargs):
+        """
+        Parameters
+        ----------
+        kind : str
+            One of `prophet`, `sarimax`, `auto-arima`, `holt-winters`
+        node : HierarchyTree
+            Node
+        transform : Bool or NamedTuple
+        kwargs
+            Keyword arguments to be passed to the model instantiation. See the documentation
+            of each of the actual model implementations for a more comprehensive treatment
+        """
 
         if kind not in Model.names():
             raise InvalidArgumentException(f'Model {kind} not valid. Pick one of: {" ".join(Model.names())}')

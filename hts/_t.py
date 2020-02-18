@@ -4,7 +4,7 @@ import abc
 import logging
 import weakref
 from enum import Enum
-from typing import List, Optional, Callable, NamedTuple, NewType, Union, Tuple
+from typing import List, Optional, Callable, NamedTuple, NewType, Union, Tuple, Dict
 
 import pandas
 
@@ -17,6 +17,10 @@ except ImportError:
 
 # TODO: make this a proper recursive type when mypy supports it: https://github.com/python/mypy/issues/731
 HierarchyT = Tuple[str, 'HierarchyT']
+
+
+NodesT = Dict[str, List[str]]
+ExogT = Dict[str, List[str]]
 
 
 class ExtendedEnum(Enum):

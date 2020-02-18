@@ -26,17 +26,3 @@ Internals
     :members:
 
 
-
-Models
-------
-
-.. automodule:: hts.model.ar
-    :members:
-
-.. automodule:: hts.model.es
-    :members:
-
-.. automodule:: hts.model.p
-    :members:
-
-
