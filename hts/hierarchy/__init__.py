@@ -158,12 +158,29 @@ class HierarchyTree(NAryTreeT):
         self.visualizer = HierarchyVisualizer(self)
 
     def get_node(self, key: str) -> Optional[NAryTreeT]:
+        """
+
+        Parameters
+        ----------
+        key
+
+        Returns
+        -------
+
+        """
         for node in self.traversal_level():
             if node.key == key:
                 return node
         return None
 
     def traversal_level(self) -> List[NAryTreeT]:
+        """
+        Level order traversal of the tree
+
+        Returns
+        -------
+
+        """
         res = []
         q = deque([(self, 0)])
         while q:
@@ -176,6 +193,12 @@ class HierarchyTree(NAryTreeT):
         return list(chain.from_iterable(res[:-1]))
 
     def num_nodes(self) -> int:
+        """
+        Return the
+        Returns
+        -------
+
+        """
         return sum(chain.from_iterable(self.level_order_traversal()))
 
     def is_leaf(self):

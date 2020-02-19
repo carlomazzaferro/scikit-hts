@@ -8,6 +8,7 @@ Welcome to scikit-hts's documentation!
    readme
    installation
    usage
+   geo
    modules
    models
    contributing

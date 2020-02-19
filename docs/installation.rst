@@ -4,6 +4,43 @@
 Installation
 ============
 
+From PyPi
+---------
+
+.. code-block:: console
+
+    $ pip install scikit-hts
+
+
+With optional dependencies
+--------------------------
+
+Geo Utilities
+^^^^^^^^^^^^^
+
+.. code-block:: console
+
+    $ pip install scikit-hts[geo]
+
+
+
+Facebook's Prophet Support
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: console
+
+    $ pip install scikit-hts[prophet]
+
+
+
+Auto-Arima
+^^^^^^^^^^
+
+.. code-block:: console
+
+    $ pip install scikit-hts[auto-arima]
+
+
 
 From sources
 ------------
