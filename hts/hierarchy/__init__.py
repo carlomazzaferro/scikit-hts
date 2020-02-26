@@ -7,7 +7,7 @@ from typing import Tuple, Union, List, Optional, Dict
 
 import pandas
 
-from hts._t import NAryTreeT
+from hts._t import NAryTreeT, NodesT, ExogT
 from hts.hierarchy.utils import fetch_cols, hexify, groupify, resample_count
 from hts.viz.geo import HierarchyVisualizer
 
@@ -33,10 +33,13 @@ class HierarchyTree(NAryTreeT):
 
         Parameters
         ----------
-        df
-        lat_col
-        lon_col
-        nodes
+        df : pandas.DataFrame
+        lat_col : str
+            Column where the latitude coordinates can be found
+        lon_col : str
+            Column where the longitude coordinates can be found
+        nodes : str
+
         levels
         resample_freq
         min_count
@@ -59,9 +62,9 @@ class HierarchyTree(NAryTreeT):
 
     @classmethod
     def from_nodes(cls,
-                   nodes: Dict[str, List[str]],
+                   nodes: NodesT,
                    df: pandas.DataFrame,
-                   exogenous: Dict[str, List[str]] = None,
+                   exogenous: ExogT = None,
                    root: Union[str, HierarchyTree] = 'total',
                    top: HierarchyTree = None,
                    stack: List = None):
@@ -72,12 +75,18 @@ class HierarchyTree(NAryTreeT):
 
         Parameters
         ----------
-        nodes
-        df
-        exogenous
-        root
-        top
-        stack
+        nodes : NodesT
+            Nodes definition. See ``Examples``.
+        df : pandas.DataFrame
+            The actual data containing the nodes
+        exogenous : ExogT
+            The nodes representing the exogenous variables
+        root : Union[str, HierarchyTree]
+            The name of the root node
+        top : HierarchyTree
+            Not to be used for initialisation, only in recursive calls
+        stack : list
+            Not to be used for initialisation, only in recursive calls
 
         Returns
         -------
@@ -86,30 +95,51 @@ class HierarchyTree(NAryTreeT):
 
         Examples
         --------
+        In this example we will create a tree from some multivariate data
 
-        >>> from hts.utils import load_hierarchical_sine_data
-        >>> from datetime import datetime
+        >>> from hts.utils import load_sample_hierarchical_mv_data
         >>> from hts import HierarchyTree
 
-        >>> s, e = datetime(2019, 1, 15), datetime(2019, 10, 15)
-        >>> dti = load_hierarchical_sine_data(s, e)  # Create some sample data
-        >>> hier = {'total': ['a', 'b', 'c'], 'a': ['aa', 'ab'], 'aa': ['aaa', 'aab'], 'b': ['ba', 'bb'], 'c': ['ca', 'cb', 'cc', 'cd']}
-        >>> ht = HierarchyTree.from_nodes(hier, dti)
+        >>> hmv = load_sample_hierarchical_mv_data()
+        >>> hmv.head()
+                    WF-01  CH-07  BT-01  CBD-13  SLU-15  CH-02  CH-08  SLU-01  BT-03  CH-05  SLU-19  SLU-07  SLU-02  CH-01  total   CH  SLU  BT  OTHER  temp  precipitation
+        starttime
+        2014-10-13     16     14     20      16      20     42     24      24     12     22      14       2       8      6    240  108   68  32     32  62.0           0.00
+        2014-10-14     22     28     28      38      36     36     42      40     14     26      18      32      16     18    394  150  142  42     60  59.0           0.11
+        2014-10-15     10     14      8      20      18     38     16      28     18     10       0      24      10     16    230   94   80  26     30  58.0           0.45
+        2014-10-16     22     18     24      44      44     40     24      20     22     18       8      26      14     14    338  114  112  46     66  61.0           0.00
+        2014-10-17      8     12     16      20      18     22     32      12      8     28      10      30       8     10    234  104   78  24     28  60.0           0.14
+
+        >>> hier = {
+                'total': ['CH', 'SLU', 'BT', 'OTHER'],
+                'CH': ['CH-07', 'CH-02', 'CH-08', 'CH-05', 'CH-01'],
+                'SLU': ['SLU-15', 'SLU-01', 'SLU-19', 'SLU-07', 'SLU-02'],
+                'BT': ['BT-01', 'BT-03'],
+                'OTHER': ['WF-01', 'CBD-13']
+            }
+        >>> exogenous = {k: ['precipitation', 'temp'] for k in hmv.columns if k not in ['precipitation', 'temp']}
+        >>> ht = HierarchyTree.from_nodes(hier, hmv, exogenous=exogenous)
         >>> print(ht)
         - total
-           |- a
-           |  |- aa
-           |  |  |- aaa
-           |  |  - aab
-           |  - ab
-           |- b
-           |  |- ba
-           |  - bb
-           - c
-              |- ca
-              |- cb
-              |- cc
-              - cd
+           |- CH
+           |  |- CH-07
+           |  |- CH-02
+           |  |- CH-08
+           |  |- CH-05
+           |  - CH-01
+           |- SLU
+           |  |- SLU-15
+           |  |- SLU-01
+           |  |- SLU-19
+           |  |- SLU-07
+           |  - SLU-02
+           |- BT
+           |  |- BT-01
+           |  - BT-03
+           - OTHER
+              |- WF-01
+              - CBD-13
+
         """
 
         if stack is None:
@@ -159,13 +189,16 @@ class HierarchyTree(NAryTreeT):
 
     def get_node(self, key: str) -> Optional[NAryTreeT]:
         """
+        Get a node given its key
 
         Parameters
         ----------
-        key
-
+        key: str
+            The key of the node of interest
         Returns
         -------
+        node : HierarchyTree
+            The node of interest
 
         """
         for node in self.traversal_level():
@@ -179,8 +212,9 @@ class HierarchyTree(NAryTreeT):
 
         Returns
         -------
-
+        list of nodes
         """
+
         res = []
         q = deque([(self, 0)])
         while q:
@@ -194,14 +228,25 @@ class HierarchyTree(NAryTreeT):
 
     def num_nodes(self) -> int:
         """
-        Return the
+        Return the of nodes in the tree
+
         Returns
         -------
-
+        num nodes : int
         """
+
         return sum(chain.from_iterable(self.level_order_traversal()))
 
     def is_leaf(self):
+        """
+        Check if node is a leaf Node
+
+        Returns
+        -------
+        bool
+            True or False
+        """
+
         return len(self.children) == 0
 
     def value_at_height(self, level: int) -> List:
@@ -222,6 +267,15 @@ class HierarchyTree(NAryTreeT):
         return -1
 
     def level_order_traversal(self: NAryTreeT) -> List[List[int]]:
+        """
+        Iterate through the tree in level order, getting the number of children for
+        each node
+
+        Returns
+        -------
+        list[list[int]]
+        """
+
         res = []
         q = deque([(self, 0)])
         while q:
@@ -241,7 +295,15 @@ class HierarchyTree(NAryTreeT):
     def leaf_sum(self) -> int:
         return sum(self.level_order_traversal()[-1])
 
-    def to_pandas(self):
+    def to_pandas(self) -> pandas.DataFrame:
+        """
+        Transforms the hierarchy into a pandas.DataFrame
+        Returns
+        -------
+        df : pandas.DataFrame
+            Dataframe representation of the tree
+        """
+
         df = pandas.concat([self.item] + [c.item for c in self.traversal_level()], 1)
         df.index.name = 'ds'
         return df

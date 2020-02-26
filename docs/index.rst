@@ -8,9 +8,10 @@ Welcome to scikit-hts's documentation!
    readme
    installation
    usage
+   hierarchy
+   models
    geo
    modules
-   models
    contributing
    history
 
