@@ -4,7 +4,7 @@ import numpy
 
 from hts.hierarchy import HierarchyTree
 from hts._t import Model
-from hts.model import TimeSeriesModel, BaseArModel
+from hts.model import TimeSeriesModel
 
 logger = logging.getLogger(__name__)
 
@@ -14,9 +14,20 @@ except ImportError:
     logger.error('pmdarima not installed, so HierarchicalArima won\'t work. Install it with: \npip install pmdarima')
 
 
-class AutoArimaModel(BaseArModel):
+class AutoArimaModel(TimeSeriesModel):
+
     def __init__(self, node: HierarchyTree, **kwargs):
         super().__init__(Model.auto_arima.name, node, **kwargs)
+
+    def fit(self, **fit_args) -> 'TimeSeriesModel':
+        as_df = self._reformat(self.node.item)
+        end = as_df[self.node.key]
+        if self.node.exogenous:
+            ex = as_df[self.node.exogenous]
+        else:
+            ex = None
+        self.model = self.model.fit(y=end, exogenous=ex, **fit_args)
+        return self.model
 
     def predict(self, node, steps_ahead=10, alpha=0.05):
         if self.node.exogenous:
@@ -29,20 +40,16 @@ class AutoArimaModel(BaseArModel):
         self.mse = numpy.mean(numpy.array(self.residual) ** 2)
         return self.model
 
+    def fit_predict(self, node: HierarchyTree, steps_ahead=10, alpha=0.05, **fit_args):
+        return self.fit(**fit_args).predict(node=node, steps_ahead=steps_ahead, alpha=alpha)
 
-class SarimaxModel(BaseArModel):
+
+class SarimaxModel(TimeSeriesModel):
     def __init__(self, node: HierarchyTree, **kwargs):
         super().__init__(Model.sarimax.name, node, **kwargs)
 
     def fit(self, **fit_args) -> 'TimeSeriesModel':
-        as_df = self._reformat(self.node.item)
-        end = as_df[self.node.key]
-        if self.node.exogenous:
-            ex = as_df[self.node.exogenous]
-        else:
-            ex = None
-        sar_model = self.model(endog=end, exog=ex, **fit_args)
-        self.model = sar_model.fit(disp=0)
+        self.model = self.model.fit(disp=0, **fit_args)
         return self.model
 
     def predict(self, node, steps_ahead=10, alpha=0.05):
@@ -56,4 +63,5 @@ class SarimaxModel(BaseArModel):
         self.mse = numpy.mean(numpy.array(self.residual) ** 2)
         return self.model
 
-
+    def fit_predict(self, node: HierarchyTree, steps_ahead=10, alpha=0.05, **fit_args):
+        return self.fit(**fit_args).predict(node=node, steps_ahead=steps_ahead, alpha=alpha)

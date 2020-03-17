@@ -69,7 +69,13 @@ class TimeSeriesModel(BaseEstimator, RegressorMixin):
             model = AutoARIMA(**kwargs)
 
         elif self.kind == Model.sarimax.name:
-            model = SARIMAX
+            as_df = self._reformat(self.node.item)
+            end = as_df[self.node.key]
+            if self.node.exogenous:
+                ex = as_df[self.node.exogenous]
+            else:
+                ex = None
+            model = SARIMAX(endog=end, exog=ex, **kwargs)
         else:
             raise
         return model
@@ -81,7 +87,7 @@ class TimeSeriesModel(BaseEstimator, RegressorMixin):
             df = self.node.item
         return df
 
-    def fit(self) -> 'TimeSeriesModel':
+    def fit(self, **fit_args) -> 'TimeSeriesModel':
         raise NotImplementedError
 
     def predict(self, node: HierarchyTree, **predict_args):
@@ -89,21 +95,3 @@ class TimeSeriesModel(BaseEstimator, RegressorMixin):
 
     def fit_predict(self, node: HierarchyTree, **kwargs):
         return self.fit().predict(node)
-
-
-class BaseArModel(TimeSeriesModel):
-    def __init__(self, kind: str, node: HierarchyTree, **kwargs):
-        super().__init__(kind, node, **kwargs)
-
-    def fit(self, **fit_args) -> 'TimeSeriesModel':
-        as_df = self._reformat(self.node.item)
-        end = as_df[self.node.key]
-        if self.node.exogenous:
-            ex = as_df[self.node.exogenous]
-        else:
-            ex = None
-        self.model = self.model.fit(y=end, exogenous=ex, **fit_args)
-        return self.model
-
-    def predict(self, node: HierarchyTree, **predict_args):
-        raise NotImplementedError
