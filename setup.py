@@ -56,6 +56,6 @@ setup(
     packages=find_packages(include=['hts']),
     test_suite='tests',
     tests_require=test_requires,
-    version='0.2.0',
+    version='0.2.1',
     zip_safe=False,
 )
