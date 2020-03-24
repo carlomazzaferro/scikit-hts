@@ -5,10 +5,10 @@ from pmdarima import AutoARIMA
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.statespace.sarimax import SARIMAXResultsWrapper
 
-from hts import HoltWintersModel
-from hts.model.p import FBProphetModel
-from hts.model.ar import AutoArimaModel, SarimaxModel
-from hts.model import TimeSeriesModel
+from hts.model import HoltWintersModel
+from hts.model import FBProphetModel
+from hts.model import AutoArimaModel, SarimaxModel
+from model.base import TimeSeriesModel
 
 
 def test_instantiate_fb_model_uv(uv_tree):
