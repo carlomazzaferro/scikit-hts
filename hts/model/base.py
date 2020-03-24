@@ -9,7 +9,7 @@ from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 
 from hts import HierarchyTree, Transform, Model, InvalidArgumentException
-from transforms import FunctionTransformer
+from hts.transforms import FunctionTransformer
 
 
 class TimeSeriesModel(BaseEstimator, RegressorMixin):

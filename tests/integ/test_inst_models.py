@@ -8,7 +8,7 @@ from statsmodels.tsa.statespace.sarimax import SARIMAXResultsWrapper
 from hts.model import HoltWintersModel
 from hts.model import FBProphetModel
 from hts.model import AutoArimaModel, SarimaxModel
-from model.base import TimeSeriesModel
+from hts.model.base import TimeSeriesModel
 
 
 def test_instantiate_fb_model_uv(uv_tree):

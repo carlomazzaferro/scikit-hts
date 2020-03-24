@@ -1,6 +1,6 @@
 import numpy
 
-from _t import MethodsT
+from hts._t import MethodsT
 from hts import InvalidArgumentException
 from hts.functions import y_hat_matrix, optimal_combination, proportions, forecast_proportions
 
