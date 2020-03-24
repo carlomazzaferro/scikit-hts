@@ -2,7 +2,7 @@ import numpy
 
 from hts.hierarchy import HierarchyTree
 from hts._t import Model
-from hts.model import TimeSeriesModel
+from model.base import TimeSeriesModel
 
 
 class HoltWintersModel(TimeSeriesModel):

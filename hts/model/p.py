@@ -5,7 +5,7 @@ import pandas
 
 from hts.hierarchy import HierarchyTree
 from hts._t import Model
-from hts.model import TimeSeriesModel
+from model.base import TimeSeriesModel
 from hts.utils import suppress_stdout_stderr
 
 logger = logging.getLogger(__name__)
