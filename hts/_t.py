@@ -154,3 +154,5 @@ class MethodsT(Enum):
     PHA = 'PHA'
     AHP = 'AHP'
     BU = 'BU'
+
+

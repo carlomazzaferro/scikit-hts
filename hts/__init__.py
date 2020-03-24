@@ -9,14 +9,14 @@ from hts._t import Transform, Model, NodesT, ExogT
 from hts.exceptions import InvalidArgumentException, MissingRegressorException
 from hts.functions import to_sum_mat
 from hts.hierarchy import HierarchyTree
-from hts.model.ar import AutoArimaModel, SarimaxModel
-from hts.model.es import HoltWintersModel
-from hts.model.p import FBProphetModel
-from hts.revision import Methods
+from hts.revision import RevisionMethod
+from hts.model import MODEL_MAPPING
+
 
 __author__ = """Carlo Mazzaferro"""
 __email__ = 'carlo.mazzaferro@gmail.com'
 __version__ = '0.2.1'
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -116,7 +116,7 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         self.n_forecasts = None
         self.model_instance = None
         self.exogenous = False
-        self.revision_method = Methods[self.method].value(**kwargs)
+        self.revision_method = None
         self.models = dict()
         self.mse = dict()
         self.residuals = dict()
@@ -145,20 +145,19 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
     def __init_hts(self, nodes, df, root, exogenous=None):
         self.exogenous = exogenous
         self.nodes = HierarchyTree.from_nodes(nodes=nodes, df=df, exogenous=exogenous, root=root)
+        self.df = df
         self.sum_mat = to_sum_mat(self.nodes)
         self.n_forecasts = self.sum_mat.shape[0]
-        self._get_model_instance()
+        self._set_model_instance()
+        self._init_revision()
 
-    def _get_model_instance(self):
-        if self.model == Model.auto_arima.name:
-            self.model_instance = AutoArimaModel
-        elif self.model == Model.sarimax.name:
-            self.model_instance = SarimaxModel
-        elif self.model == Model.holt_winters.name:
-            self.model_instance = HoltWintersModel
-        elif self.model == Model.prophet.name:
-            self.model_instance = FBProphetModel
-        else:
+    def _init_revision(self):
+        self.revision_method = RevisionMethod(sum_mat=self.sum_mat, transformer=self.transform, name=self.method)
+
+    def _set_model_instance(self):
+        try:
+            self.model_instance = MODEL_MAPPING[self.model]
+        except KeyError:
             raise InvalidArgumentException(f'Model {self.model} not valid. Pick one of: {" ".join(Model.names())}')
 
     def fit(self,
