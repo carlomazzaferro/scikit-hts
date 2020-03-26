@@ -3,6 +3,7 @@ import logging
 from typing import Union, Optional, List, Dict
 
 import pandas
+from tqdm import tqdm
 from sklearn.base import BaseEstimator, RegressorMixin
 
 from hts._t import Transform, Model, NodesT, ExogT
@@ -117,6 +118,7 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         self.model_instance = None
         self.exogenous = False
         self.revision_method = None
+        self.revised_forecasts = None
         self.models = dict()
         self.mse = dict()
         self.residuals = dict()
@@ -167,22 +169,50 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
             root: Union[str, HierarchyTree] = 'total',
             **fit_args) -> 'HTSRegressor':
         self.__init_hts(nodes=nodes, df=df, root=root, exogenous=exogenous)
-        for node in [self.nodes] + self.nodes.traversal_level():
-            model = self.model_instance(node=node, transform=self.transform, **self.model_args)
-            model = model.fit(**fit_args)
-            self.models[node.key] = model
+
+        to_fit = tqdm([self.nodes] + self.nodes.traversal_level())
+
+        for node in to_fit:
+            model_instance = self.model_instance(node=node, transform=self.transform, **self.model_args)
+            to_fit.set_description(f'Fitting base model for node: {node.key}')
+            model_instance = model_instance.fit(**fit_args)
+            self.models[node.key] = model_instance
         return self
 
     def predict(self,
                 exogenous_df: pandas.DataFrame = None,
                 steps_ahead: int = None,
-                **predict_kwargs) -> 'HTSRegressor':
+                **predict_kwargs) -> pandas.DataFrame:
+
         steps_ahead = self.__init_predict_step(exogenous_df, steps_ahead)
-        for node in [self.nodes] + self.nodes.traversal_level():
-            model = self.models[node.key]
-            model = model.predict(node=node, steps_ahead=steps_ahead, **predict_kwargs)
-            self.models[node.key] = model
-            self.forecasts[node.key] = model.forecast
-            self.mse[node.key] = model.mse
-            self.residuals[node.key] = model.residual
-        return self
+        to_predict = tqdm([self.nodes] + self.nodes.traversal_level())
+
+        for node in to_predict:
+            model_instance = self.models[node.key]
+            to_predict.set_description(f'Generating base prediction for node: {node.key}')
+            model_instance = model_instance.predict(node=node, steps_ahead=steps_ahead, **predict_kwargs)
+            self.models[node.key] = model_instance
+            self.forecasts[node.key] = model_instance.forecast
+            self.mse[node.key] = model_instance.mse
+            self.residuals[node.key] = model_instance.residual
+        return self._revise(steps_ahead=steps_ahead)
+
+    def _revise(self, steps_ahead=1):
+        revised = self.revision_method.revise(
+            forecasts=self.forecasts, mse=self.mse, df=self.df, nodes=self.nodes
+        )
+        revised_columns = ['total'] + [k.key for k in self.nodes.traversal_level()]
+        revised_index = self._get_predict_index(steps_ahead=steps_ahead)
+        return pandas.DataFrame(revised,
+                                index=revised_index,
+                                columns=revised_columns)
+
+    def _get_predict_index(self, steps_ahead=1):
+        freq = pandas.infer_freq(self.df.index)
+        future = pandas.date_range(freq=freq,
+                                   start=self.df.index.max() + pandas.Timedelta(1, freq),
+                                   end=self.df.index.max() + pandas.Timedelta(steps_ahead, freq)
+                                   )
+
+        return self.df.index.append(future)
+
