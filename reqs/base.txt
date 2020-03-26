@@ -6,4 +6,4 @@ pmdarima==1.5.1
 statsmodels==0.10.2
 fbprophet>=0.5
 holidays==0.9.12
-
+tqdm==4.43
