@@ -27,7 +27,7 @@ class RevisionMethod(object):
         keys = range(n_cols - self.sum_mat.shape[1] - 1, n_cols - 1)
         return y_hat_matrix(forecasts, keys=keys)
 
-    def predict(self, forecasts=None, mse=None, df=None, nodes=None):
+    def revise(self, forecasts=None, mse=None, df=None, nodes=None):
         if self.name in [MethodsT.OLS.name, MethodsT.WLSS.name, MethodsT.WLSV.name]:
             return optimal_combination(forecasts=forecasts,
                                        sum_mat=self.sum_mat,
