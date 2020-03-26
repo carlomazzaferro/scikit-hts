@@ -52,7 +52,7 @@ class FBProphetModel(TimeSeriesModel):
         if isinstance(node, pandas.Series):
             node = pandas.DataFrame(node)
         df = node.rename(columns={self.node.key: 'y'})
-        df['ds'] = df.index
+        df['ds'] = pandas.to_datetime(df.index)
         return df.reset_index(drop=True)
 
     def fit(self, **fit_args) -> 'TimeSeriesModel':
@@ -89,4 +89,4 @@ class FBProphetModel(TimeSeriesModel):
                 if component in self.forecast.columns.tolist():
                     inv_transf = self.transformer.inverse_transform(getattr(self.forecast, component))
                     setattr(self.forecast, component, inv_transf)
-        return self.model
+        return self
