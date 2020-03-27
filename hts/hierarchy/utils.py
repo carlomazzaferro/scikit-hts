@@ -14,11 +14,11 @@ except ImportError:
     logger.error('h3-py must be installed for geo hashing capabilities')
 
 
-def fetch_cols(exogenous, name) -> Tuple[str, Optional[List[str]]]:
+def fetch_cols(exogenous, name) -> Tuple[List[str], Optional[List[str]]]:
     if not exogenous:
-        return name, None
+        return [name], None
     exog = exogenous.get(name, None)
-    cols = [name] + exog if exog else name
+    cols = [name] + exog if exog else [name]
     return cols, exog
 
 

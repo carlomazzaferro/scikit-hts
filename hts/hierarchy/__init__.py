@@ -4,7 +4,6 @@ import weakref
 from collections import deque
 from itertools import chain
 from typing import Tuple, Union, List, Optional
-
 import pandas
 
 from hts._t import NAryTreeT, NodesT, ExogT
@@ -308,13 +307,17 @@ class HierarchyTree(NAryTreeT):
         df.index.name = 'ds'
         return df
 
+    def get_series(self) -> pandas.Series:
+        return self.item[self.key]
+
 
 if __name__ == '__main__':
-    from hts.utils import hierarchical_sine_data
+
+    from hts.utils import load_hierarchical_sine_data
     from datetime import datetime
 
     s, e = datetime(2019, 1, 15), datetime(2019, 10, 15)
-    dti = hierarchical_sine_data(s, e)
+    dti = load_hierarchical_sine_data(s, e)
     hier = {'total': ['a', 'b', 'c'], 'a': ['aa', 'ab'], 'aa': ['aaa', 'aab'], 'b': ['ba', 'bb'], 'c': ['ca', 'cb', 'cc', 'cd']}
 
     ht = HierarchyTree.from_nodes(hier, dti)

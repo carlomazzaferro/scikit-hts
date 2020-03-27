@@ -130,6 +130,9 @@ class NAryTreeT(metaclass=abc.ABCMeta):
     def get_node_height(self, key: str) -> int:
         ...
 
+    def get_series(self) -> pandas.Series:
+        ...
+
     def string_repr(self, prefix='', _last=True):
         base = ''.join([prefix, "- " if _last else "|- ", self.key, '\n'])
         prefix += "   " if _last else "|  "
