@@ -2,7 +2,7 @@
 name: "[DOCS]"
 about: Propose changes or enhancements to documentation
 title: "[DOCS] Documentation"
-labels: ''
+labels: documentation
 assignees: ''
 
 ---
