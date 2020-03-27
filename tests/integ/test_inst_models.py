@@ -66,7 +66,7 @@ def test_fit_predict_sarimax_model_uv(uv_tree):
         max_iter=1,
     )
     fitted_sar = sar.fit()
-    assert isinstance(fitted_sar, SARIMAXResultsWrapper)
+    assert isinstance(fitted_sar, SarimaxModel)
     sar.predict(uv_tree)
     assert isinstance(sar.forecast, numpy.ndarray)
     assert isinstance(sar.residual, numpy.ndarray)
@@ -78,7 +78,7 @@ def test_fit_predict_hw_model_uv(uv_tree):
         node=uv_tree,
     )
     fitted_hw = hw.fit()
-    assert isinstance(fitted_hw, ExponentialSmoothing)
+    assert isinstance(fitted_hw, HoltWintersModel)
     hw.predict(uv_tree)
     assert isinstance(hw.forecast, numpy.ndarray)
     assert isinstance(hw.residual, numpy.ndarray)
