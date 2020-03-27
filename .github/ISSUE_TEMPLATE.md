@@ -1,4 +1,4 @@
-* racket version:
+* scikit-hts version:
 * Python version:
 * Operating System:
 

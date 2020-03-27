@@ -23,7 +23,9 @@ Hierarchical Time Series with a familiar API
      :target: https://pepy.tech/project/scikit-hts/month
      :alt: Downloads/Month
 
-
+.. image:: https://img.shields.io/badge/join-us%20on%20slack-gray.svg?longCache=true&logo=slack&colorB=brightgreen
+    :target: https://join.slack.com/t/scikit-hts/shared_invite/zt-d5is54bp-iOeagm7Jv68ZTkjk_zezrA
+    :alt: Slack
 
 
 * `MIT License`_
