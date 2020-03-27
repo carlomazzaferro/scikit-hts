@@ -20,13 +20,14 @@
 #
 import os
 import sys
+
+import hts
+
 sys.path.insert(0, os.path.abspath('..'))
 
 extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.napoleon',  'sphinx.ext.todo']
 autodoc_mock_imports = ['fbprophet', 'h3', 'pmdarima']
 
-
-import hts
 
 napoleon_numpy_docstring = True
 napoleon_include_init_with_doc = True
