@@ -9,13 +9,15 @@ from hts.model.base import TimeSeriesModel
 from hts.utils import suppress_stdout_stderr
 
 logger = logging.getLogger(__name__)
-logging.getLogger('fbprophet').setLevel(logging.ERROR)
 
 
 try:
     from fbprophet import Prophet
 except ImportError:  # pragma: no cover
     logger.error('Mapping requires folium==0.10.0 to be installed, geo mapping will not work')
+
+
+logging.getLogger('fbprophet').setLevel(logging.ERROR)
 
 
 class FBProphetModel(TimeSeriesModel):
