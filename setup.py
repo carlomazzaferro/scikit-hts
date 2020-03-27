@@ -16,8 +16,10 @@ EXTENSIONS = {
     'prophet',
     'geo',
     'test',
-    'dev'
+    'dev',
+    'all'
 }
+
 
 def strip_comments(l):
     return l.split('#', 1)[0].strip()
