@@ -19,7 +19,6 @@ except ImportError:  # pragma: no cover
 
 
 class FBProphetModel(TimeSeriesModel):
-    # TODO: include history to calculate residuals
     def __init__(self, node: HierarchyTree, **kwargs):
         super().__init__(Model.prophet.name, node, **kwargs)
         self.cap = None
@@ -59,6 +58,7 @@ class FBProphetModel(TimeSeriesModel):
         df = self._reformat(self.node.item)
         with suppress_stdout_stderr():
             self.model = self.model.fit(df)
+            self.model.stan_backend = None
         return self
 
     def predict(self,
