@@ -11,6 +11,13 @@ with open('README.rst',  encoding='utf-8') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
+EXTENSIONS = {
+    'auto_arima',
+    'prophet',
+    'geo',
+    'test',
+    'dev'
+}
 
 def strip_comments(l):
     return l.split('#', 1)[0].strip()
@@ -21,7 +28,6 @@ def _pip_requirement(req, *root):
         _, path = req.split()
         return reqs(*root, *path.split('/'))
     return [req]
-
 
 def _reqs(*f):
     path = (Path.cwd() / 'reqs').joinpath(*f)
@@ -34,8 +40,18 @@ def reqs(*f):
     return [req for subreq in _reqs(*f) for req in subreq]
 
 
+def extras(*p):
+    """Parse requirement in the requirements/extras/ directory."""
+    return reqs('extras', *p)
+
+
+def extras_require():
+    """Get map of all extra requirements."""
+    return {x: extras(x + '.txt') for x in EXTENSIONS}
+
+
 install_requires = reqs('base.txt')
-test_requires = reqs('test.txt') + install_requires
+test_requires = extras('prophet.txt') + extras('auto_arima.txt') + extras('test.txt') + install_requires
 
 setup(
     author="Carlo Mazzaferro",
@@ -49,6 +65,7 @@ setup(
     ],
     description="Hierarchical Time Series forecasting",
     install_requires=install_requires,
+    extras_require=extras_require(),
     long_description=readme + '\n\n' + history,
     include_package_data=True,
     keywords='scikit-hts',
