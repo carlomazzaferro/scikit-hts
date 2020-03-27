@@ -13,14 +13,15 @@ class HoltWintersModel(TimeSeriesModel):
     def predict(self, node: HierarchyTree,  steps_ahead=10):
         self.forecast = self._model.forecast(steps=steps_ahead).values
         in_sample_preds = self._model.predict(start=0, end=-1)
+        print(in_sample_preds)
 
-        self.residual = (in_sample_preds.values - self._reformat(self.node.item)[self.node.key].values)
+        self.residual = (in_sample_preds.values - self.node.get_series().values)
         self.mse = numpy.mean(numpy.array(self.residual) ** 2)
-        return self.model
+        return self
 
     def fit(self, **fit_args) -> 'TimeSeriesModel':
         self._model = self.model.fit(**fit_args)
-        return self.model
+        return self
 
     def fit_predict(self, node: HierarchyTree, steps_ahead=10, **fit_args):
         return self.fit(**fit_args).predict(node=node, steps_ahead=steps_ahead)

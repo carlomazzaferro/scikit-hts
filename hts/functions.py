@@ -118,19 +118,23 @@ def optimal_combination(forecasts: Dict[str, pandas.DataFrame],
     return project(hat_mat=hat_mat, sum_mat=sum_mat, optimal_mat=optimal_mat)
 
 
-def proportions(df, forecasts, sum_mat, method=MethodsT.PHA.name):
+def proportions(nodes, forecasts, sum_mat, method=MethodsT.PHA.name):
     n_cols = len(list(forecasts.keys())) + 1
     fcst = forecasts[0].yhat
     fcst = fcst[:, np.newaxis]
     num_bts = sum_mat.shape[1]
-    bts_dat = pandas.DataFrame(df.iloc[:, n_cols - num_bts:n_cols])
+
+    cols = [n.key for n in [nodes] + nodes.traversal_level()][(n_cols - num_bts): n_cols]
+
+    bts_dat = pandas.concat(nodes.to_pandas()[cols])
+    # bts_dat = pandas.DataFrame(df.iloc[:, n_cols - num_bts:n_cols])
+    divs = np.divide(np.transpose(np.array(bts_dat)), np.array(nodes.get_series()))
     if method == MethodsT.AHP.name:
-        divs = np.divide(np.transpose(np.array(bts_dat)), np.array(df.iloc[:, 1]))
         props = divs.mean(1)
         props = props[:, np.newaxis]
     elif method == MethodsT.PHA.name:
         bts_sum = bts_dat.sum(0)
-        top_sum = sum(df.iloc[:, 1])
+        top_sum = sum(nodes.get_series())
         props = bts_sum / top_sum
         props = props[:, np.newaxis]
     else:

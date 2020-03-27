@@ -4,14 +4,22 @@ from typing import Tuple, Optional, List
 import pandas
 
 from hts._t import NAryTreeT
-from hts.exceptions import InvalidArgumentException
+from hts.core.exceptions import InvalidArgumentException
 
 logger = logging.getLogger(__name__)
 
 try:
     from h3 import h3
 except ImportError:
-    logger.error('h3-py must be installed for geo hashing capabilities')
+    logger.warning('h3-py must be installed for geo hashing capabilities')
+
+
+def make_iterable(nodes: NAryTreeT, prop='key'):
+    if not prop:
+        it = [nodes] + nodes.traversal_level()
+    else:
+        it = [getattr(nodes, prop)] + [getattr(k, prop) for k in nodes.traversal_level()]
+    return it
 
 
 def fetch_cols(exogenous, name) -> Tuple[List[str], Optional[List[str]]]:

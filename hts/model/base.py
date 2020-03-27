@@ -1,6 +1,5 @@
 from typing import Optional, Union
 
-import pandas
 from pmdarima import AutoARIMA
 from scipy.special._ufuncs import inv_boxcox
 from scipy.stats import boxcox
@@ -8,8 +7,10 @@ from sklearn.base import BaseEstimator, RegressorMixin
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 
-from hts import HierarchyTree, Transform, Model, InvalidArgumentException
+from hts.core.exceptions import InvalidArgumentException
+from hts._t import Transform, Model
 from hts.transforms import FunctionTransformer
+from hts.hierarchy import HierarchyTree
 
 
 class TimeSeriesModel(BaseEstimator, RegressorMixin):
@@ -67,8 +68,8 @@ class TimeSeriesModel(BaseEstimator, RegressorMixin):
             model = AutoARIMA(**kwargs)
 
         elif self.kind == Model.sarimax.name:
-            as_df = self._reformat(self.node.item)
-            end = as_df[self.node.key]
+            as_df = self.node.item
+            end = self.node.get_series()
             if self.node.exogenous:
                 ex = as_df[self.node.exogenous]
             else:
@@ -77,13 +78,6 @@ class TimeSeriesModel(BaseEstimator, RegressorMixin):
         else:
             raise
         return model
-
-    def _reformat(self, df):
-        if isinstance(self.node.item, pandas.Series):
-            df = pandas.DataFrame(self.node.item)
-        else:
-            df = self.node.item
-        return df
 
     def fit(self, **fit_args) -> 'TimeSeriesModel':
         raise NotImplementedError
