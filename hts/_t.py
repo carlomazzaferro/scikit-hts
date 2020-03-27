@@ -18,9 +18,7 @@ except ImportError:
 # TODO: make this a proper recursive type when mypy supports it: https://github.com/python/mypy/issues/731
 HierarchyT = Tuple[str, 'HierarchyT']
 
-
-NodesT = Dict[str, List[str]]
-ExogT = Dict[str, List[str]]
+NodesT = ExogT = Dict[str, List[str]]
 
 
 class ExtendedEnum(Enum):
@@ -157,5 +155,3 @@ class MethodsT(Enum):
     PHA = 'PHA'
     AHP = 'AHP'
     BU = 'BU'
-
-
