@@ -14,3 +14,10 @@ History
 * Static typing
 * Testing - 44% coverage
 
+
+0.2.3 (2020-03-28)
+------------------
+
+* Testing up to 75%
+* Exogenous variable support
+* Extensive docs
