@@ -3,11 +3,6 @@ matrix:
     include:
         - python: 3.7
         - python: 3.8
-        - name: Python 3.8.0 on macOS
-          os: osx
-          osx_image: xcode11.3
-          language: objective-c
-          env: PYENV_VERSION=3.8.0
 install:
     - pip install -U tox-travis
     - pip install -e ."[all]"
