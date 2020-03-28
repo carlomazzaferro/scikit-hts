@@ -53,7 +53,7 @@ def test_fit_predict_ar_model_uv(uv_tree):
     ar.fit(max_iter=1)
     assert isinstance(ar.model, AutoARIMA)
     ar.predict(uv_tree)
-    assert isinstance(ar.forecast, numpy.ndarray)
+    assert isinstance(ar.forecast, pandas.DataFrame)
     assert isinstance(ar.residual, numpy.ndarray)
     assert isinstance(ar.mse, float)
 
@@ -66,10 +66,7 @@ def test_fit_predict_sarimax_model_uv(uv_tree):
     fitted_sar = sar.fit()
     assert isinstance(fitted_sar, SarimaxModel)
     sar.predict(uv_tree)
-    assert isinstance(sar.forecast, numpy.ndarray)
-    print(sar.residual)
-    print(type(sar.residual))
-
+    assert isinstance(sar.forecast, pandas.DataFrame)
     assert isinstance(sar.residual, numpy.ndarray)
     assert isinstance(sar.mse, float)
 
@@ -81,6 +78,6 @@ def test_fit_predict_hw_model_uv(uv_tree):
     fitted_hw = hw.fit()
     assert isinstance(fitted_hw, HoltWintersModel)
     hw.predict(uv_tree)
-    assert isinstance(hw.forecast, numpy.ndarray)
+    assert isinstance(hw.forecast, pandas.DataFrame)
     assert isinstance(hw.residual, numpy.ndarray)
     assert isinstance(hw.mse, float)
