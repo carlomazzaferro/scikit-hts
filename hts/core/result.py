@@ -29,7 +29,7 @@ class HTSResult:
 
     @property
     def errors(self):
-        return self.forecasts
+        return self._errors
 
     @errors.setter
     def errors(self, kv_tuple):

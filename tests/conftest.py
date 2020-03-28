@@ -109,14 +109,24 @@ def mv_tree(hierarchical_mv_data):
         'BT': ['BT-01', 'BT-03'],
         'OTHER': ['WF-01', 'CBD-13']
     }
-    exogenous = {k: ['precipitation', 'temp'] for k in hierarchical_mv_data.columns if k not in ['precipitation', 'temp']}
+    exogenous = {k: ['precipitation', 'temp'] for k in hierarchical_mv_data.columns if
+                 k not in ['precipitation', 'temp']}
     return HierarchyTree.from_nodes(hier, hierarchical_mv_data, exogenous=exogenous)
 
 
 @pytest.fixture
-def uv_tree(hierarchical_sine_data):
-    hier = {'total': ['a', 'b', 'c'],
+def sine_hier():
+    return {'total': ['a', 'b', 'c'],
             'a': ['aa', 'ab'], 'aa': ['aaa', 'aab'],
             'b': ['ba', 'bb'],
             'c': ['ca', 'cb', 'cc', 'cd']}
-    return HierarchyTree.from_nodes(hier, hierarchical_sine_data)
+
+
+@pytest.fixture
+def uv_tree(sine_hier, hierarchical_sine_data):
+    return HierarchyTree.from_nodes(sine_hier, hierarchical_sine_data)
+
+
+@pytest.fixture
+def load_df_and_hier_uv(sine_hier, hierarchical_sine_data):
+    return hierarchical_sine_data, sine_hier
