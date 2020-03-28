@@ -129,4 +129,4 @@ def uv_tree(sine_hier, hierarchical_sine_data):
 
 @pytest.fixture
 def load_df_and_hier_uv(sine_hier, hierarchical_sine_data):
-    return hierarchical_sine_data, sine_hier
+    return hierarchical_sine_data.resample('1H').apply(sum), sine_hier

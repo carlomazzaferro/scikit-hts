@@ -3,6 +3,7 @@ import numpy
 from hts._t import MethodsT
 from hts.core.exceptions import InvalidArgumentException
 from hts.functions import y_hat_matrix, optimal_combination, proportions, forecast_proportions
+from hts.hierarchy.utils import make_iterable
 
 
 class RevisionMethod(object):
@@ -53,7 +54,7 @@ class RevisionMethod(object):
 
         elif self.name in [MethodsT.AHP.name, MethodsT.PHA.name]:
             if self.transformer:
-                for node in [self.nodes] + self.nodes.traversal_level():
+                for node in make_iterable(nodes, prop=None):
                     node.item[node.key] = self.transformer.inverse_transform(node.item[node.key])
             y_hat = proportions(nodes, forecasts, self.sum_mat, method=self.name)
             return self._new_mat(y_hat)
