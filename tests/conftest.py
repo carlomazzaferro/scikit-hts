@@ -124,7 +124,8 @@ def sine_hier():
 
 @pytest.fixture
 def uv_tree(sine_hier, hierarchical_sine_data):
-    return HierarchyTree.from_nodes(sine_hier, hierarchical_sine_data)
+    hsd = hierarchical_sine_data.resample('1H').apply(sum).head(400)
+    return HierarchyTree.from_nodes(sine_hier, hsd)
 
 
 @pytest.fixture

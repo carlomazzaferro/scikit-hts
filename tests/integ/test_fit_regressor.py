@@ -22,17 +22,18 @@ def test_fit_regressor_uv(load_df_and_hier_uv):
 
 def test_predict_regressor_uv(load_df_and_hier_uv):
     hierarchical_sine_data, sine_hier = load_df_and_hier_uv
+    hsd = hierarchical_sine_data.head(200)
     for model in ['holt_winters', 'auto_arima']:
         ht = HTSRegressor(model=model, revision_method='OLS')
 
-        ht.fit(df=hierarchical_sine_data, nodes=sine_hier)
+        ht.fit(df=hsd, nodes=sine_hier)
         preds = ht.predict(steps_ahead=10)
 
         assert isinstance(preds, pandas.DataFrame)
 
         # base + steps ahead
-        assert len(preds) == len(hierarchical_sine_data) + 10
-        assert len(ht.hts_result.forecasts['total']) == len(hierarchical_sine_data) + 10
+        assert len(preds) == len(hsd) + 10
+        assert len(ht.hts_result.forecasts['total']) == len(hsd) + 10
         assert 'total' in ht.hts_result.errors
         assert 'total' in ht.hts_result.forecasts
         assert 'total' in ht.hts_result.residuals

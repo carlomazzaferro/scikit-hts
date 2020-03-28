@@ -48,7 +48,6 @@ def test_fit_predict_fb_model_uv(uv_tree):
 def test_fit_predict_ar_model_uv(uv_tree):
     ar = AutoArimaModel(
         node=uv_tree,
-
     )
     ar.fit(max_iter=1)
     assert isinstance(ar.model, AutoARIMA)
