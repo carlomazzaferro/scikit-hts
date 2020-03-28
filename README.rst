@@ -55,7 +55,10 @@ Features
 * Geo events handling functionality for geospatial data, including visualisation capabilities
 * Static typing for a nice developer experience
 
+Examples
+--------
 
+You can find code usages here: https://github.com/carlomazzaferro/scikit-hts-examples
 
 Roadmap
 -------

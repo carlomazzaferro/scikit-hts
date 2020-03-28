@@ -41,7 +41,7 @@ class AutoArimaModel(TimeSeriesModel):
             ex = None
         self.forecast = self.model.predict(exogenous=ex, alpha=alpha, n_periods=steps_ahead)
         in_sample_preds = self.model.predict_in_sample()
-        self.residual = in_sample_preds - self.node.get_series().values
+        self.residual = (in_sample_preds - self.node.get_series()).values
         self.mse = numpy.mean(numpy.array(self.residual) ** 2)
         return self.model
 
@@ -64,7 +64,7 @@ class SarimaxModel(TimeSeriesModel):
             ex = None
         self.forecast = self.model.forecast(steps=steps_ahead, exog=ex).values
         in_sample_preds = self.model.get_prediction(dynamic=False, exog=ex)
-        self.residual = (in_sample_preds.predicted_mean - self.node.get_series().values)
+        self.residual = (in_sample_preds.predicted_mean - self.node.get_series()).values
         self.mse = numpy.mean(numpy.array(self.residual) ** 2)
         return self
 

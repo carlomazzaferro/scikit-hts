@@ -15,7 +15,7 @@ class HoltWintersModel(TimeSeriesModel):
         in_sample_preds = self._model.predict(start=0, end=-1)
         print(in_sample_preds)
 
-        self.residual = (in_sample_preds.values - self.node.get_series().values)
+        self.residual = (in_sample_preds.values - self.node.get_series()).values
         self.mse = numpy.mean(numpy.array(self.residual) ** 2)
         return self
 

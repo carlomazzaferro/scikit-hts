@@ -2,8 +2,6 @@ import numpy
 import pandas
 from fbprophet import Prophet
 from pmdarima import AutoARIMA
-from statsmodels.tsa.holtwinters import ExponentialSmoothing
-from statsmodels.tsa.statespace.sarimax import SARIMAXResultsWrapper
 
 from hts.model import HoltWintersModel
 from hts.model import FBProphetModel
@@ -69,6 +67,9 @@ def test_fit_predict_sarimax_model_uv(uv_tree):
     assert isinstance(fitted_sar, SarimaxModel)
     sar.predict(uv_tree)
     assert isinstance(sar.forecast, numpy.ndarray)
+    print(sar.residual)
+    print(type(sar.residual))
+
     assert isinstance(sar.residual, numpy.ndarray)
     assert isinstance(sar.mse, float)
 
