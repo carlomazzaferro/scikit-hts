@@ -21,6 +21,32 @@ logging.getLogger('fbprophet').setLevel(logging.ERROR)
 
 
 class FBProphetModel(TimeSeriesModel):
+    """
+    Wrapper class around ``fbprophet.Prophet``
+
+    Attributes
+    ----------
+    model : Prophet
+        The instance of the model
+
+    mse : float
+        MSE for in-sample predictions
+
+    residual : numpy.ndarry
+        Residuals for the in-sample predictions
+
+    forecast : pandas.DataFramer
+        The forecast for the trained model
+
+    Methods
+    -------
+    fit(self, **fit_args)
+        Fits underlying models to the data, passes kwargs to ``SARIMAX``
+
+    predict(self, node, steps_ahead: int = 10, freq: str = 'D', **predict_args)
+        Predicts the n-step ahead forecast. Exogenous variables are required if models were
+        fit using them, frequency should be passed as well
+    """
     def __init__(self, node: HierarchyTree, **kwargs):
         super().__init__(Model.prophet.name, node, **kwargs)
         self.cap = None
@@ -66,8 +92,7 @@ class FBProphetModel(TimeSeriesModel):
     def predict(self,
                 node: HierarchyTree,
                 freq: str = 'D',
-                steps_ahead: int = 1,
-                **predict_args):
+                steps_ahead: int = 1):
 
         df = self._reformat(node.item)
         future = self.model.make_future_dataframe(periods=steps_ahead,

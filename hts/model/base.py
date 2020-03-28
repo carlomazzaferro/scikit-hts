@@ -1,5 +1,7 @@
 from typing import Optional, Union
 
+import numpy
+import pandas
 from pmdarima import AutoARIMA
 from scipy.special._ufuncs import inv_boxcox
 from scipy.stats import boxcox
@@ -57,6 +59,12 @@ class TimeSeriesModel(BaseEstimator, RegressorMixin):
         else:
             self.transformer = FunctionTransformer(func=lambda x: (x, None),
                                                    inv_func=lambda x: (x, None))
+
+    def _set_results_return_self(self, in_sample, y_hat):
+        self.forecast = pandas.DataFrame({'yhat': numpy.concatenate([in_sample, y_hat])})
+        self.residual = (in_sample - self.node.get_series()).values
+        self.mse = numpy.mean(numpy.array(self.residual) ** 2)
+        return self
 
     def create_model(self, **kwargs):
 
