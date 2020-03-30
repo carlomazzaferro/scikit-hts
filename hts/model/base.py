@@ -57,8 +57,12 @@ class TimeSeriesModel(BaseEstimator, RegressorMixin):
                 self.transformer = FunctionTransformer(func=transform.func,
                                                        inv_func=transform.inv_func)
         else:
-            self.transformer = FunctionTransformer(func=lambda x: (x, None),
-                                                   inv_func=lambda x: (x, None))
+            self.transformer = FunctionTransformer(func=self._no_func,
+                                                   inv_func=self._no_func)
+
+    @staticmethod
+    def _no_func(x):
+        return x, None
 
     def _set_results_return_self(self, in_sample, y_hat):
         self.forecast = pandas.DataFrame({'yhat': numpy.concatenate([in_sample, y_hat])})
