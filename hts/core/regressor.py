@@ -5,14 +5,17 @@ import pandas
 from sklearn.base import BaseEstimator, RegressorMixin
 from tqdm import tqdm
 
+from hts.core.utils import _do_fit
 from hts.hierarchy.utils import make_iterable
-from hts import model as hts_models
+from hts import model as hts_models, defaults
 from hts._t import Transform, NodesT, ExogT, Model
 from hts.core.exceptions import MissingRegressorException, InvalidArgumentException
 from hts.core.result import HTSResult
 from hts.functions import to_sum_mat
 from hts.hierarchy import HierarchyTree
+from hts.model.base import TimeSeriesModel
 from hts.revision import RevisionMethod
+from hts.utilities.distribution import DistributorBaseClass
 
 logger = logging.getLogger(__name__)
 
@@ -68,11 +71,10 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
     """
 
     def __init__(self,
-                 model: str = 'prophet',
-                 periods: int = 1,
-                 revision_method: str = 'OLS',
+                 model: str = defaults.MODEL,
+                 revision_method: str = defaults.RESULT_DIR,
                  transform: Optional[Union[Transform, bool]] = None,
-                 n_jobs: int = -1,
+                 n_jobs: int = defaults.N_PROCESSES,
                  **kwargs: Any
                  ):
         """
@@ -85,7 +87,6 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         model : str
             One of the models supported by ``hts``. These can be found
 
-        periods : int
         revision_method : str
         transform : Boolean or NamedTuple
             If True, ``scipy.stats.boxcox`` and ``scipy.special._ufuncs.inv_boxcox`` will be applied prior and after
@@ -101,7 +102,6 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         """
 
         self.model = model
-        self.periods = periods
         self.method = revision_method
         self.n_jobs = n_jobs
         self.transform = transform
@@ -153,7 +153,10 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
             nodes: NodesT,
             exogenous: Optional[ExogT] = None,
             root: str = 'total',
-            **fit_args: Any) -> 'HTSRegressor':
+            distributor: Optional[DistributorBaseClass] = None,
+            disable_progressbar=defaults.DISABLE_PROGRESSBAR,
+            show_warnings=defaults.SHOW_WARNINGS,
+            **fit_kwargs: Any) -> 'HTSRegressor':
 
         """
         Fit hierarchical model to dataframe containing hierarchical data as specified in the ``nodes`` parameter
@@ -167,12 +170,18 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         nodes : Dict[str, List[str]]
             The hierarchy defined as a dict of (string, list), as specified in
              :py:func:`HierarchyTree.from_nodes <hts.hierarchy.HierarchyTree.from_nodes>`
+        distributor : Optional[DistributorBaseClass]
+             A distributor, for parallel/distributed processing
         exogenous : Dict[str, List[str]] or None
             Node key mapping to columns that contain the exogenous variable for that node
         root : str
             The name of the root node
-        fit_args: Any
+        fit_kwargs : Any
             Any arguments to be passed to the underlying forecasting model's fit function. You will have to
+        disable_progressbar : Bool
+            Disable or enable progressbar
+        show_warnings : Bool
+            Disable warnings
 
         Returns
         -------
@@ -182,17 +191,21 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
 
         self.__init_hts(nodes=nodes, df=df, root=root, exogenous=exogenous)
 
-        iterable = tqdm(make_iterable(self.nodes, prop=None))
+        nodes = make_iterable(self.nodes, prop=None)
+        models = [self.model_instance(node=node, transform=self.transform, **self.model_args)
+                  for node in nodes]
 
-        for node in iterable:
-            self._fit_step(node, iterable, **fit_args)
+        fitted_models = _do_fit(models=models, fit_kwargs=fit_kwargs, n_jobs=self.n_jobs,
+                                disable_progressbar=disable_progressbar, show_warnings=show_warnings,
+                                distributor=distributor)
+        for model in fitted_models:
+            self.hts_result.models = (model.node.key, model)
         return self
 
-    def _fit_step(self, node: HierarchyTree, iterable: tqdm, **fit_args):
-        model_instance = self.model_instance(node=node, transform=self.transform, **self.model_args)
-        iterable.set_description(f'Fitting base model for node : {node.key}')
-        model_instance = model_instance.fit(**fit_args)
-        self.hts_result.models = (node.key, model_instance)
+    def _fit_step(self, model: TimeSeriesModel, iterable: tqdm, **fit_args):
+        iterable.set_description(f'Fitting base model for node : {model.node.key}')
+        model_instance = model.fit(**fit_args)
+        self.hts_result.models = (model.node.key, model_instance)
 
     def predict(self,
                 exogenous_df: pandas.DataFrame = None,

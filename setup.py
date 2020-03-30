@@ -17,6 +17,7 @@ EXTENSIONS = {
     'geo',
     'test',
     'dev',
+    'distributed',
     'all'
 }
 
@@ -53,7 +54,10 @@ def extras_require():
 
 
 install_requires = reqs('base.txt')
-test_requires = extras('prophet.txt') + extras('auto_arima.txt') + extras('test.txt') + install_requires
+test_requires = extras('prophet.txt') + \
+                extras('auto_arima.txt') + \
+                extras('distributed.txt') + \
+                extras('test.txt') + install_requires
 
 setup(
     author="Carlo Mazzaferro",

@@ -6,7 +6,7 @@ import pandas
 from hts.hierarchy import HierarchyTree
 from hts._t import Model
 from hts.model.base import TimeSeriesModel
-from hts.utils import suppress_stdout_stderr
+from hts.utilities.utils import suppress_stdout_stderr
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 try:
     from fbprophet import Prophet
 except ImportError:  # pragma: no cover
-    logger.error('Mapping requires folium==0.10.0 to be installed, geo mapping will not work')
+    logger.error('prophet model requires fbprophet to work, install it with:\npip install scikit-hts[prophet]')
 
 
 logging.getLogger('fbprophet').setLevel(logging.ERROR)
