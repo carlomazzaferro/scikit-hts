@@ -72,7 +72,7 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
 
     def __init__(self,
                  model: str = defaults.MODEL,
-                 revision_method: str = defaults.RESULT_DIR,
+                 revision_method: str = defaults.REVISION,
                  transform: Optional[Union[Transform, bool]] = None,
                  n_jobs: int = defaults.N_PROCESSES,
                  **kwargs: Any
