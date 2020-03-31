@@ -1,18 +1,18 @@
 import logging
+import tempfile
 from typing import Optional, Union, Any
 
 import pandas
 from sklearn.base import BaseEstimator, RegressorMixin
-from tqdm import tqdm
 
-from hts.core.utils import _do_fit
-from hts.hierarchy.utils import make_iterable
 from hts import model as hts_models, defaults
 from hts._t import Transform, NodesT, ExogT, Model
 from hts.core.exceptions import MissingRegressorException, InvalidArgumentException
 from hts.core.result import HTSResult
+from hts.core.utils import _do_fit, _do_predict, _model_mapping_to_iterable
 from hts.functions import to_sum_mat
 from hts.hierarchy import HierarchyTree
+from hts.hierarchy.utils import make_iterable
 from hts.model.base import TimeSeriesModel
 from hts.revision import RevisionMethod
 from hts.utilities.distribution import DistributorBaseClass
@@ -75,19 +75,16 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
                  revision_method: str = defaults.REVISION,
                  transform: Optional[Union[Transform, bool]] = None,
                  n_jobs: int = defaults.N_PROCESSES,
+                 low_memory: bool = defaults.LOW_MEMORY,
                  **kwargs: Any
                  ):
         """
-
         Parameters
         ----------
-        df : pandas.DataFrame
-            The dataframe containing the nodes and edges specified in nodes
-
         model : str
             One of the models supported by ``hts``. These can be found
-
         revision_method : str
+            The revision method to be used
         transform : Boolean or NamedTuple
             If True, ``scipy.stats.boxcox`` and ``scipy.special._ufuncs.inv_boxcox`` will be applied prior and after
             fitting.
@@ -95,8 +92,9 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
             If you desired to use custom functions, use a NamedTuple like: ``{'func': Callable, 'inv_func': Callable}``
         n_jobs : int
             Number of parallel jobs to run the forecasting on
-        root : str
-            The name of the root node. Must be one of the dataframe's columns names
+        low_memory : Bool
+            If True, models will be fit, serialized, and released from memory. Usually a good idea if
+            you are dealing with a large amount of nodes
         kwargs
             Keyword arguments to be passed to the underlying model to be instantiated
         """
@@ -104,7 +102,13 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         self.model = model
         self.method = revision_method
         self.n_jobs = n_jobs
+        self.low_memory = low_memory
+        if self.low_memory:
+            self.tmp_dir = tempfile.mkdtemp(prefix='hts_')
+        else:
+            self.tmp_dir = None
         self.transform = transform
+
         self.sum_mat = None
         self.nodes = None
         self.model_instance = None
@@ -112,25 +116,6 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         self.revision_method = None
         self.hts_result = HTSResult()
         self.model_args = kwargs
-
-    def __init_predict_step(self, exogenous_df: pandas.DataFrame, steps_ahead: int):
-        if self.exogenous and not exogenous_df:
-            raise MissingRegressorException(f'Exogenous variables were provided at fit step, hence are required at '
-                                            f'predict step. Please pass the \'exogenous_df\' variable to predict '
-                                            f'function')
-        if not exogenous_df and not steps_ahead:
-            logger.info(f'No arguments passed for \'steps_ahead\', defaulting to predicting 1-step-ahead')
-            steps_ahead = 1
-        elif exogenous_df:
-            steps_ahead = len(exogenous_df)
-            for node in make_iterable(self.nodes, prop=None):
-                exog_cols = node.exogenous
-                try:
-                    node.item = exogenous_df[exog_cols]
-                except KeyError:
-                    raise MissingRegressorException(f'Node {node.key} has as exogenous variables {node.exogenous} but '
-                                                    f'these columns were not found in \'exogenous_df\'')
-        return steps_ahead
 
     def __init_hts(self, nodes, df, root, exogenous=None):
         self.exogenous = exogenous
@@ -176,12 +161,12 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
             Node key mapping to columns that contain the exogenous variable for that node
         root : str
             The name of the root node
-        fit_kwargs : Any
-            Any arguments to be passed to the underlying forecasting model's fit function. You will have to
         disable_progressbar : Bool
             Disable or enable progressbar
         show_warnings : Bool
             Disable warnings
+        fit_kwargs : Any
+            Any arguments to be passed to the underlying forecasting model's fit function. You will have to
 
         Returns
         -------
@@ -192,29 +177,62 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         self.__init_hts(nodes=nodes, df=df, root=root, exogenous=exogenous)
 
         nodes = make_iterable(self.nodes, prop=None)
-        models = [self.model_instance(node=node, transform=self.transform, **self.model_args)
-                  for node in nodes]
 
-        fitted_models = _do_fit(models=models, fit_kwargs=fit_kwargs, n_jobs=self.n_jobs,
-                                disable_progressbar=disable_progressbar, show_warnings=show_warnings,
-                                distributor=distributor)
+        fit_function_kwargs = {'fit_kwargs': fit_kwargs,
+                               'low_memory': self.low_memory,
+                               'tmp_dir': self.tmp_dir,
+                               'model_args': self.model_args,
+                               'transform': self.transform
+                               }
+
+        fitted_models = _do_fit(
+            nodes=nodes,
+            function_kwargs=fit_function_kwargs,
+            n_jobs=self.n_jobs,
+            disable_progressbar=disable_progressbar, show_warnings=show_warnings,
+            distributor=distributor
+        )
+
         for model in fitted_models:
-            self.hts_result.models = (model.node.key, model)
+            if isinstance(model, tuple):
+                self.hts_result.models = model
+            else:
+                self.hts_result.models = (model.node.key, model)
         return self
 
-    def _fit_step(self, model: TimeSeriesModel, iterable: tqdm, **fit_args):
-        iterable.set_description(f'Fitting base model for node : {model.node.key}')
-        model_instance = model.fit(**fit_args)
-        self.hts_result.models = (model.node.key, model_instance)
+    def __init_predict_step(self, exogenous_df: pandas.DataFrame, steps_ahead: int):
+        if self.exogenous and not exogenous_df:
+            raise MissingRegressorException(f'Exogenous variables were provided at fit step, hence are required at '
+                                            f'predict step. Please pass the \'exogenous_df\' variable to predict '
+                                            f'function')
+        if not exogenous_df and not steps_ahead:
+            logger.info(f'No arguments passed for \'steps_ahead\', defaulting to predicting 1-step-ahead')
+            steps_ahead = 1
+        elif exogenous_df:
+            steps_ahead = len(exogenous_df)
+            for node in make_iterable(self.nodes, prop=None):
+                exog_cols = node.exogenous
+                try:
+                    node.item = exogenous_df[exog_cols]
+                except KeyError:
+                    raise MissingRegressorException(f'Node {node.key} has as exogenous variables {node.exogenous} but '
+                                                    f'these columns were not found in \'exogenous_df\'')
+        return steps_ahead
 
     def predict(self,
                 exogenous_df: pandas.DataFrame = None,
                 steps_ahead: int = None,
+                distributor: Optional[DistributorBaseClass] = None,
+                disable_progressbar=defaults.DISABLE_PROGRESSBAR,
+                show_warnings=defaults.SHOW_WARNINGS,
                 **predict_kwargs) -> pandas.DataFrame:
         """
 
         Parameters
         ----------
+        distributor
+        disable_progressbar
+        show_warnings
         exogenous_df
         steps_ahead
         predict_kwargs
@@ -226,19 +244,37 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         """
 
         steps_ahead = self.__init_predict_step(exogenous_df, steps_ahead)
-        iterable = tqdm(make_iterable(self.nodes, prop=None))
+        predict_function_kwargs = {'fit_kwargs': predict_kwargs,
+                                   'steps_ahead': steps_ahead,
+                                   'low_memory': self.low_memory,
+                                   'tmp_dir': self.tmp_dir,
+                                   'predict_kwargs': predict_kwargs,
+                                   }
 
-        for node in iterable:
-            self._predict_step(node, iterable=iterable, steps_ahead=steps_ahead, **predict_kwargs)
+        fit_models = _model_mapping_to_iterable(self.hts_result.models, self.nodes)
+
+        results = _do_predict(
+            models=fit_models,
+            function_kwargs=predict_function_kwargs,
+            n_jobs=self.n_jobs,
+            disable_progressbar=disable_progressbar,
+            show_warnings=show_warnings,
+            distributor=distributor
+
+        )
+        for key, forecast, error, residual in results:
+            self.hts_result.forecasts = (key, forecast)
+            self.hts_result.errors = (key, error)
+            self.hts_result.residuals = (key, residual)
         return self._revise(steps_ahead=steps_ahead)
 
-    def _predict_step(self, node: HierarchyTree, iterable: tqdm, steps_ahead: int, **predict_kwargs):
-        model_instance = self.hts_result.models[node.key]
-        iterable.set_description(f'Generating base prediction for node: {node.key}')
-        model_instance = model_instance.predict(node=node, steps_ahead=steps_ahead, **predict_kwargs)
-        self.hts_result.forecasts = (node.key, model_instance.forecast)
-        self.hts_result.errors = (node.key, model_instance.mse)
-        self.hts_result.residuals = (node.key, model_instance.residual)
+    # def _predict_step(self, node: HierarchyTree, iterable: tqdm, steps_ahead: int, **predict_kwargs):
+    #     model_instance = self.hts_result.models[node.key]
+    #     iterable.set_description(f'Generating base prediction for node: {node.key}')
+    #     model_instance = model_instance.predict(node=node, steps_ahead=steps_ahead, **predict_kwargs)
+    #     self.hts_result.forecasts = (node.key, model_instance.forecast)
+    #     self.hts_result.errors = (node.key, model_instance.mse)
+    #     self.hts_result.residuals = (node.key, model_instance.residual)
 
     def _revise(self, steps_ahead=1):
         logger.info(f'Reconciling forecasts using {self.revision_method}')

@@ -5,17 +5,16 @@ import pandas
 from pmdarima import AutoARIMA
 from scipy.special._ufuncs import inv_boxcox
 from scipy.stats import boxcox
-from sklearn.base import BaseEstimator, RegressorMixin
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 
 from hts.core.exceptions import InvalidArgumentException
-from hts._t import Transform, Model
+from hts._t import Model, TimeSeriesModelT, TransformT
 from hts.transforms import FunctionTransformer
 from hts.hierarchy import HierarchyTree
 
 
-class TimeSeriesModel(BaseEstimator, RegressorMixin):
+class TimeSeriesModel(TimeSeriesModelT):
     """ Base class for the implementation of the underlying models.
         Inherits from scikit-learn base classes
     """
@@ -23,7 +22,7 @@ class TimeSeriesModel(BaseEstimator, RegressorMixin):
     def __init__(self,
                  kind: str,
                  node: HierarchyTree,
-                 transform: Optional[Union[Transform, bool]] = None,
+                 transform: TransformT = None,
                  **kwargs):
         """
         Parameters
