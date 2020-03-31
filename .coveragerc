@@ -2,6 +2,7 @@
 [run]
 omit =
     *__init__.py*
+    *_t.py*
 
 [report]
 # Regexes for lines to exclude from consideration

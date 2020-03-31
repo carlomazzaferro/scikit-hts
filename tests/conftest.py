@@ -1,11 +1,12 @@
 from datetime import datetime
 from io import StringIO
 
+import numpy
 import pandas
 import pytest
 
 from hts.hierarchy import HierarchyTree
-from hts.utils import load_hierarchical_sine_data, load_sample_hierarchical_mv_data
+from hts.utilities.load_data import load_hierarchical_sine_data, load_sample_hierarchical_mv_data
 
 
 @pytest.fixture
@@ -131,3 +132,23 @@ def uv_tree(sine_hier, hierarchical_sine_data):
 @pytest.fixture
 def load_df_and_hier_uv(sine_hier, hierarchical_sine_data):
     return hierarchical_sine_data.resample('1H').apply(sum), sine_hier
+
+
+@pytest.fixture
+def sample_ds():
+    cid = numpy.repeat([10, 500], 40)
+    ckind = numpy.repeat(["a", "b", "a", "b"], 20)
+    csort = [30, 53, 26, 35, 42, 25, 17, 67, 20, 68, 46, 12, 0, 74, 66, 31, 32,
+             2, 55, 59, 56, 60, 34, 69, 47, 15, 49, 8, 50, 73, 23, 62, 24, 33,
+             22, 70, 3, 38, 28, 75, 39, 36, 64, 13, 72, 52, 40, 16, 58, 29, 63,
+             79, 61, 78, 1, 10, 4, 6, 65, 44, 54, 48, 11, 14, 19, 43, 76, 7,
+             51, 9, 27, 21, 5, 71, 57, 77, 41, 18, 45, 37]
+    cval = [11, 9, 67, 45, 30, 58, 62, 19, 56, 29, 0, 27, 36, 43, 33, 2, 24,
+            71, 41, 28, 50, 40, 39, 7, 53, 23, 16, 37, 66, 38, 6, 47, 3, 61,
+            44, 42, 78, 31, 21, 55, 15, 35, 25, 32, 69, 65, 70, 64, 51, 46, 5,
+            77, 26, 73, 76, 75, 72, 74, 10, 57, 4, 14, 68, 22, 18, 52, 54, 60,
+            79, 12, 49, 63, 8, 59, 1, 13, 20, 17, 48, 34]
+    df = pandas.DataFrame({"id": cid, "kind": ckind, "sort": csort, "val": cval})
+    df = df.set_index("id", drop=False)
+    df.index.name = None
+    return df
