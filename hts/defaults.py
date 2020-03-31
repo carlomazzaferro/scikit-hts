@@ -5,6 +5,7 @@ n_cores = int(os.getenv("NUMBER_OF_CPUS") or cpu_count())
 
 MODEL = 'prophet'
 REVISION = 'OLS'
+LOW_MEMORY = False
 CHUNKSIZE = None
 N_PROCESSES = max(1, n_cores // 2)
 PROFILING = False

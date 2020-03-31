@@ -14,7 +14,6 @@ except ImportError:
                  'with: \npip install requests\n if you\'d like to use them')
 
 
-
 def partition_column(column, n=3):
     partitioned = column.apply(lambda x: numpy.random.dirichlet(numpy.ones(n),size=1).ravel() * x).values
     return [[i[j] for i in partitioned] for j in range(n)]

@@ -142,7 +142,8 @@ class DistributorBaseClass:
         total_number_of_expected_results = math.ceil(data_length / chunk_size)
         result = tqdm(self.distribute(_function_with_partly_reduce, chunk_generator, map_kwargs),
                       total=total_number_of_expected_results,
-                      desc=self.progressbar_title, disable=self.disable_progressbar)
+                      desc=self.progressbar_title,
+                      disable=self.disable_progressbar)
 
         result = list(itertools.chain.from_iterable(result))
 
