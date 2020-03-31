@@ -1,11 +1,12 @@
 import os
 import pickle
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Optional
 
 import numpy
 import pandas
 
 from hts._t import NAryTreeT, ModelFitResultT, HTSFitResultT, LowMemoryFitResultT, TimeSeriesModelT
+from hts.hierarchy.utils import make_iterable
 from hts.utilities.distribution import MapDistributor, MultiprocessingDistributor, DistributorBaseClass
 
 
@@ -14,19 +15,12 @@ def _do_fit(nodes: NAryTreeT,
             n_jobs: int,
             disable_progressbar: bool,
             show_warnings: bool,
-            distributor: DistributorBaseClass) -> HTSFitResultT:
-    if distributor is None:
-        if n_jobs == 0:
-            distributor = MapDistributor(disable_progressbar=disable_progressbar,
-                                         progressbar_title="Fitting models: ")
-        else:
-            distributor = MultiprocessingDistributor(n_workers=n_jobs,
-                                                     disable_progressbar=disable_progressbar,
-                                                     progressbar_title="Fitting models",
-                                                     show_warnings=show_warnings)
+            distributor: Optional[DistributorBaseClass]) -> HTSFitResultT:
 
-    if not isinstance(distributor, DistributorBaseClass):
-        raise ValueError("the passed distributor is not an DistributorBaseClass object")
+    distributor = _get_distributor(n_jobs=n_jobs,
+                                   disable_progressbar=disable_progressbar,
+                                   show_warnings=show_warnings,
+                                   distributor=distributor)
 
     result = distributor.map_reduce(_do_actual_fit,
                                     data=nodes,
@@ -65,18 +59,11 @@ def _do_predict(models: List[Tuple[str, ModelFitResultT, NAryTreeT]],
                 disable_progressbar: bool,
                 show_warnings: bool,
                 distributor: DistributorBaseClass) -> HTSFitResultT:
-    if distributor is None:
-        if n_jobs == 0:
-            distributor = MapDistributor(disable_progressbar=disable_progressbar,
-                                         progressbar_title="Fitting models: ")
-        else:
-            distributor = MultiprocessingDistributor(n_workers=n_jobs,
-                                                     disable_progressbar=disable_progressbar,
-                                                     progressbar_title="Fitting models",
-                                                     show_warnings=show_warnings)
 
-    if not isinstance(distributor, DistributorBaseClass):
-        raise ValueError("the passed distributor is not an DistributorBaseClass object")
+    distributor = _get_distributor(n_jobs=n_jobs,
+                                   disable_progressbar=disable_progressbar,
+                                   show_warnings=show_warnings,
+                                   distributor=distributor)
 
     result = distributor.map_reduce(_do_actual_predict,
                                     data=models,
@@ -89,7 +76,7 @@ def _model_mapping_to_iterable(model_mapping: Dict[str, ModelFitResultT],
                                nodes: NAryTreeT) -> List[Tuple[str, ModelFitResultT, NAryTreeT]]:
     prediction_triplet = []
 
-    for node in nodes:
+    for node in make_iterable(nodes, prop=None):
         if isinstance(model_mapping[node.key], tuple):
             model = model_mapping[node.key][1]
         else:
@@ -110,10 +97,29 @@ def _do_actual_predict(model: Tuple[str, ModelFitResultT, NAryTreeT],
     model_instance = model_instance.predict(node=node,
                                             steps_ahead=function_kwargs['steps_ahead'],
                                             **function_kwargs['predict_kwargs'])
-    return key, model_instance.forecasts, model_instance.errors, model_instance.residuals
+    return key, model_instance.forecast, model_instance.mse, model_instance.residual
 
 
 def _load_serialized_model(tmp_dir, file_name):
     path = os.path.join(tmp_dir, file_name)
     with open(path, 'rb') as p:
         return pickle.load(p)
+
+
+def _get_distributor(n_jobs: int,
+                     disable_progressbar: bool,
+                     show_warnings: bool,
+                     distributor: Optional[DistributorBaseClass]):
+    if distributor is None:
+        if n_jobs == 0:
+            distributor = MapDistributor(disable_progressbar=disable_progressbar,
+                                         progressbar_title="Fitting models: ")
+        else:
+            distributor = MultiprocessingDistributor(n_workers=n_jobs,
+                                                     disable_progressbar=disable_progressbar,
+                                                     progressbar_title="Fitting models",
+                                                     show_warnings=show_warnings)
+
+    if not isinstance(distributor, DistributorBaseClass):
+        raise ValueError("the passed distributor is not an DistributorBaseClass object")
+    return distributor
