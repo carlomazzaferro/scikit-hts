@@ -6,7 +6,7 @@ import pandas
 import pytest
 
 from hts.hierarchy import HierarchyTree
-from hts.utilities.load_data import load_hierarchical_sine_data, load_sample_hierarchical_mv_data
+from hts.utilities.load_data import load_hierarchical_sine_data, load_mobility_data
 
 
 @pytest.fixture
@@ -98,7 +98,7 @@ def hierarchical_sine_data():
 
 @pytest.fixture
 def hierarchical_mv_data():
-    return load_sample_hierarchical_mv_data()
+    return load_mobility_data()
 
 
 @pytest.fixture
