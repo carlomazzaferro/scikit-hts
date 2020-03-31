@@ -21,3 +21,9 @@ History
 * Testing up to 75%
 * Exogenous variable support
 * Extensive docs
+
+
+0.3.0 (2020-03-28)
+------------------
+
+* Parallel and distributed training

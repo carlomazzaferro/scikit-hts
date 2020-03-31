@@ -96,10 +96,10 @@ class HierarchyTree(NAryTreeT):
         --------
         In this example we will create a tree from some multivariate data
 
-        >>> from hts.utilities.load_data import load_sample_hierarchical_mv_data
+        >>> from hts.utilities.load_data import load_mobility_data
         >>> from hts import HierarchyTree
 
-        >>> hmv = load_sample_hierarchical_mv_data()
+        >>> hmv = load_mobility_data()
         >>> hmv.head()
                     WF-01  CH-07  BT-01  CBD-13  SLU-15  CH-02  CH-08  SLU-01  BT-03  CH-05  SLU-19  SLU-07  SLU-02  CH-01  total   CH  SLU  BT  OTHER  temp  precipitation
         starttime
