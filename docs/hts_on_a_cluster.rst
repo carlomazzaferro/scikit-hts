@@ -48,44 +48,47 @@ local pool of threads:
 
 .. code:: python
 
-    from hts.examples.robot_execution_failures import \
-        download_robot_execution_failures, \
-        load_robot_execution_failures
-    from hts.feature_extraction import extract_features
+    from hts import HTSRegressor
+    from hts.utilities.load_data import load_monility_data
     from hts.utilities.distribution import MultiprocessingDistributor
 
-    # download and load some time series data
-    download_robot_execution_failures()
-    df, y = load_robot_execution_failures()
+    df = load_mobility_data()
 
-    # We construct a Distributor that will spawn the calculations
-    # over four threads on the local machine
-    Distributor = MultiprocessingDistributor(n_workers=4,
+    # Define hierarchy
+    hier = {
+        'total': ['CH', 'SLU', 'BT', 'OTHER'],
+        'CH': ['CH-07', 'CH-02', 'CH-08', 'CH-05', 'CH-01'],
+        'SLU': ['SLU-15', 'SLU-01', 'SLU-19', 'SLU-07', 'SLU-02'],
+        'BT': ['BT-01', 'BT-03'],
+        'OTHER': ['WF-01', 'CBD-13']
+    }
+
+    distributor = MultiprocessingDistributor(n_workers=4,
                                              disable_progressbar=False,
                                              progressbar_title="Feature Extraction")
+    hts.fit(df=df, nodes=hier, n_jobs=4, distributor=distributor)
 
-    # just to pass the Distributor object to
-    # the feature extraction, along the other parameters
-    X = extract_features(timeseries_container=df,
-                         column_id='id', column_sort='time',
-                         distributor=Distributor)
-
-This example actually corresponds to the existing multiprocessing *hts* API, where you just specify the number of
+This example actually corresponds to the existing multiprocessing API, where you just specify the number of
 jobs, without the need to construct the Distributor:
 
 .. code:: python
 
-    from hts.examples.robot_execution_failures import \
-        download_robot_execution_failures, \
-        load_robot_execution_failures
-    from hts.feature_extraction import extract_features
+    from hts import HTSRegressor
+    from hts.utilities.load_data import load_mobility_data
 
-    download_robot_execution_failures()
-    df, y = load_robot_execution_failures()
+    df = load_mobility_data()
 
-    X = extract_features(timeseries_container=df,
-                         column_id='id', column_sort='time',
-                         n_jobs=4)
+    # Define hierarchy
+    hier = {
+        'total': ['CH', 'SLU', 'BT', 'OTHER'],
+        'CH': ['CH-07', 'CH-02', 'CH-08', 'CH-05', 'CH-01'],
+        'SLU': ['SLU-15', 'SLU-01', 'SLU-19', 'SLU-07', 'SLU-02'],
+        'BT': ['BT-01', 'BT-03'],
+        'OTHER': ['WF-01', 'CBD-13']
+    }
+
+    hts.fit(df=df, nodes=hier, n_jobs=4)
+
 
 Using dask to distribute the calculations
 '''''''''''''''''''''''''''''''''''''''''
@@ -141,7 +144,7 @@ of 3 workers:
 
     from hts import HTSRegressor
     from hts.utilities.load_data import load_monility_data
-    from hts.utilities.distribution import ClusterDaskDistributor
+    from hts.utilities.distribution import LocalDaskDistributor
 
 
     df = load_mobility_data()
