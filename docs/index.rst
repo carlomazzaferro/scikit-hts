@@ -12,6 +12,8 @@ Welcome to scikit-hts's documentation!
    models
    geo
    modules
+   parallelization
+   hts_on_a_cluster
    contributing
    history
 
