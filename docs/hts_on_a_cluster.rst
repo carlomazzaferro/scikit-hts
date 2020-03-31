@@ -49,7 +49,7 @@ local pool of threads:
 .. code:: python
 
     from hts import HTSRegressor
-    from hts.utilities.load_data import load_monility_data
+    from hts.utilities.load_data import load_mobility_data
     from hts.utilities.distribution import MultiprocessingDistributor
 
     df = load_mobility_data()
@@ -108,7 +108,7 @@ time series data and the calculation to a cluster:
 .. code:: python
 
     from hts import HTSRegressor
-    from hts.utilities.load_data import load_monility_data
+    from hts.utilities.load_data import load_mobility_data
     from hts.utilities.distribution import ClusterDaskDistributor
 
 
@@ -143,7 +143,7 @@ of 3 workers:
 .. code:: python
 
     from hts import HTSRegressor
-    from hts.utilities.load_data import load_monility_data
+    from hts.utilities.load_data import load_mobility_data
     from hts.utilities.distribution import LocalDaskDistributor
 
 
