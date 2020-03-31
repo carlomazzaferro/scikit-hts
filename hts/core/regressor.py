@@ -268,14 +268,6 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
             self.hts_result.residuals = (key, residual)
         return self._revise(steps_ahead=steps_ahead)
 
-    # def _predict_step(self, node: HierarchyTree, iterable: tqdm, steps_ahead: int, **predict_kwargs):
-    #     model_instance = self.hts_result.models[node.key]
-    #     iterable.set_description(f'Generating base prediction for node: {node.key}')
-    #     model_instance = model_instance.predict(node=node, steps_ahead=steps_ahead, **predict_kwargs)
-    #     self.hts_result.forecasts = (node.key, model_instance.forecast)
-    #     self.hts_result.errors = (node.key, model_instance.mse)
-    #     self.hts_result.residuals = (node.key, model_instance.residual)
-
     def _revise(self, steps_ahead=1):
         logger.info(f'Reconciling forecasts using {self.revision_method}')
         revised = self.revision_method.revise(
