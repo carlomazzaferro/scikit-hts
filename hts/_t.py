@@ -4,9 +4,12 @@ import abc
 import logging
 import weakref
 from enum import Enum
-from typing import List, Optional, Callable, NamedTuple, NewType, Union, Tuple, Dict
+from typing import List, Optional, Callable, NamedTuple, NewType, Union, Tuple, Dict, Any
 
+import numpy
 import pandas
+from sklearn.base import RegressorMixin, BaseEstimator
+
 
 logger = logging.getLogger(__name__)
 
@@ -14,11 +17,6 @@ try:
     from folium import Map
 except ImportError:
     logger.warning('Folium not installed, not all visualization will work')
-
-# TODO: make this a proper recursive type when mypy supports it: https://github.com/python/mypy/issues/731
-HierarchyT = Tuple[str, 'HierarchyT']
-
-NodesT = ExogT = Dict[str, List[str]]
 
 
 class ExtendedEnum(Enum):
@@ -146,6 +144,35 @@ class NAryTreeT(metaclass=abc.ABCMeta):
     __str__ = __repr__
 
 
+class TimeSeriesModelT(BaseEstimator, RegressorMixin, metaclass=abc.ABCMeta):
+
+    """ Type definition of an TimeSeriesModel """
+
+    kind: str
+    node: NAryTreeT
+    model: Any
+    forecast: Optional[pandas.DataFrame]
+    residual: Optional[numpy.ndarray]
+    mse: Optional[numpy.ndarray]
+    transform: TransformT
+
+    @staticmethod
+    def _no_func(x):
+        ...
+
+    def _set_results_return_self(self, in_sample, y_hat) -> TimeSeriesModelT:
+        ...
+
+    def create_model(self, **kwargs):
+        ...
+
+    def fit(self, **fit_args) -> TimeSeriesModelT:
+        raise NotImplementedError
+
+    def predict(self, node: NAryTreeT, **predict_args):
+        raise NotImplementedError
+
+
 class MethodsT(Enum):
     CV = 'CrossValidation'
     OLS = 'OLS'
@@ -155,3 +182,12 @@ class MethodsT(Enum):
     PHA = 'PHA'
     AHP = 'AHP'
     BU = 'BU'
+
+
+# TODO: make this a proper recursive type when mypy supports it: https://github.com/python/mypy/issues/731
+HierarchyT = Tuple[str, 'HierarchyT']
+NodesT = ExogT = Dict[str, List[str]]
+LowMemoryFitResultT = Tuple[str, str]
+ModelFitResultT = Union[TimeSeriesModelT, LowMemoryFitResultT]
+HTSFitResultT = List[ModelFitResultT]
+TransformT = Optional[Union[Transform, bool]]
