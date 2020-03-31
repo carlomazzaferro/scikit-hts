@@ -55,6 +55,7 @@ Features
 * Scikit-learn-like API
 * Geo events handling functionality for geospatial data, including visualisation capabilities
 * Static typing for a nice developer experience
+* Distributed training & Dask integration: perform training and prediction in parallel or in a cluster with Dask
 
 Examples
 --------
@@ -65,7 +66,14 @@ Roadmap
 -------
 
 * More flexible underlying modeling support
+    * [P] AR, ARIMAX, VARMAX, etc
+    * [P] Bring-Your-Own-Model
+    * [P] Different parameters for each of the models
+* Decoupling reconciliation methods from forecast fitting
+    * [W] Enable to use the reconciliation methods with pre-fitted models
 
+| **P**: Planned
+| **W**: WIP
 
 Credits
 -------
