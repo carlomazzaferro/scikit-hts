@@ -181,6 +181,7 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         fit_function_kwargs = {'fit_kwargs': fit_kwargs,
                                'low_memory': self.low_memory,
                                'tmp_dir': self.tmp_dir,
+                               'model_instance': self.model_instance,
                                'model_args': self.model_args,
                                'transform': self.transform
                                }
@@ -252,7 +253,6 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
                                    }
 
         fit_models = _model_mapping_to_iterable(self.hts_result.models, self.nodes)
-
         results = _do_predict(
             models=fit_models,
             function_kwargs=predict_function_kwargs,
