@@ -41,11 +41,17 @@ def resample_count(df: pandas.DataFrame, freq: str, colname: str) -> pandas.Data
     return _df.resample(freq).agg('count')
 
 
-def groupify(root_node, df, freq='1H', nodes=None, min_count=0.1, total=None) -> NAryTreeT:
+def groupify(root_node,
+             df,
+             freq='1H',
+             nodes=None,
+             min_count=0.1,
+             total=None) -> NAryTreeT:
     """
 
     Parameters
     ----------
+    fillna
     root_node : NAryTreeT
     df : pandas.DataFrame
     freq : str

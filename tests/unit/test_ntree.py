@@ -65,6 +65,20 @@ def test_to_pandas(events):
     assert isinstance(ht.to_pandas(), pandas.DataFrame)
 
 
+def test_from_geo_events(events):
+    ht = HierarchyTree.from_geo_events(df=events,
+                                       lat_col='start_latitude',
+                                       lon_col='start_longitude',
+                                       nodes=('city', 'hex_index_6', 'hex_index_7', 'hex_index_8'),
+                                       levels=(6, 8),
+                                       resample_freq='1H',
+                                       min_count=0.5,
+                                       fillna=True
+                                       )
+    assert isinstance(ht.to_pandas(), pandas.DataFrame)
+
+
+
 def test_create_hierarchical_sine_data_tree(hierarchical_sine_data):
     hier = {'total': ['a', 'b', 'c'],
             'a': ['aa', 'ab'], 'aa': ['aaa', 'aab'],
