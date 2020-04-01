@@ -4,6 +4,7 @@ import abc
 import logging
 import weakref
 from enum import Enum
+from weakref import ReferenceType
 from typing import List, Optional, Callable, NamedTuple, NewType, Union, Tuple, Dict, Any
 
 import numpy
@@ -59,7 +60,7 @@ class Transform(NamedTuple):
 class HierarchyVisualizerT(metaclass=abc.ABCMeta):
     tree: 'NAryTreeT'
 
-    def create_map(self) -> Map:
+    def create_map(self):
         ...
 
 
@@ -71,7 +72,7 @@ class NAryTreeT(metaclass=abc.ABCMeta):
     item: Union[pandas.Series, pandas.DataFrame]
     exogenous: List[str] = None
     children: List[Optional['NAryTreeT']]
-    _parent: Optional[weakref.ref['NAryTreeT']]
+    _parent: "Optional[ReferenceType[NAryTreeT]]"
     visualizer: HierarchyVisualizerT
 
     @property
