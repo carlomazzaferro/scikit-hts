@@ -1,4 +1,4 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 import weakref
 from collections import deque
@@ -75,8 +75,8 @@ class HierarchyTree(NAryTreeT):
                    nodes: NodesT,
                    df: pandas.DataFrame,
                    exogenous: ExogT = None,
-                   root: Union[str, HierarchyTree] = 'total',
-                   top: HierarchyTree = None,
+                   root: Union[str, 'HierarchyTree'] = 'total',
+                   top: 'HierarchyTree' = None,
                    stack: List = None):
         """
         Standard method for creating a hierarchy from nodes and a dataframe containing as columns those nodes.
@@ -320,16 +320,3 @@ class HierarchyTree(NAryTreeT):
 
     def get_series(self) -> pandas.Series:
         return self.item[self.key]
-
-
-if __name__ == '__main__':
-    from hts.utilities.load_data import load_hierarchical_sine_data
-    from datetime import datetime
-
-    s, e = datetime(2019, 1, 15), datetime(2019, 10, 15)
-    dti = load_hierarchical_sine_data(s, e)
-    hier = {'total': ['a', 'b', 'c'], 'a': ['aa', 'ab'], 'aa': ['aaa', 'aab'], 'b': ['ba', 'bb'],
-            'c': ['ca', 'cb', 'cc', 'cd']}
-
-    ht = HierarchyTree.from_nodes(hier, dti)
-    print(ht)

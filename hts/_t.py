@@ -1,4 +1,4 @@
-from __future__ import annotations
+# from __future__ import annotations
 
 import abc
 import logging
@@ -57,7 +57,7 @@ class Transform(NamedTuple):
 
 
 class HierarchyVisualizerT(metaclass=abc.ABCMeta):
-    tree: NAryTreeT
+    tree: 'NAryTreeT'
 
     def create_map(self) -> Map:
         ...
@@ -70,8 +70,8 @@ class NAryTreeT(metaclass=abc.ABCMeta):
     key: str
     item: Union[pandas.Series, pandas.DataFrame]
     exogenous: List[str] = None
-    children: List[Optional[NAryTreeT]]
-    _parent: Optional[weakref.ref[NAryTreeT]]
+    children: List[Optional['NAryTreeT']]
+    _parent: Optional[weakref.ref['NAryTreeT']]
     visualizer: HierarchyVisualizerT
 
     @property
@@ -79,7 +79,7 @@ class NAryTreeT(metaclass=abc.ABCMeta):
         if self._parent:
             return self._parent()
 
-    def __iter__(self) -> NAryTreeT:
+    def __iter__(self) -> 'NAryTreeT':
         yield self
         for child in self.children:
             yield child
@@ -108,13 +108,13 @@ class NAryTreeT(metaclass=abc.ABCMeta):
     def get_height(self) -> int:
         ...
 
-    def level_order_traversal(self: NAryTreeT) -> List[List[int]]:
+    def level_order_traversal(self: 'NAryTreeT') -> List[List[int]]:
         ...
 
-    def traversal_level(self) -> List[NAryTreeT]:
+    def traversal_level(self) -> List['NAryTreeT']:
         ...
 
-    def add_child(self, key=None, item=None, exogenous=None) -> NAryTreeT:
+    def add_child(self, key=None, item=None, exogenous=None) -> 'NAryTreeT':
         ...
 
     def leaf_sum(self) -> int:
@@ -154,19 +154,19 @@ class TimeSeriesModelT(BaseEstimator, RegressorMixin, metaclass=abc.ABCMeta):
     forecast: Optional[pandas.DataFrame]
     residual: Optional[numpy.ndarray]
     mse: Optional[numpy.ndarray]
-    transform: TransformT
+    transform: 'TransformT'
 
     @staticmethod
     def _no_func(x):
         ...
 
-    def _set_results_return_self(self, in_sample, y_hat) -> TimeSeriesModelT:
+    def _set_results_return_self(self, in_sample, y_hat) -> 'TimeSeriesModelT':
         ...
 
     def create_model(self, **kwargs):
         ...
 
-    def fit(self, **fit_args) -> TimeSeriesModelT:
+    def fit(self, **fit_args) -> 'TimeSeriesModelT':
         raise NotImplementedError
 
     def predict(self, node: NAryTreeT, **predict_args):
