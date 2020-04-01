@@ -1,9 +1,11 @@
+from random import choice
 from typing import Dict
 
 import numpy as np
 import pandas
 
 from hts._t import NAryTreeT, MethodsT
+from hts.hierarchy import make_iterable
 
 
 def to_sum_mat(ntree: NAryTreeT):
@@ -119,17 +121,16 @@ def optimal_combination(forecasts: Dict[str, pandas.DataFrame],
 
 
 def proportions(nodes, forecasts, sum_mat, method=MethodsT.PHA.name):
-    n_cols = len(list(forecasts.keys())) + 1
-    fcst = forecasts[0].yhat
+    n_cols = len(list(forecasts.keys()))
+    fcst = forecasts[list(forecasts.keys())[0]].yhat
     fcst = fcst[:, np.newaxis]
     num_bts = sum_mat.shape[1]
 
     cols = [n.key for n in [nodes] + nodes.traversal_level()][(n_cols - num_bts): n_cols]
 
-    bts_dat = pandas.concat(nodes.to_pandas()[cols])
-    # bts_dat = pandas.DataFrame(df.iloc[:, n_cols - num_bts:n_cols])
-    divs = np.divide(np.transpose(np.array(bts_dat)), np.array(nodes.get_series()))
+    bts_dat = nodes.to_pandas()[cols]
     if method == MethodsT.AHP.name:
+        divs = np.divide(np.transpose(np.array(bts_dat)), np.array(nodes.get_series()))
         props = divs.mean(1)
         props = props[:, np.newaxis]
     elif method == MethodsT.PHA.name:
@@ -148,25 +149,27 @@ def forecast_proportions(forecasts, nodes):
        Produces biased revised forecasts even if base forecasts are unbiased
     """
     n_cols = len(list(forecasts.keys())) + 1
-    ##
-    # Find proportions of forecast at each step ahead, and then alter forecasts
-    ##
-    levels = len(nodes)
+
+    levels = nodes.get_height()
     column = 0
     first_node = 1
-    new_mat = np.empty([len(forecasts[0].yhat), n_cols - 1])
-    new_mat[:, 0] = forecasts[0].yhat
-    for level in range(levels):
-        nodes_in_level = len(nodes[level])
-        for node in range(nodes_in_level):
-            num_child = nodes[level][node]
+
+    key = choice(list(forecasts.keys()))
+    new_mat = np.empty([len(forecasts[key].yhat), n_cols - 1])
+    new_mat[:, 0] = forecasts[key].yhat
+
+    as_iterable = make_iterable(nodes, prop=None)
+
+    for level in range(levels - 1):
+        for i, node in enumerate(nodes.level_order_traversal()[level]):
+            num_child = node
             last_node = first_node + num_child
-            lst = [x for x in range(first_node, last_node)]
-            base_fcst = np.array([forecasts[k].yhat[:] for k in lst])
+            base_fcst = np.array([forecasts[k.key].yhat[:] for k in as_iterable[first_node: last_node]])
+            print(base_fcst.shape)
             fore_sum = np.sum(base_fcst, axis=0)
             fore_sum = fore_sum[:, np.newaxis]
             if column == 0:
-                rev_top = np.array(forecasts[column].yhat)
+                rev_top = np.array(forecasts['total'].yhat)
                 rev_top = rev_top[:, np.newaxis]
             else:
                 rev_top = np.array(new_mat[:, column])

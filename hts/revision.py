@@ -56,7 +56,7 @@ class RevisionMethod(object):
             if self.transformer:
                 for node in make_iterable(nodes, prop=None):
                     node.item[node.key] = self.transformer.inverse_transform(node.item[node.key])
-            y_hat = proportions(nodes, forecasts, self.sum_mat, method=self.name)
+            y_hat = proportions(nodes=nodes, forecasts=forecasts, sum_mat=self.sum_mat, method=self.name)
             return self._new_mat(y_hat)
 
         elif self.name == MethodsT.FP.name:
