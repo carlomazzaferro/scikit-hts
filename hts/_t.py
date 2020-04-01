@@ -173,8 +173,7 @@ class TimeSeriesModelT(BaseEstimator, RegressorMixin, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
 
-class MethodsT(Enum):
-    CV = 'CrossValidation'
+class MethodsT(ExtendedEnum):
     OLS = 'OLS'
     WLSS = 'WLSS'
     WLSV = 'WLSV'
