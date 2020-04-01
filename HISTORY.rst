@@ -27,3 +27,9 @@ History
 ------------------
 
 * Parallel and distributed training
+
+
+0.3.1 (2020-03-28)
+------------------
+
+* Testing for all reconciliation methods, line coverage > 80%
