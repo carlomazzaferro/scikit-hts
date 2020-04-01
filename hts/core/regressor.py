@@ -309,9 +309,16 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
 
     def _get_predict_index(self, steps_ahead=1):
         freq = pandas.infer_freq(self.nodes.item.index)
+
+        freq_str = ''.join([i for i in freq if not i.isdigit()])
+        try:
+            freq_int = int(''.join([i for i in freq if i not in freq_str]))
+        except ValueError:
+            freq_int = 1
+
         future = pandas.date_range(freq=freq,
-                                   start=self.nodes.item.index.max() + pandas.Timedelta(1, freq),
-                                   end=self.nodes.item.index.max() + pandas.Timedelta(steps_ahead, freq)
+                                   start=self.nodes.item.index.max() + pandas.Timedelta(freq_int, freq_str),
+                                   end=self.nodes.item.index.max() + pandas.Timedelta(steps_ahead * freq_int, freq_str)
                                    )
 
         return self.nodes.item.index.append(future)

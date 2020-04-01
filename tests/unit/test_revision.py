@@ -8,11 +8,7 @@ def test_instantiate_revision(load_df_and_hier_uv):
     hierarchical_sine_data, sine_hier = load_df_and_hier_uv
     hsd = hierarchical_sine_data.head(200)
 
-    for method in [
-        'OLS', 'FP', 'WLSS', 'WLSV',
-        'PHA',
-                   'AHP'
-    ]:
+    for method in ['OLS', 'FP', 'WLSS', 'WLSV', 'PHA', 'AHP']:
         ht = HTSRegressor(model='holt_winters', revision_method=method)
         ht.fit(df=hsd, nodes=sine_hier)
 
@@ -26,4 +22,3 @@ def test_instantiate_revision(load_df_and_hier_uv):
         )
         assert isinstance(revised, numpy.ndarray)
         assert revised.shape == (203, len(ht.hts_result.forecasts))
-
