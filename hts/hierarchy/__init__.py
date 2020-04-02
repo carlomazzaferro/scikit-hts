@@ -1,5 +1,3 @@
-# from __future__ import annotations
-
 import weakref
 from collections import deque
 from itertools import chain
