@@ -9,10 +9,9 @@ API
     :members:
 
 
-Internals
----------
+convenience
+-----------
 
-
-.. autoclass:: hts.revision.RevisionMethod
+.. automodule:: hts.convenience
     :members:
 
