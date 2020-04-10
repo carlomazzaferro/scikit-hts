@@ -283,10 +283,14 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
                                 columns=revised_columns)
 
     def _get_predict_index(self, steps_ahead=1):
-        freq = pandas.infer_freq(self.nodes.item.index)
+
+        freq = getattr(self.nodes.item.index, 'freq', 1)
+        start = self.nodes.item.index[-1] + freq
+        end = self.nodes.item.index[-1] + (steps_ahead * freq)
+
         future = pandas.date_range(freq=freq,
-                                   start=self.nodes.item.index.max() + pandas.Timedelta(1, freq),
-                                   end=self.nodes.item.index.max() + pandas.Timedelta(steps_ahead, freq)
+                                   start=start,
+                                   end=end
                                    )
 
         return self.nodes.item.index.append(future)
