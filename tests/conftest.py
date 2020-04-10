@@ -152,3 +152,50 @@ def sample_ds():
     df = df.set_index("id", drop=False)
     df.index.name = None
     return df
+
+@pytest.fixture
+def visnights_hier():
+    return {'total': ['NSW', 'OTH', 'WAU', 'SAU', 'QLD', 'VIC'],
+            'NSW': ['NSW_Metro', 'NSW_NthCo', 'NSW_NthIn', 'NSW_SthCo', 'NSW_SthIn'],
+            'OTH': ['OTH_Metro', 'OTH_NoMet'],
+            'QLD': ['QLD_Cntrl', 'QLD_Metro', 'QLD_NthCo'],
+            'SAU': ['SAU_Coast', 'SAU_Inner', 'SAU_Metro'],
+            'VIC': ['VIC_EstCo', 'VIC_Inner', 'VIC_Metro', 'VIC_WstCo'],
+            'WAU': ['WAU_Coast', 'WAU_Inner', 'WAU_Metro']}
+
+@pytest.fixture
+def hierarchical_visnights_data():
+    vis_idx = pandas.date_range(start="1998-01-01", periods=8, freq="QS")
+    vis_values = {'NSW_Metro': [9047, 6962, 6872, 7147, 7957, 6542, 6330, 7509],
+    'NSW_NthCo': [8566, 7124, 4717, 6269, 9494, 5401, 5543, 6383],
+    'NSW_NthIn': [2978, 3478, 3015, 3758, 3791, 3395, 3626, 3691],
+    'NSW_SthCo': [5818, 2466, 1928, 2798, 4854, 2760, 2042, 2651],
+    'NSW_SthIn': [2680, 3011, 3329, 2418, 3224, 2428, 2893, 2815],
+    'OTH_Metro': [3438, 2677, 3794, 3304, 3511, 2872, 3833, 3143],
+    'OTH_NoMet': [2073, 1788, 2345, 1944, 2166, 1804, 1613, 1652],
+    'QLD_Cntrl': [2748, 4041, 5344, 4260, 4186, 4238, 6415, 3710],
+    'QLD_Metro': [12106, 7787, 11380, 9311, 12672, 9583, 11193, 9871],
+    'QLD_NthCo': [2137, 2270, 4890, 2622, 2483, 3378, 5578, 4279],
+    'SAU_Coast': [2592, 1376, 1080, 1498, 2248, 1673, 1105, 1503],
+    'SAU_Inner': [895, 979, 980, 1509, 964, 997, 1058, 771],
+    'SAU_Metro': [2881, 2125, 2285, 1786, 2294, 2197, 2034, 2253],
+    'VIC_EstCo': [3382, 1828, 1352, 1493, 2897, 1548, 914, 1342],
+    'VIC_Inner': [5327, 4441, 3816, 3860, 4589, 4070, 4114, 3723],
+    'VIC_Metro': [7490, 5198, 5244, 6274, 9187, 4992, 4746, 4685],
+    'VIC_WstCo': [2442, 961, 756, 1272, 2385, 1329, 759, 942],
+    'WAU_Coast': [3067, 3334, 4366, 4522, 3579, 3409, 3979, 3365],
+    'WAU_Inner': [695, 558, 1006, 1173, 398, 596, 951, 832],
+    'WAU_Metro': [3076, 2155, 2787, 2753, 3520, 3160, 2708, 2294],
+    'NSW': [29088, 23041, 19861, 22390, 29320, 20527, 20434, 23049],
+    'QLD': [16992, 14097, 21614, 16193, 19341, 17199, 23186, 17861],
+    'SAU': [6368, 4480, 4345, 4793, 5505, 4867, 4196, 4526],
+    'VIC': [18641, 12428, 11168, 12899, 19058, 11939, 10534, 10692],
+    'WAU': [6837, 6047, 8159, 8447, 7497, 7165, 7638, 6491],
+    'OTH': [5511, 4465, 6139, 5248, 5677, 4676, 5446, 4796],
+    'total': [83437, 64558, 71285, 69971, 86398, 66373, 71434, 67415]}
+
+    return pandas.DataFrame(vis_values, index=vis_idx)
+
+@pytest.fixture
+def load_df_and_hier_visnights(visnights_hier, hierarchical_visnights_data):
+    return hierarchical_visnights_data, visnights_hier
