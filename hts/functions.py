@@ -16,7 +16,8 @@ def to_sum_mat(ntree: NAryTreeT):
 
     Parameters
     ----------
-    ntree
+    ntree : NAryTreeT
+
 
     Returns
     -------
