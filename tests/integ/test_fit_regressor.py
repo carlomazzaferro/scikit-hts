@@ -23,7 +23,8 @@ def test_fit_regressor_uv(load_df_and_hier_uv):
 def test_predict_regressor_uv(load_df_and_hier_uv):
     hierarchical_sine_data, sine_hier = load_df_and_hier_uv
     hsd = hierarchical_sine_data.head(200)
-    for model in ['holt_winters', 'auto_arima']:
+
+    for model in ['holt_winters', 'auto_arima', 'sarimax']:
         ht = HTSRegressor(model=model, revision_method='OLS')
 
         ht.fit(df=hsd, nodes=sine_hier)

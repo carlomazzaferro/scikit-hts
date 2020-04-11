@@ -27,3 +27,15 @@ History
 ------------------
 
 * Parallel and distributed training
+
+
+0.4.0 (2020-03-28)
+------------------
+
+* Testing for all reconciliation methods, line coverage > 80%
+
+
+0.4.1 (2020-03-28)
+------------------
+
+* Python 3.6 support

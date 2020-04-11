@@ -1,6 +1,6 @@
 import logging
 import tempfile
-from typing import Optional, Union, Any
+from typing import Optional, Union, Any, Dict, List
 
 import pandas
 from sklearn.base import BaseEstimator, RegressorMixin
@@ -117,9 +117,21 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         self.hts_result = HTSResult()
         self.model_args = kwargs
 
-    def __init_hts(self, nodes, df, root, exogenous=None):
+    def __init_hts(self,
+                   nodes: Optional[NodesT] = None,
+                   df: Optional[pandas.DataFrame] = None,
+                   tree: Optional[HierarchyTree] = None,
+                   root: str = 'root',
+                   exogenous: Optional[List[str]] = None):
+
+        if not nodes and not df:
+            if not tree:
+                raise InvalidArgumentException('Either nodes and df must be passed, or a pre-built hierarchy tree')
+            else:
+                self.nodes = tree
+        else:
+            self.nodes = HierarchyTree.from_nodes(nodes=nodes, df=df, exogenous=exogenous, root=root)
         self.exogenous = exogenous
-        self.nodes = HierarchyTree.from_nodes(nodes=nodes, df=df, exogenous=exogenous, root=root)
         self.sum_mat = to_sum_mat(self.nodes)
         self._set_model_instance()
         self._init_revision()
@@ -134,8 +146,9 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
             raise InvalidArgumentException(f'Model {self.model} not valid. Pick one of: {" ".join(Model.names())}')
 
     def fit(self,
-            df: pandas.DataFrame,
-            nodes: NodesT,
+            df: Optional[pandas.DataFrame] = None,
+            nodes: Optional[NodesT] = None,
+            tree: Optional[HierarchyTree] = None,
             exogenous: Optional[ExogT] = None,
             root: str = 'total',
             distributor: Optional[DistributorBaseClass] = None,
@@ -148,13 +161,19 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         Exogenous can also be passed as a dict of (string, list), where string is the specific node key and the list
         contains the names of the columns to be used as exogenous variables for that node.
 
+        Alternatively, a pre-built HierarchyTree can be passed without specifying the node and df. See more at
+        :class:`hts.hierarchy.HierarchyTree`
+
         Parameters
         ----------
         df : pandas.DataFrame
-            A Dataframe of time series with a DateTimeIndex. Each column represents a node in the hierarchy
+            A Dataframe of time series with a DateTimeIndex. Each column represents a node in the hierarchy. Ignored if
+            tree argument is passed
         nodes : Dict[str, List[str]]
             The hierarchy defined as a dict of (string, list), as specified in
              :py:func:`HierarchyTree.from_nodes <hts.hierarchy.HierarchyTree.from_nodes>`
+        tree : HierarchyTree
+            A pre-built HierarchyTree. Ignored if df and nodes are passed, as the tree will be built from thise
         distributor : Optional[DistributorBaseClass]
              A distributor, for parallel/distributed processing
         exogenous : Dict[str, List[str]] or None
@@ -166,7 +185,7 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         show_warnings : Bool
             Disable warnings
         fit_kwargs : Any
-            Any arguments to be passed to the underlying forecasting model's fit function. You will have to
+            Any arguments to be passed to the underlying forecasting model's fit function
 
         Returns
         -------
@@ -174,7 +193,7 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
             The fitted HTSRegressor instance
         """
 
-        self.__init_hts(nodes=nodes, df=df, root=root, exogenous=exogenous)
+        self.__init_hts(nodes=nodes, df=df, tree=tree, root=root, exogenous=exogenous)
 
         nodes = make_iterable(self.nodes, prop=None)
 
@@ -231,12 +250,18 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
 
         Parameters
         ----------
-        distributor
-        disable_progressbar
-        show_warnings
-        exogenous_df
-        steps_ahead
-        predict_kwargs
+        distributor : Optional[DistributorBaseClass]
+             A distributor, for parallel/distributed processing
+        disable_progressbar : Bool
+            Disable or enable progressbar
+        show_warnings : Bool
+            Disable warnings
+        predict_kwargs : Any
+            Any arguments to be passed to the underlying forecasting model's predict function
+        exogenous_df : pandas.DataFrame
+            A dataframe of lenght == steps_ahead containing the exogenous data for each of the nodes
+        steps_ahead : int
+            The number of forecasting steps for which to produce a forecast
 
         Returns
         -------

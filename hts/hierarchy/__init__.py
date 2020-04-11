@@ -1,13 +1,12 @@
-from __future__ import annotations
-
 import weakref
 from collections import deque
 from itertools import chain
 from typing import Tuple, Union, List, Optional
+
 import pandas
 
 from hts._t import NAryTreeT, NodesT, ExogT
-from hts.hierarchy.utils import fetch_cols, hexify, groupify, resample_count
+from hts.hierarchy.utils import fetch_cols, hexify, groupify, resample_count, make_iterable
 from hts.viz.geo import HierarchyVisualizer
 
 
@@ -26,7 +25,8 @@ class HierarchyTree(NAryTreeT):
                         levels: Tuple[int, int] = (6, 7),
                         resample_freq: str = '1H',
                         min_count: Union[float, int] = 0.2,
-                        root_name: str = 'total'
+                        root_name: str = 'total',
+                        fillna: bool = False
                         ):
         """
 
@@ -39,33 +39,42 @@ class HierarchyTree(NAryTreeT):
             Column where the longitude coordinates can be found
         nodes : str
 
-        levels
+        levels :
         resample_freq
         min_count
         root_name
+        fillna
 
         Returns
         -------
-
+        HierarchyTree
         """
 
         hexified = hexify(df, lat_col, lon_col, levels=levels)
         total = resample_count(hexified, resample_freq, root_name)
         hierarchy = cls(key=root_name, item=total)
-        return groupify(hierarchy,
-                        df=hexified,
-                        nodes=nodes,
-                        freq=resample_freq,
-                        min_count=min_count,
-                        total=total)
+        grouped = groupify(hierarchy,
+                           df=hexified,
+                           nodes=nodes,
+                           freq=resample_freq,
+                           min_count=min_count,
+                           total=total)
+        # TODO: more flexible strategy
+        if fillna:
+            df = grouped.to_pandas()
+            df = df.fillna(method='ffill').dropna()
+            for node in make_iterable(grouped, prop=None):
+                repl = df[[node.key]]
+                node.item = repl
+        return grouped
 
     @classmethod
     def from_nodes(cls,
                    nodes: NodesT,
                    df: pandas.DataFrame,
                    exogenous: ExogT = None,
-                   root: Union[str, HierarchyTree] = 'total',
-                   top: HierarchyTree = None,
+                   root: Union[str, 'HierarchyTree'] = 'total',
+                   top: 'HierarchyTree' = None,
                    stack: List = None):
         """
         Standard method for creating a hierarchy from nodes and a dataframe containing as columns those nodes.
@@ -157,7 +166,7 @@ class HierarchyTree(NAryTreeT):
                 if y.key not in nodes.keys():  # if the child_node_val = 0 that is the parent = leaf
                     stack.pop()  # pop the 0 value from the stack
             if len(stack):
-                if len(stack) >= 2:   # bottom-to-top
+                if len(stack) >= 2:  # bottom-to-top
                     tmp_root = stack.pop(0)
                 else:
                     tmp_root = stack.pop()
@@ -309,16 +318,3 @@ class HierarchyTree(NAryTreeT):
 
     def get_series(self) -> pandas.Series:
         return self.item[self.key]
-
-
-if __name__ == '__main__':
-
-    from hts.utilities.load_data import load_hierarchical_sine_data
-    from datetime import datetime
-
-    s, e = datetime(2019, 1, 15), datetime(2019, 10, 15)
-    dti = load_hierarchical_sine_data(s, e)
-    hier = {'total': ['a', 'b', 'c'], 'a': ['aa', 'ab'], 'aa': ['aaa', 'aab'], 'b': ['ba', 'bb'], 'c': ['ca', 'cb', 'cc', 'cd']}
-
-    ht = HierarchyTree.from_nodes(hier, dti)
-    print(ht)
