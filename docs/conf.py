@@ -25,8 +25,15 @@ sys.path.insert(0, os.path.abspath('..'))
 
 import hts
 
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'sphinx.ext.napoleon', 'sphinx.ext.todo',
-              'sphinx.ext.autosectionlabel']
+extensions = [
+    'sphinx.ext.autodoc', 
+    'sphinx.ext.viewcode', 
+    'sphinx.ext.napoleon', 
+    'sphinx.ext.todo',
+    'sphinx.ext.autosectionlabel',
+    'nbsphinx'
+    ]
+
 autodoc_mock_imports = ['fbprophet', 'h3', 'pmdarima']
 
 napoleon_numpy_docstring = True

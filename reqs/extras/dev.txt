@@ -1,5 +1,6 @@
 bumpversion==0.5.3
 sphinx-rtd-theme==0.4.3
+nbsphinx==0.6.1
 numpydoc==0.9.1
 numpy>=1.17.4
 pandas>=0.25.3
