@@ -45,7 +45,7 @@ class RevisionMethod(object):
         if self.name in [MethodsT.OLS.name, MethodsT.WLSS.name, MethodsT.WLSV.name]:
             return optimal_combination(forecasts=forecasts,
                                        sum_mat=self.sum_mat,
-                                       method=MethodsT.OLS.name,
+                                       method=self.name,
                                        mse=mse)
 
         elif self.name == MethodsT.BU.name:
