@@ -180,6 +180,7 @@ class MethodsT(ExtendedEnum):
     PHA = 'PHA'
     AHP = 'AHP'
     BU = 'BU'
+    NONE = 'NONE'
 
 
 # TODO: make this a proper recursive type when mypy supports it: https://github.com/python/mypy/issues/731
