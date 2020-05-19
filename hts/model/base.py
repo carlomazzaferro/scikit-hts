@@ -79,7 +79,7 @@ class TimeSeriesModel(TimeSeriesModelT):
         elif self.kind == Model.auto_arima.name:
             try:
                 from pmdarima import AutoARIMA
-            except ImportError:
+            except ImportError:  # pragma: no cover
                 logger.error('pmdarima not installed, so auto_arima won\'t work. Exiting.'
                              'Install it with: pip install scikit-hts[auto_arima]')
                 return

@@ -31,7 +31,7 @@ class HierarchyVisualizer(HierarchyVisualizerT):
     def get_geos(self):
         try:
             from h3 import h3
-        except ImportError:
+        except ImportError:  # pragma: no cover
             logger.error('h3-py must be installed for geo hashing capabilities. Exiting.'
                          'Install it with: pip install scikit-hts[geo]')
             return
@@ -47,7 +47,7 @@ class HierarchyVisualizer(HierarchyVisualizerT):
             from folium import Map
             from folium.vector_layers import Polygon
             import branca.colormap as cm
-        except ImportError:
+        except ImportError:  # pragma: no cover
             logger.error('Mapping requires folium==0.10.0 to be installed, geo mapping will not work.'
                          'Install it with: pip install scikit-hts[geo]')
             return

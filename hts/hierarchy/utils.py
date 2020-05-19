@@ -28,7 +28,7 @@ def fetch_cols(exogenous, name) -> Tuple[List[str], Optional[List[str]]]:
 def hexify(df, lat_col, lon_col, levels=(6, 8)) -> Optional[pandas.DataFrame]:
     try:
         from h3 import h3
-    except ImportError:
+    except ImportError:  # pragma: no cover
         logger.error('h3-py must be installed for geo hashing capabilities. Exiting.'
                      'Install it with: pip install scikit-hts[geo]')
         return
