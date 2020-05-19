@@ -10,14 +10,6 @@ class HTSResult:
         self._residuals = dict()
         self._forecasts = dict()
 
-    @classmethod
-    def pre_computed(cls, forecasts, errors, residuals, revised_forecasts=None):
-        kls = cls()
-        kls._forecasts = forecasts
-        kls._errors = errors
-        kls._residuals = residuals
-        kls._revised_forecasts = revised_forecasts
-
     @property
     def forecasts(self):
         return self._forecasts

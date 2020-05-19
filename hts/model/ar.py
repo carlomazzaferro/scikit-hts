@@ -7,13 +7,6 @@ from hts.hierarchy import HierarchyTree
 from hts._t import Model
 from hts.model.base import TimeSeriesModel
 
-logger = logging.getLogger(__name__)
-
-try:
-    from pmdarima import AutoARIMA
-except ImportError:
-    logger.warning('pmdarima not installed, so auto_arima won\'t work. Install it with: \npip install pmdarima')
-
 
 class AutoArimaModel(TimeSeriesModel):
     """

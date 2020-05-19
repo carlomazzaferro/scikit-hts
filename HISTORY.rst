@@ -39,3 +39,11 @@ History
 ------------------
 
 * Python 3.6 support
+
+
+0.5.2 (2020-03-28)
+------------------
+
+* Added support for no revision, thanks @ryanvolpi
+* Added multiple example at https://github.com/carlomazzaferro/scikit-hts-examples, thanks @vtoliveira
+* Logging fixes and usability improvements
