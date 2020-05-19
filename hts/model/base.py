@@ -1,8 +1,7 @@
-from typing import Optional, Union
+import logging
 
 import numpy
 import pandas
-from pmdarima import AutoARIMA
 from scipy.special._ufuncs import inv_boxcox
 from scipy.stats import boxcox
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
@@ -12,6 +11,8 @@ from hts.core.exceptions import InvalidArgumentException
 from hts._t import Model, TimeSeriesModelT, TransformT
 from hts.transforms import FunctionTransformer
 from hts.hierarchy import HierarchyTree
+
+logger = logging.getLogger(__name__)
 
 
 class TimeSeriesModel(TimeSeriesModelT):
@@ -76,6 +77,12 @@ class TimeSeriesModel(TimeSeriesModelT):
             model = ExponentialSmoothing(endog=data, **kwargs)
 
         elif self.kind == Model.auto_arima.name:
+            try:
+                from pmdarima import AutoARIMA
+            except ImportError:
+                logger.error('pmdarima not installed, so auto_arima won\'t work. Exiting.'
+                             'Install it with: pip install scikit-hts[auto_arima]')
+                return
             model = AutoARIMA(**kwargs)
 
         elif self.kind == Model.sarimax.name:

@@ -8,11 +8,6 @@ from hts.core.exceptions import InvalidArgumentException
 
 logger = logging.getLogger(__name__)
 
-try:
-    from h3 import h3
-except ImportError:
-    logger.warning('h3-py must be installed for geo hashing capabilities')
-
 
 def make_iterable(nodes: NAryTreeT, prop='key'):
     if not prop:
@@ -30,7 +25,13 @@ def fetch_cols(exogenous, name) -> Tuple[List[str], Optional[List[str]]]:
     return cols, exog
 
 
-def hexify(df, lat_col, lon_col, levels=(6, 8)) -> pandas.DataFrame:
+def hexify(df, lat_col, lon_col, levels=(6, 8)) -> Optional[pandas.DataFrame]:
+    try:
+        from h3 import h3
+    except ImportError:
+        logger.error('h3-py must be installed for geo hashing capabilities. Exiting.'
+                     'Install it with: pip install scikit-hts[geo]')
+        return
     for r in range(levels[0], levels[1] + 1):
         df[f'hex_index_{r}'] = df.apply(lambda x: h3.geo_to_h3(x[lat_col], x[lon_col], r), 1)
     return df
