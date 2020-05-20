@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 try:
     import requests
-except ImportError:
+except ImportError:   # pragma: no cover
     logger.error('Some loading functions might be impaired, install requests '
                  'with: \npip install requests\n if you\'d like to use them')
 

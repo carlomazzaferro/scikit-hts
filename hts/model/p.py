@@ -10,13 +10,6 @@ from hts.utilities.utils import suppress_stdout_stderr
 
 logger = logging.getLogger(__name__)
 
-
-try:
-    from fbprophet import Prophet
-except ImportError:  # pragma: no cover
-    logger.error('prophet model requires fbprophet to work, install it with:\npip install scikit-hts[prophet]')
-
-
 logging.getLogger('fbprophet').setLevel(logging.ERROR)
 
 
@@ -69,6 +62,12 @@ class FBProphetModel(TimeSeriesModel):
             if self.floor:
                 self.node.item['floor'] = capacity_min
 
+        try:
+            from fbprophet import Prophet
+        except ImportError:  # pragma: no cover
+            logger.error('prophet model requires fbprophet to work. Exiting.'
+                         'Install it with: pip install scikit-hts[prophet]')
+            return
         model = Prophet(growth=growth, **kwargs)
         if self.node.exogenous:
             for ex in self.node.exogenous:

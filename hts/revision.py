@@ -42,6 +42,9 @@ class RevisionMethod(object):
         -------
 
         """
+        if self.name == MethodsT.NONE.name:
+            return y_hat_matrix(forecasts=forecasts)
+
         if self.name in [MethodsT.OLS.name, MethodsT.WLSS.name, MethodsT.WLSV.name]:
             return optimal_combination(forecasts=forecasts,
                                        sum_mat=self.sum_mat,

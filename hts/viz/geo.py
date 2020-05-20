@@ -8,18 +8,6 @@ from hts._t import NAryTreeT, HierarchyVisualizerT
 
 logger = logging.getLogger(__name__)
 
-try:
-    from folium import Map
-    from folium.vector_layers import Polygon
-    import branca.colormap as cm
-except ImportError:
-    logger.error('Mapping requires folium==0.10.0 to be installed, geo mapping will not work')
-
-try:
-    from h3 import h3
-except ImportError:
-    logger.error('h3-py must be installed for geo hashing capabilities')
-
 
 def get_min_max_ll(geos):
     fl = list(chain.from_iterable([g[0] for g in geos]))
@@ -41,6 +29,12 @@ class HierarchyVisualizer(HierarchyVisualizerT):
         return self.tree.to_pandas()
 
     def get_geos(self):
+        try:
+            from h3 import h3
+        except ImportError:  # pragma: no cover
+            logger.error('h3-py must be installed for geo hashing capabilities. Exiting.'
+                         'Install it with: pip install scikit-hts[geo]')
+            return
         h3s = [col for col in self.as_df.columns if all(c in string.hexdigits for c in col)]
         return [(h3.h3_to_geo_boundary(g), self.as_df[g].fillna(0).sum(), g) for g in h3s]
 
@@ -48,6 +42,16 @@ class HierarchyVisualizer(HierarchyVisualizerT):
         return
 
     def create_map(self):
+
+        try:
+            from folium import Map
+            from folium.vector_layers import Polygon
+            import branca.colormap as cm
+        except ImportError:  # pragma: no cover
+            logger.error('Mapping requires folium==0.10.0 to be installed, geo mapping will not work.'
+                         'Install it with: pip install scikit-hts[geo]')
+            return
+
         _map = Map(tiles="cartodbpositron")
         geos = self.get_geos()
         max_lat, max_lon, min_lat, min_lon = get_min_max_ll(geos)

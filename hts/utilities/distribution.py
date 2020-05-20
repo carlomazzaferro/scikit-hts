@@ -40,7 +40,7 @@ def _function_with_partly_reduce(chunk_list, map_function, kwargs):
     return list(results)
 
 
-def initialize_warnings_in_workers(show_warnings):
+def initialize_warnings_in_workers(show_warnings):  # pragma: no cover
     """
     Small helper function to initialize warnings module in multiprocessing workers.
     On Windows, Python spawns fresh processes which do not inherit from warnings
