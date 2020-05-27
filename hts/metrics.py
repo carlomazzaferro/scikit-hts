@@ -4,12 +4,27 @@ import pandas
 __all__ = ['mean_absolute_scaled_error']
 
 def mean_absolute_scaled_error(y_true, y_pred, y_train,
-                              naive_period=1,
+                              m=1,
                               sample_weight=None,
                               multioutput='raw_values'):
     
-    """Mean absolute scaled error
+    """Compute the Mean Absolute Scaled Error.
 
+    The Mean Absolute Scaled Error (MASE) is an error metric that is
+    scale independent and symmetric. It was proposed by
+    Hyndman and Koehler (2006) as a generally applicable measurement 
+    of forecast for comparing forecast errors in multiple time series, such as
+    hierarchical ones.
+
+    The error is scaled on the in-sample MAE (Mean Absolute Error) from
+    naive forecast method. The metric is defined as:
+
+        :math: `\frac{\frac{1}{J}\sum_{j}\left| y_{t+j} - \hat{y}_{t+j} \right|}{
+            \frac{1}{T-m}\sum_{t=m+1}^T \left| y_t - \hat{y}_{t-m}\right|}`
+
+    Where a perfect score is 0.0. Scores higher than one indicate that 
+    model performs systematically worse than a naive forecast. Scores between
+    0 and 1 performs better than a naive method.
 
     Parameters
     ----------
@@ -21,6 +36,11 @@ def mean_absolute_scaled_error(y_true, y_pred, y_train,
     
     y_train : pandas.DataFrame of shape (n_samples,) or (n_samples, n_outputs)
         Observed train values of y.
+    
+    m : int
+        An integer value representing number of lags used to calculate in-sample
+        seasonal error. For example, daily seasonal data we use m = 7, for
+        no seasonality, m = 1 (default).
 
     multioutput : string in ['raw_values', 'uniform_average']
         raw_values: Returns metric for each node in dataset.
@@ -28,12 +48,15 @@ def mean_absolute_scaled_error(y_true, y_pred, y_train,
 
     Returns
     --------
-    loss : 
-
+    loss : float or pandas.Series.
+        if multioutput is 'raw_values', then mase is returned for each node
+        in the hierarchical time series.
+        if multioutput is 'uniform_average', then an average value for all
+        nodes is returned.
     """
     
     in_sample_naive_forecast_errors = numpy.abs(
-        y_train.diff(naive_period)[naive_period:]
+        y_train.diff(m)[m:]
         )
     
     in_sample_mae = in_sample_naive_forecast_errors.apply(numpy.average)
