@@ -79,7 +79,7 @@ class HierarchyTree(NAryTreeT):
         """
         Standard method for creating a hierarchy from nodes and a dataframe containing as columns those nodes.
         The nodes are represented as a dictionary containing as keys the nodes, and as values list of edges.
-        See the examples for usage.
+        See the examples for usage. The total column must be named total and not something else.
 
         Parameters
         ----------
