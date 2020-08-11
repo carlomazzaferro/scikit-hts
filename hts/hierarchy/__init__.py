@@ -106,7 +106,7 @@ class HierarchyTree(NAryTreeT):
         In this example we will create a tree from some multivariate data
 
         >>> from hts.utilities.load_data import load_mobility_data
-        >>> from hts import HierarchyTree
+        >>> from hts.hierarchy import HierarchyTree
 
         >>> hmv = load_mobility_data()
         >>> hmv.head()
