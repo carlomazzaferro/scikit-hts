@@ -48,8 +48,8 @@ To get a sense of how the hierarchy trees are implemented, some sample data can 
 .. code-block:: python
 
     >>> from datetime import datetime
-    >>> from hts import HierarchyTree
-    >>> from hts.utils import load_hierarchical_sine_data
+    >>> from hts.hierarchy import HierarchyTree
+    >>> from hts.utilities.load_data import load_hierarchical_sine_data
 
     >>> s, e = datetime(2019, 1, 15), datetime(2019, 10, 15)
     >>> hsd = load_hierarchical_sine_data(start=s, end=e, n=10000)
@@ -62,7 +62,7 @@ To get a sense of how the hierarchy trees are implemented, some sample data can 
     2019-01-15 02:32:09.675895  10.925181  3.820450  1.349626  1.002597  4.752509  3.355709  0.464741  1.596091  1.759618  0.125829  1.206414  0.017383  0.112833  0.515650  0.077102  0.297012
 
     >>> hier = {'total': ['a', 'b', 'c'], 'a': ['aa', 'ab'], 'aa': ['aaa', 'aab'], 'b': ['ba', 'bb'], 'c': ['ca', 'cb', 'cc', 'cd']}
-    >>> tree = HierarchyTree.create_node(hier, hsd, root='total')
+    >>> tree = HierarchyTree.from_nodes(hier, hsd, root='total')
     >>> print(tree)
     - total
        |- a
