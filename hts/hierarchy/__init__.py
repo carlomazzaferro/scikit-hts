@@ -79,7 +79,7 @@ class HierarchyTree(NAryTreeT):
         """
         Standard method for creating a hierarchy from nodes and a dataframe containing as columns those nodes.
         The nodes are represented as a dictionary containing as keys the nodes, and as values list of edges.
-        See the examples for usage.
+        See the examples for usage. The total column must be named total and not something else.
 
         Parameters
         ----------
@@ -106,7 +106,7 @@ class HierarchyTree(NAryTreeT):
         In this example we will create a tree from some multivariate data
 
         >>> from hts.utilities.load_data import load_mobility_data
-        >>> from hts import HierarchyTree
+        >>> from hts.hierarchy import HierarchyTree
 
         >>> hmv = load_mobility_data()
         >>> hmv.head()
