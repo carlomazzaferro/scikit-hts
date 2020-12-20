@@ -11,7 +11,7 @@ Welcome to scikit-hts's documentation!
    hierarchy
    models
    geo
-   modules
+   hts
    parallelization
    hts_on_a_cluster
    contributing
