@@ -1,4 +1,4 @@
-from hts._t import Model
+from hts._t import ModelT
 from hts.model.ar import AutoArimaModel, SarimaxModel
 from hts.model.es import HoltWintersModel
 from hts.model.p import FBProphetModel
@@ -13,8 +13,8 @@ __all__ = [
 
 
 MODEL_MAPPING = {
-    Model.auto_arima.name: AutoArimaModel,
-    Model.holt_winters.name: HoltWintersModel,
-    Model.prophet.name: FBProphetModel,
-    Model.sarimax.name: SarimaxModel,
+    ModelT.auto_arima.name: AutoArimaModel,
+    ModelT.holt_winters.name: HoltWintersModel,
+    ModelT.prophet.name: FBProphetModel,
+    ModelT.sarimax.name: SarimaxModel,
 }

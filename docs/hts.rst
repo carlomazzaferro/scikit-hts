@@ -49,3 +49,13 @@ hts.transforms
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+
+hts._t
+--------------
+
+.. automodule:: hts._t
+   :members:
+   :undoc-members:
+   :show-inheritance:

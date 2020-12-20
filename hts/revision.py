@@ -1,6 +1,6 @@
 import numpy
 
-from hts._t import MethodsT
+from hts._t import MethodT
 from hts.core.exceptions import InvalidArgumentException
 from hts.functions import (
     forecast_proportions,
@@ -13,7 +13,7 @@ from hts.hierarchy.utils import make_iterable
 
 class RevisionMethod(object):
     def __init__(
-        self, name: str, sum_mat, transformer,
+        self, name: str, sum_mat: numpy.ndarray, transformer,
     ):
         self.name = name
         self.transformer = transformer
@@ -44,19 +44,19 @@ class RevisionMethod(object):
         -------
 
         """
-        if self.name == MethodsT.NONE.name:
+        if self.name == MethodT.NONE.name:
             return y_hat_matrix(forecasts=forecasts)
 
-        if self.name in [MethodsT.OLS.name, MethodsT.WLSS.name, MethodsT.WLSV.name]:
+        if self.name in [MethodT.OLS.name, MethodT.WLSS.name, MethodT.WLSV.name]:
             return optimal_combination(
                 forecasts=forecasts, sum_mat=self.sum_mat, method=self.name, mse=mse
             )
 
-        elif self.name == MethodsT.BU.name:
+        elif self.name == MethodT.BU.name:
             y_hat = self._y_hat_matrix(forecasts)
             return self._new_mat(y_hat)
 
-        elif self.name in [MethodsT.AHP.name, MethodsT.PHA.name]:
+        elif self.name in [MethodT.AHP.name, MethodT.PHA.name]:
             if self.transformer:
                 for node in make_iterable(nodes, prop=None):
                     node.item[node.key] = self.transformer.inverse_transform(
@@ -67,7 +67,7 @@ class RevisionMethod(object):
             )
             return self._new_mat(y_hat)
 
-        elif self.name == MethodsT.FP.name:
+        elif self.name == MethodT.FP.name:
             return forecast_proportions(forecasts, nodes)
 
         else:

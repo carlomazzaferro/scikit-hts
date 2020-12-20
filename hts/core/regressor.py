@@ -8,7 +8,7 @@ from sklearn.base import BaseEstimator, RegressorMixin
 
 from hts import defaults
 from hts import model as hts_models
-from hts._t import ExogT, Model, NodesT, TimeSeriesModelT, Transform
+from hts._t import ExogT, MethodT, ModelT, NodesT, TimeSeriesModelT, Transform
 from hts.core.exceptions import InvalidArgumentException, MissingRegressorException
 from hts.core.result import HTSResult
 from hts.core.utils import _do_fit, _do_predict, _model_mapping_to_iterable
@@ -45,7 +45,7 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         The dataframe containing the nodes and edges specified above
 
     revision_method : str
-        One of the revisions methods specified in ...
+        One of: ``"OLS", "WLSS", "WLSV", "FP", "PHA", "AHP", "BU", "NONE"``
 
     models : dict
         Dictionary that holds the trained models
@@ -95,11 +95,11 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         """
 
         self.model = model
-        self.method = revision_method
-        self.n_jobs = n_jobs
-        self.low_memory = low_memory
+        self.method: str = revision_method
+        self.n_jobs: int = n_jobs
+        self.low_memory: bool = low_memory
         if self.low_memory:
-            self.tmp_dir = tempfile.mkdtemp(prefix="hts_")
+            self.tmp_dir: Optional[str] = tempfile.mkdtemp(prefix="hts_")
         else:
             self.tmp_dir = None
         self.transform = transform
@@ -147,7 +147,7 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
             self.model_instance = hts_models.MODEL_MAPPING[self.model]
         except KeyError:
             raise InvalidArgumentException(
-                f'Model {self.model} not valid. Pick one of: {" ".join(Model.names())}'
+                f'Model {self.model} not valid. Pick one of: {" ".join(ModelT.names())}'
             )
 
     def fit(

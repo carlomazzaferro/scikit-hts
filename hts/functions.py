@@ -4,7 +4,7 @@ from typing import Dict
 import numpy as np
 import pandas
 
-from hts._t import MethodsT, NAryTreeT
+from hts._t import MethodT, NAryTreeT
 from hts.hierarchy import make_iterable
 
 
@@ -106,14 +106,14 @@ def optimal_combination(
     hat_mat = y_hat_matrix(forecasts)
     transpose = np.transpose(sum_mat)
 
-    if method == MethodsT.OLS.name:
+    if method == MethodT.OLS.name:
         ols = np.dot(
             np.dot(sum_mat, np.linalg.inv(np.dot(transpose, sum_mat))), transpose
         )
         return project(hat_mat=hat_mat, sum_mat=sum_mat, optimal_mat=ols)
-    elif method == MethodsT.WLSS.name:
+    elif method == MethodT.WLSS.name:
         diag = np.diag(np.transpose(np.sum(sum_mat, axis=1)))
-    elif method == MethodsT.WLSV.name:
+    elif method == MethodT.WLSV.name:
         diag = [mse[key] for key in mse.keys()]
         diag = np.diag(np.flip(np.hstack(diag) + 0.0000001, 0))
     else:
@@ -134,7 +134,7 @@ def optimal_combination(
     return project(hat_mat=hat_mat, sum_mat=sum_mat, optimal_mat=optimal_mat)
 
 
-def proportions(nodes, forecasts, sum_mat, method=MethodsT.PHA.name):
+def proportions(nodes, forecasts, sum_mat, method=MethodT.PHA.name):
     n_cols = len(list(forecasts.keys()))
     fcst = forecasts[list(forecasts.keys())[0]].yhat
     fcst = fcst[:, np.newaxis]
@@ -145,11 +145,11 @@ def proportions(nodes, forecasts, sum_mat, method=MethodsT.PHA.name):
     ]
 
     bts_dat = nodes.to_pandas()[cols]
-    if method == MethodsT.AHP.name:
+    if method == MethodT.AHP.name:
         divs = np.divide(np.transpose(np.array(bts_dat)), np.array(nodes.get_series()))
         props = divs.mean(1)
         props = props[:, np.newaxis]
-    elif method == MethodsT.PHA.name:
+    elif method == MethodT.PHA.name:
         bts_sum = bts_dat.sum(0)
         top_sum = sum(nodes.get_series())
         props = bts_sum / top_sum

@@ -3,7 +3,7 @@ from typing import Dict, Optional
 import numpy
 import pandas
 
-from hts._t import MethodsT, NAryTreeT, TransformT
+from hts._t import MethodT, NAryTreeT, TransformT
 from hts.functions import to_sum_mat
 from hts.revision import RevisionMethod
 
@@ -48,10 +48,10 @@ def revise_forecasts(
     if nodes:
         summing_matrix = to_sum_mat(nodes)
 
-    if method in [MethodsT.AHP.name, MethodsT.PHA.name, MethodsT.FP.name] and not nodes:
+    if method in [MethodT.AHP.name, MethodT.PHA.name, MethodT.FP.name] and not nodes:
         raise ValueError(f"Method {method} requires an NAryTree to be passed")
 
-    if method in [MethodsT.OLS.name, MethodsT.WLSS.name, MethodsT.WLSV.name]:
+    if method in [MethodT.OLS.name, MethodT.WLSS.name, MethodT.WLSV.name]:
         if not (all([forecasts, errors, residuals]) or (not summing_matrix)):
             raise ValueError(
                 f"Method {method} requires forecasts, errors, and residuals to be passed, as "

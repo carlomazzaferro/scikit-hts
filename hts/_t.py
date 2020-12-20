@@ -32,14 +32,14 @@ class ExtendedEnum(Enum):
         return list(map(lambda c: c.name, cls))
 
 
-class Model(ExtendedEnum):
+class ModelT(str, ExtendedEnum):
     prophet = "prophet"
     holt_winters = "holt_winters"
     auto_arima = "auto_arima"
     sarimax = "sarimax"
 
 
-class UnivariateModel(ExtendedEnum):
+class UnivariateModelT(str, ExtendedEnum):
     arima = "arima"
     auto_arima = "auto_arima"
     prophet = "prophet"
@@ -47,10 +47,7 @@ class UnivariateModel(ExtendedEnum):
     sarimax = "sarimax"
 
 
-# class MultivariateModel(ExtendedEnum):
-
-
-Models = NewType("Model", Model)
+Models = NewType("ModelT", ModelT)
 
 
 class Transform(NamedTuple):
@@ -176,7 +173,7 @@ class TimeSeriesModelT(BaseEstimator, RegressorMixin, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
 
-class MethodsT(ExtendedEnum):
+class MethodT(ExtendedEnum):
     OLS = "OLS"
     WLSS = "WLSS"
     WLSV = "WLSV"

@@ -1,4 +1,4 @@
-from hts._t import Model
+from hts._t import ModelT
 from hts.hierarchy import HierarchyTree
 from hts.model.base import TimeSeriesModel
 
@@ -35,7 +35,7 @@ class HoltWintersModel(TimeSeriesModel):
 
     def __init__(self, node: HierarchyTree, **kwargs):
         self._model = None
-        super().__init__(Model.holt_winters.name, node, **kwargs)
+        super().__init__(ModelT.holt_winters.name, node, **kwargs)
 
     def predict(self, node: HierarchyTree, steps_ahead=10):
         y_hat = self._model.forecast(steps=steps_ahead).values

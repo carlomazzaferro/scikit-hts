@@ -7,7 +7,7 @@ from scipy.stats import boxcox
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 
-from hts._t import Model, TimeSeriesModelT, TransformT
+from hts._t import ModelT, TimeSeriesModelT, TransformT
 from hts.core.exceptions import InvalidArgumentException
 from hts.hierarchy import HierarchyTree
 from hts.transforms import FunctionTransformer
@@ -36,9 +36,9 @@ class TimeSeriesModel(TimeSeriesModelT):
             of each of the actual model implementations for a more comprehensive treatment
         """
 
-        if kind not in Model.names():
+        if kind not in ModelT.names():
             raise InvalidArgumentException(
-                f'Model {kind} not valid. Pick one of: {" ".join(Model.names())}'
+                f'Model {kind} not valid. Pick one of: {" ".join(ModelT.names())}'
             )
 
         self.kind = kind
@@ -75,11 +75,11 @@ class TimeSeriesModel(TimeSeriesModelT):
 
     def create_model(self, **kwargs):
 
-        if self.kind == Model.holt_winters.name:
+        if self.kind == ModelT.holt_winters.name:
             data = self.node.item
             model = ExponentialSmoothing(endog=data, **kwargs)
 
-        elif self.kind == Model.auto_arima.name:
+        elif self.kind == ModelT.auto_arima.name:
             try:
                 from pmdarima import AutoARIMA
             except ImportError:  # pragma: no cover
@@ -90,7 +90,7 @@ class TimeSeriesModel(TimeSeriesModelT):
                 return
             model = AutoARIMA(**kwargs)
 
-        elif self.kind == Model.sarimax.name:
+        elif self.kind == ModelT.sarimax.name:
             as_df = self.node.item
             end = self.node.get_series()
             if self.node.exogenous:

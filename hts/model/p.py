@@ -3,7 +3,7 @@ import logging
 import numpy
 import pandas
 
-from hts._t import Model
+from hts._t import ModelT
 from hts.hierarchy import HierarchyTree
 from hts.model.base import TimeSeriesModel
 from hts.utilities.utils import suppress_stdout_stderr
@@ -42,7 +42,7 @@ class FBProphetModel(TimeSeriesModel):
     """
 
     def __init__(self, node: HierarchyTree, **kwargs):
-        super().__init__(Model.prophet.name, node, **kwargs)
+        super().__init__(ModelT.prophet.name, node, **kwargs)
         self.cap = None
         self.floor = None
         self.include_history = False

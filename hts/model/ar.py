@@ -3,7 +3,7 @@ import warnings
 
 from statsmodels.tools.sm_exceptions import ConvergenceWarning
 
-from hts._t import Model
+from hts._t import ModelT
 from hts.hierarchy import HierarchyTree
 from hts.model.base import TimeSeriesModel
 
@@ -37,7 +37,7 @@ class AutoArimaModel(TimeSeriesModel):
     """
 
     def __init__(self, node: HierarchyTree, **kwargs):
-        super().__init__(Model.auto_arima.name, node, **kwargs)
+        super().__init__(ModelT.auto_arima.name, node, **kwargs)
 
     def fit(self, **fit_args) -> "TimeSeriesModel":
         as_df = self.node.item
@@ -96,7 +96,7 @@ class SarimaxModel(TimeSeriesModel):
     """
 
     def __init__(self, node: HierarchyTree, **kwargs):
-        super().__init__(Model.sarimax.name, node, **kwargs)
+        super().__init__(ModelT.sarimax.name, node, **kwargs)
 
     def fit(self, **fit_args) -> "TimeSeriesModel":
         self.model = self.model.fit(disp=0, **fit_args)
