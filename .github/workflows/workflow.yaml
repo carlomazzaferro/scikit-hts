@@ -80,13 +80,3 @@ jobs:
             pip install wheel
             make install-dev
             make release
-
-      - name: Slack Notification
-        uses: rtCamp/action-slack-notify@v2.1.0
-        env:
-            SLACK_CHANNEL: tktl-releases
-            SLACK_COLOR: '#3278BD'
-            SLACK_ICON: https://github.com/taktile-org.png?size=48
-            SLACK_TITLE: "New taktile-cli Release: ${{ env.TKTL_VERSION }}"
-            SLACK_USERNAME: ReleaseManager
-            SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

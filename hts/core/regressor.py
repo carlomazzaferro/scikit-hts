@@ -62,14 +62,6 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
     model_instance : TimeSeriesModel
         Reference to the class implementing the actual time series model
 
-    Methods
-    -------
-    fit(self, df: pandas.DataFrame, nodes: Dict, exogenous: List = None, root: str ='total', **fit_args)
-        Fits underlying models to the data
-
-    predict(self, exogenous: pandas.DataFrame = None, steps_ahead: int = 10)
-        Predicts the n-step ahead forecast with exogenous variables. Exogenous variables are required if models were
-        fit using them
     """
 
     def __init__(
@@ -87,7 +79,7 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         model : str
             One of the models supported by ``hts``. These can be found
         revision_method : str
-            The revision method to be used
+            The revision method to be used. One of: ``"OLS", "WLSS", "WLSV", "FP", "PHA", "AHP", "BU", "NONE"``
         transform : Boolean or NamedTuple
             If True, ``scipy.stats.boxcox`` and ``scipy.special._ufuncs.inv_boxcox`` will be applied prior and after
             fitting.

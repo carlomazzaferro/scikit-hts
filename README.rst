@@ -5,8 +5,8 @@ scikit-hts
 Hierarchical Time Series with a familiar API
 
 
-.. image:: https://travis-ci.org/carlomazzaferro/scikit-hts.svg?branch=master
-    :target: https://travis-ci.org/carlomazzaferro/scikit-hts
+.. image:: https://github.com/carlomazzaferro/scikit-hts/workflows/main%20workflow/badge.svg?branch=master
+    :target: https://github.com/carlomazzaferro/scikit-hts/actions
 
 .. image:: https://badge.fury.io/py/scikit-hts.svg
     :target: https://badge.fury.io/py/scikit-hts
@@ -14,9 +14,10 @@ Hierarchical Time Series with a familiar API
 .. image:: https://readthedocs.org/projects/racket/badge/?version=latest
     :target: https://racket.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
-                
-.. image:: https://coveralls.io/repos/github/carlomazzaferro/scikit-hts/badge.svg?branch=master
-    :target: https://coveralls.io/github/carlomazzaferro/scikit-hts?branch=master
+
+
+.. image:: https://codecov.io/gh/carlomazzaferro/scikit-hts/branch/master/graph/badge.svg?token=K4OAC8C51T
+    :target: https://codecov.io/gh/carlomazzaferro/scikit-hts
     :alt: Coverage
 
 .. image:: https://pepy.tech/badge/scikit-hts/month
