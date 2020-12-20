@@ -8,7 +8,7 @@ from sklearn.base import BaseEstimator, RegressorMixin
 
 from hts import defaults
 from hts import model as hts_models
-from hts._t import ExogT, Model, NodesT, Transform, TimeSeriesModelT
+from hts._t import ExogT, Model, NodesT, TimeSeriesModelT, Transform
 from hts.core.exceptions import InvalidArgumentException, MissingRegressorException
 from hts.core.result import HTSResult
 from hts.core.utils import _do_fit, _do_predict, _model_mapping_to_iterable
