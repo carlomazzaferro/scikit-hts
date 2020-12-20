@@ -3,19 +3,15 @@ from typing import Union
 
 import numpy
 import pandas
-from sklearn.base import BaseEstimator, TransformerMixin
 from scipy.special import inv_boxcox
 from scipy.stats import boxcox
-
+from sklearn.base import BaseEstimator, TransformerMixin
 
 logger = logging.getLogger(__name__)
 
 
 class FunctionTransformer(BaseEstimator, TransformerMixin):
-
-    def __init__(self,
-                 func: callable = boxcox,
-                 inv_func: callable = inv_boxcox):
+    def __init__(self, func: callable = boxcox, inv_func: callable = inv_boxcox):
 
         self.func = func
         self.inv_func = inv_func
@@ -30,7 +26,7 @@ class FunctionTransformer(BaseEstimator, TransformerMixin):
             x, self.lam = self.func(x.values)
             return x
         elif any(x.values < 0):
-            raise ValueError('Boxcox can\t be applied, column has negative values')
+            raise ValueError("Boxcox can\t be applied, column has negative values")
         else:
             x, self.lam = self.func(x.values)
             return x
@@ -43,6 +39,3 @@ class FunctionTransformer(BaseEstimator, TransformerMixin):
             return self.inv_func(x.values, self.lam)
         else:
             return self.inv_func(x, self.lam)
-
-
-

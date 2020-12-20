@@ -9,7 +9,11 @@ import pytest
 from distributed import Client
 
 from hts import HTSRegressor
-from hts.utilities.distribution import MultiprocessingDistributor, LocalDaskDistributor, ClusterDaskDistributor
+from hts.utilities.distribution import (
+    ClusterDaskDistributor,
+    LocalDaskDistributor,
+    MultiprocessingDistributor,
+)
 
 
 def test_partition():
@@ -38,7 +42,10 @@ def test_calculate_best_chunk_size():
     assert distributor.calculate_best_chunk_size(10), 1
     assert distributor.calculate_best_chunk_size(30), 2
     assert distributor.calculate_best_chunk_size(31), 3
+
+
 #
+
 
 @pytest.mark.serial
 def test_multiprocessing_fit(load_df_and_hier_uv):
@@ -56,7 +63,7 @@ def test_multiprocessing_fit(load_df_and_hier_uv):
 @pytest.mark.serial
 def test_dask_cluster_two_workers(load_df_and_hier_uv):
     with Client(n_workers=1, processes=False) as client:
-        address = client.scheduler_info()['address']
+        address = client.scheduler_info()["address"]
         distributor = ClusterDaskDistributor(address=address)
 
         hsd, hier = load_df_and_hier_uv

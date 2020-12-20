@@ -1,5 +1,5 @@
-from hts.hierarchy import HierarchyTree
 from hts._t import Model
+from hts.hierarchy import HierarchyTree
 from hts.model.base import TimeSeriesModel
 
 
@@ -32,16 +32,17 @@ class HoltWintersModel(TimeSeriesModel):
     predict(self, node, steps_ahead: int = 10)
         Predicts the n-step ahead forecast
     """
+
     def __init__(self, node: HierarchyTree, **kwargs):
         self._model = None
         super().__init__(Model.holt_winters.name, node, **kwargs)
 
-    def predict(self, node: HierarchyTree,  steps_ahead=10):
+    def predict(self, node: HierarchyTree, steps_ahead=10):
         y_hat = self._model.forecast(steps=steps_ahead).values
         in_sample_preds = self._model.predict(start=0, end=-1).values
         return self._set_results_return_self(in_sample_preds, y_hat)
 
-    def fit(self, **fit_args) -> 'TimeSeriesModel':
+    def fit(self, **fit_args) -> "TimeSeriesModel":
         self._model = self.model.fit(**fit_args)
         return self
 

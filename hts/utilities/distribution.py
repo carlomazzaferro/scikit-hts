@@ -4,12 +4,13 @@ Essentially, a Distributor organizes the application of feature calculators to d
 Design of this module by Nils Braun
 """
 
-import math
 import itertools
+import math
 import warnings
 from collections import Iterable
 from functools import partial
 from multiprocessing import Pool
+
 from tqdm import tqdm
 
 
@@ -117,7 +118,14 @@ class DistributorBaseClass:
             chunk_size += 1
         return chunk_size
 
-    def map_reduce(self, map_function, data, function_kwargs=None, chunk_size=None, data_length=None):
+    def map_reduce(
+        self,
+        map_function,
+        data,
+        function_kwargs=None,
+        chunk_size=None,
+        data_length=None,
+    ):
         """
         This method contains the core functionality of the DistributorBaseClass class.
         It maps the map_function to each element of the data and reduces the results to return a flattened list.
@@ -158,10 +166,12 @@ class DistributorBaseClass:
         map_kwargs = {"map_function": map_function, "kwargs": function_kwargs}
 
         total_number_of_expected_results = math.ceil(data_length / chunk_size)
-        result = tqdm(self.distribute(_function_with_partly_reduce, chunk_generator, map_kwargs),
-                      total=total_number_of_expected_results,
-                      desc=self.progressbar_title,
-                      disable=self.disable_progressbar)
+        result = tqdm(
+            self.distribute(_function_with_partly_reduce, chunk_generator, map_kwargs),
+            total=total_number_of_expected_results,
+            desc=self.progressbar_title,
+            disable=self.disable_progressbar,
+        )
 
         result = list(itertools.chain.from_iterable(result))
 
@@ -263,12 +273,15 @@ class LocalDaskDistributor(DistributorBaseClass):
         """
 
         super().__init__()
-        from distributed import LocalCluster, Client
         import tempfile
+
+        from distributed import Client, LocalCluster
 
         # attribute .local_dir_ is the path where the local dask workers store temporary files
         self.local_dir_ = tempfile.mkdtemp()
-        cluster = LocalCluster(n_workers=n_workers, processes=False, local_dir=self.local_dir_)
+        cluster = LocalCluster(
+            n_workers=n_workers, processes=False, local_dir=self.local_dir_
+        )
 
         self.client = Client(cluster)
         self.n_workers = n_workers
@@ -296,7 +309,9 @@ class LocalDaskDistributor(DistributorBaseClass):
         if isinstance(partitioned_chunks, Iterable):
             # since dask 2.0.0 client map no longer accepts iterables
             partitioned_chunks = list(partitioned_chunks)
-        result = self.client.gather(self.client.map(partial(func, **kwargs), partitioned_chunks))
+        result = self.client.gather(
+            self.client.map(partial(func, **kwargs), partitioned_chunks)
+        )
         return result
 
     def close(self):
@@ -365,7 +380,9 @@ class ClusterDaskDistributor(DistributorBaseClass):
         if isinstance(partitioned_chunks, Iterable):
             # since dask 2.0.0 client map no longer accepts iterables
             partitioned_chunks = list(partitioned_chunks)
-        result = self.client.gather(self.client.map(partial(func, **kwargs), partitioned_chunks))
+        result = self.client.gather(
+            self.client.map(partial(func, **kwargs), partitioned_chunks)
+        )
         return result
 
     def close(self):
@@ -380,8 +397,13 @@ class MultiprocessingDistributor(DistributorBaseClass):
     Distributor using a multiprocessing Pool to calculate the jobs in parallel on the local machine.
     """
 
-    def __init__(self, n_workers, disable_progressbar=False, progressbar_title="Feature Extraction",
-                 show_warnings=True):
+    def __init__(
+        self,
+        n_workers,
+        disable_progressbar=False,
+        progressbar_title="Feature Extraction",
+        show_warnings=True,
+    ):
         """
         Creates a new MultiprocessingDistributor instance
 
@@ -396,7 +418,11 @@ class MultiprocessingDistributor(DistributorBaseClass):
         """
 
         super().__init__()
-        self.pool = Pool(processes=n_workers, initializer=initialize_warnings_in_workers, initargs=(show_warnings,))
+        self.pool = Pool(
+            processes=n_workers,
+            initializer=initialize_warnings_in_workers,
+            initargs=(show_warnings,),
+        )
         self.n_workers = n_workers
         self.disable_progressbar = disable_progressbar
         self.progressbar_title = progressbar_title

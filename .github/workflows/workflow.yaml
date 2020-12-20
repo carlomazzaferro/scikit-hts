@@ -1,0 +1,92 @@
+name: main workflow
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+
+env:
+  PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+  PYPI_USER: ${{ secrets.PYPI_USER }}
+  CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+jobs:
+  lint:
+    name: Lint scikit-hts
+    runs-on: ubuntu-latest
+    container: python:3.8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+        with:
+          fetch-depth: 1
+      - name: Cache linter dependencies
+        id: cache-linter-deps
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: v1-deps-linter
+      - name: Install needed python packages
+        run: pip install -q black==19.10b0 isort==5.2.1 mypy==0.790
+      - name: Run checks
+        run: |
+          black --check . && isort --check --profile black .
+#          mypy .
+
+  test:
+    name: Test package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          lfs: true
+          fetch-depth: 1
+
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.7"
+
+      - name: Run unit tests
+        run: |
+          pip install wheel
+          make install-test
+          REPORT=true make test
+
+  publish:
+    name: Publish Release
+    runs-on: ubuntu-latest
+    needs: [test, lint]
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: "3.7"
+
+      - name: Checkout
+        uses: actions/checkout@master
+        with:
+          lfs: true
+          fetch-depth: 1
+
+      - name: Release PyPI
+        run: |
+            pip install wheel
+            make install-dev
+            make release
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2.1.0
+        env:
+            SLACK_CHANNEL: tktl-releases
+            SLACK_COLOR: '#3278BD'
+            SLACK_ICON: https://github.com/taktile-org.png?size=48
+            SLACK_TITLE: "New taktile-cli Release: ${{ env.TKTL_VERSION }}"
+            SLACK_USERNAME: ReleaseManager
+            SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

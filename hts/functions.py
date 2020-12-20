@@ -4,7 +4,7 @@ from typing import Dict
 import numpy as np
 import pandas
 
-from hts._t import NAryTreeT, MethodsT
+from hts._t import MethodsT, NAryTreeT
 from hts.hierarchy import make_iterable
 
 
@@ -51,7 +51,9 @@ def to_sum_mat(ntree: NAryTreeT):
     return final_mat
 
 
-def project(hat_mat: np.ndarray, sum_mat: np.ndarray, optimal_mat: np.ndarray) -> np.ndarray:
+def project(
+    hat_mat: np.ndarray, sum_mat: np.ndarray, optimal_mat: np.ndarray
+) -> np.ndarray:
     new_mat = np.empty([hat_mat.shape[0], sum_mat.shape[0]])
     for i in range(hat_mat.shape[0]):
         new_mat[i, :] = np.dot(optimal_mat, np.transpose(hat_mat[i, :]))
@@ -73,10 +75,12 @@ def y_hat_matrix(forecasts, keys=None):
     return y_hat_mat
 
 
-def optimal_combination(forecasts: Dict[str, pandas.DataFrame],
-                        sum_mat: np.ndarray,
-                        method: str,
-                        mse: Dict[str, float]):
+def optimal_combination(
+    forecasts: Dict[str, pandas.DataFrame],
+    sum_mat: np.ndarray,
+    method: str,
+    mse: Dict[str, float],
+):
     """
     Produces the optimal combination of forecasts by trace minimization (as described by
     Wickramasuriya, Athanasopoulos, Hyndman in "Optimal Forecast Reconciliation for Hierarchical and Grouped Time
@@ -103,7 +107,9 @@ def optimal_combination(forecasts: Dict[str, pandas.DataFrame],
     transpose = np.transpose(sum_mat)
 
     if method == MethodsT.OLS.name:
-        ols = np.dot(np.dot(sum_mat, np.linalg.inv(np.dot(transpose, sum_mat))), transpose)
+        ols = np.dot(
+            np.dot(sum_mat, np.linalg.inv(np.dot(transpose, sum_mat))), transpose
+        )
         return project(hat_mat=hat_mat, sum_mat=sum_mat, optimal_mat=ols)
     elif method == MethodsT.WLSS.name:
         diag = np.diag(np.transpose(np.sum(sum_mat, axis=1)))
@@ -111,12 +117,19 @@ def optimal_combination(forecasts: Dict[str, pandas.DataFrame],
         diag = [mse[key] for key in mse.keys()]
         diag = np.diag(np.flip(np.hstack(diag) + 0.0000001, 0))
     else:
-        raise ValueError('Invalid method')
+        raise ValueError("Invalid method")
 
     # S*inv(S'S)*S'
     optimal_mat = np.dot(
-        np.dot(np.dot(sum_mat, np.linalg.inv(np.dot(np.dot(transpose, np.linalg.inv(diag)), sum_mat))),
-               transpose), np.linalg.inv(diag))
+        np.dot(
+            np.dot(
+                sum_mat,
+                np.linalg.inv(np.dot(np.dot(transpose, np.linalg.inv(diag)), sum_mat)),
+            ),
+            transpose,
+        ),
+        np.linalg.inv(diag),
+    )
 
     return project(hat_mat=hat_mat, sum_mat=sum_mat, optimal_mat=optimal_mat)
 
@@ -127,7 +140,9 @@ def proportions(nodes, forecasts, sum_mat, method=MethodsT.PHA.name):
     fcst = fcst[:, np.newaxis]
     num_bts = sum_mat.shape[1]
 
-    cols = [n.key for n in [nodes] + nodes.traversal_level()][(n_cols - num_bts): n_cols]
+    cols = [n.key for n in [nodes] + nodes.traversal_level()][
+        (n_cols - num_bts) : n_cols
+    ]
 
     bts_dat = nodes.to_pandas()[cols]
     if method == MethodsT.AHP.name:
@@ -140,7 +155,7 @@ def proportions(nodes, forecasts, sum_mat, method=MethodsT.PHA.name):
         props = bts_sum / top_sum
         props = props[:, np.newaxis]
     else:
-        raise ValueError('Invalid method')
+        raise ValueError("Invalid method")
     return np.dot(np.array(fcst), np.transpose(props))
 
 
@@ -165,17 +180,21 @@ def forecast_proportions(forecasts, nodes):
         for i, node in enumerate(nodes.level_order_traversal()[level]):
             num_child = node
             last_node = first_node + num_child
-            base_fcst = np.array([forecasts[k.key].yhat[:] for k in as_iterable[first_node: last_node]])
+            base_fcst = np.array(
+                [forecasts[k.key].yhat[:] for k in as_iterable[first_node:last_node]]
+            )
             print(base_fcst.shape)
             fore_sum = np.sum(base_fcst, axis=0)
             fore_sum = fore_sum[:, np.newaxis]
             if column == 0:
-                rev_top = np.array(forecasts['total'].yhat)
+                rev_top = np.array(forecasts["total"].yhat)
                 rev_top = rev_top[:, np.newaxis]
             else:
                 rev_top = np.array(new_mat[:, column])
                 rev_top = rev_top[:, np.newaxis]
-            new_mat[:, first_node:last_node] = np.divide(np.multiply(np.transpose(base_fcst), rev_top), fore_sum)
+            new_mat[:, first_node:last_node] = np.divide(
+                np.multiply(np.transpose(base_fcst), rev_top), fore_sum
+            )
             column += 1
             first_node += num_child
     return new_mat

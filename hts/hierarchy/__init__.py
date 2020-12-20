@@ -1,12 +1,18 @@
 import weakref
 from collections import deque
 from itertools import chain
-from typing import Tuple, Union, List, Optional
+from typing import List, Optional, Tuple, Union
 
 import pandas
 
-from hts._t import NAryTreeT, NodesT, ExogT
-from hts.hierarchy.utils import fetch_cols, hexify, groupify, resample_count, make_iterable
+from hts._t import ExogT, NAryTreeT, NodesT
+from hts.hierarchy.utils import (
+    fetch_cols,
+    groupify,
+    hexify,
+    make_iterable,
+    resample_count,
+)
 from hts.viz.geo import HierarchyVisualizer
 
 
@@ -17,17 +23,18 @@ class HierarchyTree(NAryTreeT):
     """
 
     @classmethod
-    def from_geo_events(cls,
-                        df: pandas.DataFrame,
-                        lat_col: str,
-                        lon_col: str,
-                        nodes: Tuple,
-                        levels: Tuple[int, int] = (6, 7),
-                        resample_freq: str = '1H',
-                        min_count: Union[float, int] = 0.2,
-                        root_name: str = 'total',
-                        fillna: bool = False
-                        ):
+    def from_geo_events(
+        cls,
+        df: pandas.DataFrame,
+        lat_col: str,
+        lon_col: str,
+        nodes: Tuple,
+        levels: Tuple[int, int] = (6, 7),
+        resample_freq: str = "1H",
+        min_count: Union[float, int] = 0.2,
+        root_name: str = "total",
+        fillna: bool = False,
+    ):
         """
 
         Parameters
@@ -53,29 +60,33 @@ class HierarchyTree(NAryTreeT):
         hexified = hexify(df, lat_col, lon_col, levels=levels)
         total = resample_count(hexified, resample_freq, root_name)
         hierarchy = cls(key=root_name, item=total)
-        grouped = groupify(hierarchy,
-                           df=hexified,
-                           nodes=nodes,
-                           freq=resample_freq,
-                           min_count=min_count,
-                           total=total)
+        grouped = groupify(
+            hierarchy,
+            df=hexified,
+            nodes=nodes,
+            freq=resample_freq,
+            min_count=min_count,
+            total=total,
+        )
         # TODO: more flexible strategy
         if fillna:
             df = grouped.to_pandas()
-            df = df.fillna(method='ffill').dropna()
+            df = df.fillna(method="ffill").dropna()
             for node in make_iterable(grouped, prop=None):
                 repl = df[[node.key]]
                 node.item = repl
         return grouped
 
     @classmethod
-    def from_nodes(cls,
-                   nodes: NodesT,
-                   df: pandas.DataFrame,
-                   exogenous: ExogT = None,
-                   root: Union[str, 'HierarchyTree'] = 'total',
-                   top: 'HierarchyTree' = None,
-                   stack: List = None):
+    def from_nodes(
+        cls,
+        nodes: NodesT,
+        df: pandas.DataFrame,
+        exogenous: ExogT = None,
+        root: Union[str, "HierarchyTree"] = "total",
+        top: "HierarchyTree" = None,
+        stack: List = None,
+    ):
         """
         Standard method for creating a hierarchy from nodes and a dataframe containing as columns those nodes.
         The nodes are represented as a dictionary containing as keys the nodes, and as values list of edges.
@@ -153,37 +164,47 @@ class HierarchyTree(NAryTreeT):
         if stack is None:
             stack = []
             cols, ex = fetch_cols(exogenous, root)
-            root = HierarchyTree(key=root, item=df[cols], exogenous=ex)  # root node is created
+            root = HierarchyTree(
+                key=root, item=df[cols], exogenous=ex
+            )  # root node is created
             top = root  # it is stored in b variable
         x = root.key  # root.val = 2 for the first time
         if len(nodes[x]) > 0:  # check if there are children of the node exists or not
             for i in range(len(nodes[x])):  # iterate through each child
                 key = nodes[x][i]
                 cols, ex = fetch_cols(exogenous, key)
-                y = HierarchyTree(key=key, item=df[cols], exogenous=ex)  # create Node for every child
+                y = HierarchyTree(
+                    key=key, item=df[cols], exogenous=ex
+                )  # create Node for every child
                 root.children.append(y)  # append the child_node to its parent_node
                 stack.append(y)  # store that child_node in stack
-                if y.key not in nodes.keys():  # if the child_node_val = 0 that is the parent = leaf
+                if (
+                    y.key not in nodes.keys()
+                ):  # if the child_node_val = 0 that is the parent = leaf
                     stack.pop()  # pop the 0 value from the stack
             if len(stack):
                 if len(stack) >= 2:  # bottom-to-top
                     tmp_root = stack.pop(0)
                 else:
                     tmp_root = stack.pop()
-                cls.from_nodes(nodes=nodes,
-                               df=df,
-                               exogenous=exogenous,
-                               root=tmp_root,
-                               top=top,
-                               stack=stack)  # pass tmp_root to the function as root
+                cls.from_nodes(
+                    nodes=nodes,
+                    df=df,
+                    exogenous=exogenous,
+                    root=tmp_root,
+                    top=top,
+                    stack=stack,
+                )  # pass tmp_root to the function as root
         return top
 
-    def __init__(self,
-                 key: str = None,
-                 item: Union[pandas.Series, pandas.DataFrame] = None,
-                 exogenous: List[str] = None,
-                 children: List[NAryTreeT] = None,
-                 parent: NAryTreeT = None):
+    def __init__(
+        self,
+        key: str = None,
+        item: Union[pandas.Series, pandas.DataFrame] = None,
+        exogenous: List[str] = None,
+        children: List[NAryTreeT] = None,
+        parent: NAryTreeT = None,
+    ):
 
         self.key = key
         self.item = item
@@ -313,7 +334,7 @@ class HierarchyTree(NAryTreeT):
         """
 
         df = pandas.concat([self.item] + [c.item for c in self.traversal_level()], 1)
-        df.index.name = 'ds'
+        df.index.name = "ds"
         return df
 
     def get_series(self) -> pandas.Series:

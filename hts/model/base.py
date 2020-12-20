@@ -7,10 +7,10 @@ from scipy.stats import boxcox
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 
-from hts.core.exceptions import InvalidArgumentException
 from hts._t import Model, TimeSeriesModelT, TransformT
-from hts.transforms import FunctionTransformer
+from hts.core.exceptions import InvalidArgumentException
 from hts.hierarchy import HierarchyTree
+from hts.transforms import FunctionTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -20,11 +20,9 @@ class TimeSeriesModel(TimeSeriesModelT):
         Inherits from scikit-learn base classes
     """
 
-    def __init__(self,
-                 kind: str,
-                 node: HierarchyTree,
-                 transform: TransformT = None,
-                 **kwargs):
+    def __init__(
+        self, kind: str, node: HierarchyTree, transform: TransformT = None, **kwargs
+    ):
         """
         Parameters
         ----------
@@ -39,7 +37,9 @@ class TimeSeriesModel(TimeSeriesModelT):
         """
 
         if kind not in Model.names():
-            raise InvalidArgumentException(f'Model {kind} not valid. Pick one of: {" ".join(Model.names())}')
+            raise InvalidArgumentException(
+                f'Model {kind} not valid. Pick one of: {" ".join(Model.names())}'
+            )
 
         self.kind = kind
         self.node = node
@@ -51,21 +51,24 @@ class TimeSeriesModel(TimeSeriesModelT):
         self.transform = transform
         if self.transform:
             if transform is True:
-                self.transformer = FunctionTransformer(func=boxcox,
-                                                       inv_func=inv_boxcox)
+                self.transformer = FunctionTransformer(func=boxcox, inv_func=inv_boxcox)
             else:
-                self.transformer = FunctionTransformer(func=transform.func,
-                                                       inv_func=transform.inv_func)
+                self.transformer = FunctionTransformer(
+                    func=transform.func, inv_func=transform.inv_func
+                )
         else:
-            self.transformer = FunctionTransformer(func=self._no_func,
-                                                   inv_func=self._no_func)
+            self.transformer = FunctionTransformer(
+                func=self._no_func, inv_func=self._no_func
+            )
 
     @staticmethod
     def _no_func(x):
         return x, None
 
     def _set_results_return_self(self, in_sample, y_hat):
-        self.forecast = pandas.DataFrame({'yhat': numpy.concatenate([in_sample, y_hat])})
+        self.forecast = pandas.DataFrame(
+            {"yhat": numpy.concatenate([in_sample, y_hat])}
+        )
         self.residual = (in_sample - self.node.get_series()).values
         self.mse = numpy.mean(numpy.array(self.residual) ** 2)
         return self
@@ -80,8 +83,10 @@ class TimeSeriesModel(TimeSeriesModelT):
             try:
                 from pmdarima import AutoARIMA
             except ImportError:  # pragma: no cover
-                logger.error('pmdarima not installed, so auto_arima won\'t work. Exiting.'
-                             'Install it with: pip install scikit-hts[auto_arima]')
+                logger.error(
+                    "pmdarima not installed, so auto_arima won't work. Exiting."
+                    "Install it with: pip install scikit-hts[auto_arima]"
+                )
                 return
             model = AutoARIMA(**kwargs)
 
@@ -97,7 +102,7 @@ class TimeSeriesModel(TimeSeriesModelT):
             raise
         return model
 
-    def fit(self, **fit_args) -> 'TimeSeriesModel':
+    def fit(self, **fit_args) -> "TimeSeriesModel":
         raise NotImplementedError
 
     def predict(self, node: HierarchyTree, **predict_args):

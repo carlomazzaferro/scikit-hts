@@ -2,19 +2,27 @@ import abc
 import logging
 import weakref
 from enum import Enum
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    NamedTuple,
+    NewType,
+    Optional,
+    Tuple,
+    Union,
+)
 from weakref import ReferenceType
-from typing import List, Optional, Callable, NamedTuple, NewType, Union, Tuple, Dict, Any
 
 import numpy
 import pandas
-from sklearn.base import RegressorMixin, BaseEstimator
-
+from sklearn.base import BaseEstimator, RegressorMixin
 
 logger = logging.getLogger(__name__)
 
 
 class ExtendedEnum(Enum):
-
     @classmethod
     def list(cls):
         return list(map(lambda c: c.value, cls))
@@ -25,24 +33,24 @@ class ExtendedEnum(Enum):
 
 
 class Model(ExtendedEnum):
-    prophet = 'prophet'
-    holt_winters = 'holt_winters'
-    auto_arima = 'auto_arima'
-    sarimax = 'sarimax'
+    prophet = "prophet"
+    holt_winters = "holt_winters"
+    auto_arima = "auto_arima"
+    sarimax = "sarimax"
 
 
 class UnivariateModel(ExtendedEnum):
-    arima = 'arima'
-    auto_arima = 'auto_arima'
-    prophet = 'prophet'
-    holt_winters = 'holt_winters'
-    sarimax = 'sarimax'
+    arima = "arima"
+    auto_arima = "auto_arima"
+    prophet = "prophet"
+    holt_winters = "holt_winters"
+    sarimax = "sarimax"
 
 
 # class MultivariateModel(ExtendedEnum):
 
 
-Models = NewType('Model', Model)
+Models = NewType("Model", Model)
 
 
 class Transform(NamedTuple):
@@ -51,7 +59,7 @@ class Transform(NamedTuple):
 
 
 class HierarchyVisualizerT(metaclass=abc.ABCMeta):
-    tree: 'NAryTreeT'
+    tree: "NAryTreeT"
 
     def create_map(self):
         ...
@@ -61,10 +69,11 @@ class NAryTreeT(metaclass=abc.ABCMeta):
     """
     Type definition of an NAryTree
     """
+
     key: str
     item: Union[pandas.Series, pandas.DataFrame]
     exogenous: List[str] = None
-    children: List[Optional['NAryTreeT']]
+    children: List[Optional["NAryTreeT"]]
     _parent: "Optional[ReferenceType[NAryTreeT]]"
     visualizer: HierarchyVisualizerT
 
@@ -73,7 +82,7 @@ class NAryTreeT(metaclass=abc.ABCMeta):
         if self._parent:
             return self._parent()
 
-    def __iter__(self) -> 'NAryTreeT':
+    def __iter__(self) -> "NAryTreeT":
         yield self
         for child in self.children:
             yield child
@@ -102,13 +111,13 @@ class NAryTreeT(metaclass=abc.ABCMeta):
     def get_height(self) -> int:
         ...
 
-    def level_order_traversal(self: 'NAryTreeT') -> List[List[int]]:
+    def level_order_traversal(self: "NAryTreeT") -> List[List[int]]:
         ...
 
-    def traversal_level(self) -> List['NAryTreeT']:
+    def traversal_level(self) -> List["NAryTreeT"]:
         ...
 
-    def add_child(self, key=None, item=None, exogenous=None) -> 'NAryTreeT':
+    def add_child(self, key=None, item=None, exogenous=None) -> "NAryTreeT":
         ...
 
     def leaf_sum(self) -> int:
@@ -123,8 +132,8 @@ class NAryTreeT(metaclass=abc.ABCMeta):
     def get_series(self) -> pandas.Series:
         ...
 
-    def string_repr(self, prefix='', _last=True):
-        base = ''.join([prefix, "- " if _last else "|- ", self.key, '\n'])
+    def string_repr(self, prefix="", _last=True):
+        base = "".join([prefix, "- " if _last else "|- ", self.key, "\n"])
         prefix += "   " if _last else "|  "
         child_count = len(self.children)
         for i, child in enumerate(self.children):
@@ -148,19 +157,19 @@ class TimeSeriesModelT(BaseEstimator, RegressorMixin, metaclass=abc.ABCMeta):
     forecast: Optional[pandas.DataFrame]
     residual: Optional[numpy.ndarray]
     mse: Optional[numpy.ndarray]
-    transform: 'TransformT'
+    transform: "TransformT"
 
     @staticmethod
     def _no_func(x):
         ...
 
-    def _set_results_return_self(self, in_sample, y_hat) -> 'TimeSeriesModelT':
+    def _set_results_return_self(self, in_sample, y_hat) -> "TimeSeriesModelT":
         ...
 
     def create_model(self, **kwargs):
         ...
 
-    def fit(self, **fit_args) -> 'TimeSeriesModelT':
+    def fit(self, **fit_args) -> "TimeSeriesModelT":
         raise NotImplementedError
 
     def predict(self, node: NAryTreeT, **predict_args):
@@ -168,18 +177,18 @@ class TimeSeriesModelT(BaseEstimator, RegressorMixin, metaclass=abc.ABCMeta):
 
 
 class MethodsT(ExtendedEnum):
-    OLS = 'OLS'
-    WLSS = 'WLSS'
-    WLSV = 'WLSV'
-    FP = 'FP'
-    PHA = 'PHA'
-    AHP = 'AHP'
-    BU = 'BU'
-    NONE = 'NONE'
+    OLS = "OLS"
+    WLSS = "WLSS"
+    WLSV = "WLSV"
+    FP = "FP"
+    PHA = "PHA"
+    AHP = "AHP"
+    BU = "BU"
+    NONE = "NONE"
 
 
 # TODO: make this a proper recursive type when mypy supports it: https://github.com/python/mypy/issues/731
-HierarchyT = Tuple[str, 'HierarchyT']
+HierarchyT = Tuple[str, "HierarchyT"]
 NodesT = ExogT = Dict[str, List[str]]
 LowMemoryFitResultT = Tuple[str, str]
 ModelFitResultT = Union[TimeSeriesModelT, LowMemoryFitResultT]

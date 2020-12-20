@@ -3,8 +3,8 @@ import warnings
 
 from statsmodels.tools.sm_exceptions import ConvergenceWarning
 
-from hts.hierarchy import HierarchyTree
 from hts._t import Model
+from hts.hierarchy import HierarchyTree
 from hts.model.base import TimeSeriesModel
 
 
@@ -35,10 +35,11 @@ class AutoArimaModel(TimeSeriesModel):
         Predicts the n-step ahead forecast. Exogenous variables are required if models were
         fit using them
     """
+
     def __init__(self, node: HierarchyTree, **kwargs):
         super().__init__(Model.auto_arima.name, node, **kwargs)
 
-    def fit(self, **fit_args) -> 'TimeSeriesModel':
+    def fit(self, **fit_args) -> "TimeSeriesModel":
         as_df = self.node.item
         end = self.node.get_series()
         if self.node.exogenous:
@@ -61,7 +62,9 @@ class AutoArimaModel(TimeSeriesModel):
         return self._set_results_return_self(in_sample_preds, y_hat)
 
     def fit_predict(self, node: HierarchyTree, steps_ahead=10, alpha=0.05, **fit_args):
-        return self.fit(**fit_args).predict(node=node, steps_ahead=steps_ahead, alpha=alpha)
+        return self.fit(**fit_args).predict(
+            node=node, steps_ahead=steps_ahead, alpha=alpha
+        )
 
 
 class SarimaxModel(TimeSeriesModel):
@@ -91,10 +94,11 @@ class SarimaxModel(TimeSeriesModel):
         Predicts the n-step ahead forecast. Exogenous variables are required if models were
         fit using them
     """
+
     def __init__(self, node: HierarchyTree, **kwargs):
         super().__init__(Model.sarimax.name, node, **kwargs)
 
-    def fit(self, **fit_args) -> 'TimeSeriesModel':
+    def fit(self, **fit_args) -> "TimeSeriesModel":
         self.model = self.model.fit(disp=0, **fit_args)
         return self
 
@@ -104,8 +108,12 @@ class SarimaxModel(TimeSeriesModel):
         else:
             ex = None
         y_hat = self.model.forecast(steps=steps_ahead, exog=ex).values
-        in_sample_preds = self.model.get_prediction(dynamic=False, exog=ex).predicted_mean
+        in_sample_preds = self.model.get_prediction(
+            dynamic=False, exog=ex
+        ).predicted_mean
         return self._set_results_return_self(in_sample_preds, y_hat)
 
     def fit_predict(self, node: HierarchyTree, steps_ahead=10, alpha=0.05, **fit_args):
-        return self.fit(**fit_args).predict(node=node, steps_ahead=steps_ahead, alpha=alpha)
+        return self.fit(**fit_args).predict(
+            node=node, steps_ahead=steps_ahead, alpha=alpha
+        )

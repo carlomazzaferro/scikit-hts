@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 
 class suppress_stdout_stderr(object):
@@ -11,18 +12,19 @@ class suppress_stdout_stderr(object):
     exited (at least, I think that is why it lets exceptions through).
 
     """
-    def __init__(self):
+
+    def __init__(self) -> None:
         # Open a pair of null files
         self.null_fds = [os.open(os.devnull, os.O_RDWR) for x in range(2)]
         # Save the actual stdout (1) and stderr (2) file descriptors.
         self.save_fds = [os.dup(1), os.dup(2)]
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         # Assign the null pointers to stdout and stderr.
         os.dup2(self.null_fds[0], 1)
         os.dup2(self.null_fds[1], 2)
 
-    def __exit__(self, *_):
+    def __exit__(self, *_: Any) -> None:
         # Re-assign the real stdout/stderr back to (1) and (2)
         os.dup2(self.save_fds[0], 1)
         os.dup2(self.save_fds[1], 2)
