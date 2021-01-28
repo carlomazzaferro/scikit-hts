@@ -1,8 +1,8 @@
 import numpy
 import pandas
 
-from hts.functions import to_sum_mat
 import hts.hierarchy
+from hts.functions import to_sum_mat
 
 
 def test_sum_mat_uv(uv_tree):
