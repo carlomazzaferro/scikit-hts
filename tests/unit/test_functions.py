@@ -6,7 +6,7 @@ from hts.functions import to_sum_mat
 
 
 def test_sum_mat_uv(uv_tree):
-    mat = to_sum_mat(uv_tree)
+    mat, sum_mat_labels = to_sum_mat(uv_tree)
     assert isinstance(mat, numpy.ndarray)
     shp = mat.shape
     assert shp[0] == uv_tree.num_nodes() + 1
@@ -14,7 +14,7 @@ def test_sum_mat_uv(uv_tree):
 
 
 def test_sum_mat_mv(mv_tree):
-    mat = to_sum_mat(mv_tree)
+    mat, sum_mat_labels = to_sum_mat(mv_tree)
     assert isinstance(mat, numpy.ndarray)
     shp = mat.shape
     assert shp[0] == mv_tree.num_nodes() + 1
@@ -37,7 +37,7 @@ def test_sum_mat_hierarchical():
     )
 
     tree = hts.hierarchy.HierarchyTree.from_nodes(hierarchy, hier_df)
-    sum_mat = to_sum_mat(tree)
+    sum_mat, sum_mat_labels = to_sum_mat(tree)
 
     expected_sum_mat = numpy.array(
         [
@@ -53,6 +53,7 @@ def test_sum_mat_hierarchical():
     )  # B_Y
 
     numpy.testing.assert_array_equal(sum_mat, expected_sum_mat)
+    assert sum_mat_labels == ["total", "B", "A", "A_X", "A_Y", "A_Z", "B_X", "B_Y"]
 
 
 def test_sum_mat_grouped():
@@ -76,7 +77,7 @@ def test_sum_mat_grouped():
     )
 
     tree = hts.hierarchy.HierarchyTree.from_nodes(hierarchy, grouped_df)
-    sum_mat = to_sum_mat(tree)
+    sum_mat, sum_mat_labels = to_sum_mat(tree)
 
     expected_sum_mat = numpy.array(
         [
@@ -93,6 +94,7 @@ def test_sum_mat_grouped():
     )
 
     numpy.testing.assert_array_equal(sum_mat, expected_sum_mat)
+    assert sum_mat_labels == ["total", "Y", "X", "B", "A", "A_X", "A_Y", "B_X", "B_Y"]
 
 
 def test_sum_mat_visnights_hier(visnights_hier):
@@ -129,7 +131,7 @@ def test_sum_mat_visnights_hier(visnights_hier):
     )
 
     tree = hts.hierarchy.HierarchyTree.from_nodes(visnights_hier, hier_df)
-    sum_mat = to_sum_mat(tree)
+    sum_mat, sum_mat_labels = to_sum_mat(tree)
 
     expected_sum_mat = numpy.array(
         [
@@ -185,7 +187,7 @@ def test_demo_unique_constraint():
     )
 
     tree = hts.hierarchy.HierarchyTree.from_nodes(hierarchy, hier_df)
-    sum_mat = to_sum_mat(tree)
+    sum_mat, sum_mat_labels = to_sum_mat(tree)
 
     expected_sum_mat = numpy.array(
         [

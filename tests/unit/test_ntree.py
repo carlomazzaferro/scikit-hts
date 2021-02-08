@@ -84,19 +84,31 @@ def test_from_geo_events(events):
 def test_create_hierarchical_sine_data_tree(hierarchical_sine_data):
     hier = {
         "total": ["a", "b", "c"],
-        "a": ["aa", "ab"],
-        "aa": ["aaa", "aab"],
-        "b": ["ba", "bb"],
-        "c": ["ca", "cb", "cc", "cd"],
+        "a": ["a_x", "a_y"],
+        "b": ["b_x", "b_y"],
+        "c": ["c_x", "c_y"],
+        "a_x": ["a_x_1", "a_x_2"],
+        "a_y": ["a_y_1", "a_y_2"],
+        "b_x": ["b_x_1", "b_x_2"],
+        "b_y": ["b_y_1", "b_y_2"],
+        "c_x": ["c_x_1", "c_x_2"],
+        "c_y": ["c_y_1", "c_y_2"],
     }
     ht = HierarchyTree.from_nodes(hier, hierarchical_sine_data)
     assert isinstance(ht.to_pandas(), pandas.DataFrame)
     assert ht.key == "total"
     assert len(ht.children) == 3
     for c in ht.children:
-        if c.key == "a" or c.key == "b":
+        if c.key == "a" or c.key == "b" or c.key == "c":
             assert len(c.children) == 2
-        if c.key == "c":
+        if (
+            c.key == "a_x"
+            or c.key == "b_x"
+            or c.key == "c_x"
+            or c.key == "a_y"
+            or c.key == "b_y"
+            or c.key == "c_y"
+        ):
             assert len(c.children) == 4
 
 

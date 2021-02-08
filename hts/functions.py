@@ -1,5 +1,5 @@
 from random import choice
-from typing import Dict
+from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas
@@ -8,7 +8,7 @@ from hts._t import MethodT, NAryTreeT
 from hts.hierarchy import make_iterable
 
 
-def to_sum_mat(ntree: NAryTreeT):
+def to_sum_mat(ntree: NAryTreeT) -> Tuple[np.ndarray, List[str]]:
     """
     This function creates a summing matrix for the bottom up and optimal combination approaches
     All the inputs are the same as above
@@ -23,6 +23,9 @@ def to_sum_mat(ntree: NAryTreeT):
     -------
     numpy.ndarray
         Summing matrix.
+
+    List[str]
+        Row order list of the level in the hierarchy represented by each row in the summing matrix.
 
     """
     nodes = ntree.level_order_traversal()
@@ -69,7 +72,7 @@ def to_sum_mat(ntree: NAryTreeT):
     sum_mat_labels.reverse()
     sum_mat_labels = ["total"] + sum_mat_labels + bl_mat_idx_ref
 
-    return sum_mat
+    return sum_mat, sum_mat_labels
 
 
 def project(

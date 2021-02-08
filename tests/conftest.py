@@ -133,10 +133,15 @@ def mv_tree(hierarchical_mv_data):
 def sine_hier():
     return {
         "total": ["a", "b", "c"],
-        "a": ["aa", "ab"],
-        "aa": ["aaa", "aab"],
-        "b": ["ba", "bb"],
-        "c": ["ca", "cb", "cc", "cd"],
+        "a": ["a_x", "a_y"],
+        "b": ["b_x", "b_y"],
+        "c": ["c_x", "c_y"],
+        "a_x": ["a_x_1", "a_x_2"],
+        "a_y": ["a_y_1", "a_y_2"],
+        "b_x": ["b_x_1", "b_x_2"],
+        "b_y": ["b_y_1", "b_y_2"],
+        "c_x": ["c_x_1", "c_x_2"],
+        "c_y": ["c_y_1", "c_y_2"],
     }
 
 
