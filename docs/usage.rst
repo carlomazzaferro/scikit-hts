@@ -2,6 +2,9 @@
 Usage
 =====
 
+Typical Usage
+-------------
+
 ``scikit-hts`` has one main class that provides the interface with your desired forecasting methodology and reconciliation
 strategy. Here you can find how to get started quickly with ``scikit-hts``. We'll use some sample (fake) data.
 
@@ -34,4 +37,58 @@ More extensive usage, including a solution for Kaggle's `M5 Competition`_, can b
 
 .. _M5 Competition: https://www.kaggle.com/c/m5-forecasting-accuracy
 .. _scikit-hts-examples: https://github.com/carlomazzaferro/scikit-hts-examples
+
+
+Reconcile Pre-Computed Forecasts
+--------------------------------
+
+This is an example of creating forecasts outside of scikit-hts and then utilzing scikit-hts to do OLS optimal
+reconciliation on the forecasts.
+
+.. code-block:: python
+
+    >>> from datetime import datetime
+    >>> import hts
+    >>> from hts.utilities.load_data import load_hierarchical_sine_data
+    >>> import statsmodels
+    >>> import collections
+    >>> import pandas as pd
+
+    >>> s, e = datetime(2019, 1, 15), datetime(2019, 10, 15)
+    >>> hsd = load_hierarchical_sine_data(start=s, end=e, n=10000)
+    >>> hier = {'total': ['a', 'b', 'c'],
+                'a': ['a_x', 'a_y'],
+                'b': ['b_x', 'b_y'],
+                'c': ['c_x', 'c_y'],
+                'a_x': ['a_x_1', 'a_x_2'],
+                'a_y': ['a_y_1', 'a_y_2'],
+                'b_x': ['b_x_1', 'b_x_2'],
+                'b_y': ['b_y_1', 'b_y_2'],
+                'c_x': ['c_x_1', 'c_x_2'],
+                'c_y': ['c_y_1', 'c_y_2']
+            }
+
+    >>> tree = hts.hierarchy.HierarchyTree.from_nodes(hier, hsd)
+    >>> sum_mat, sum_mat_labels = hts.functions.to_sum_mat(tree)
+
+    >>> forecasts = pd.DataFrame(columns=hsd.columns, index=['fake'])
+
+        # Make forecasts made outside of package. Could be any modeling technique.
+    >>> for col in hsd.columns:
+            model = statsmodels.tsa.holtwinters.SimpleExpSmoothing(hsd[col].values).fit()
+            fcst = list(model.forecast(1))
+            forecasts[col] = fcst
+
+    >>> pred_dict = collections.OrderedDict()  
+
+    # Add predictions to dictionary is same order as summing matrix
+    >>> for label in sum_mat_labels:
+            pred_dict[label] = pd.DataFrame(data=forecasts[label].values, columns=['yhat'])
+
+    >>> revised = hts.functions.optimal_combination(pred_dict, sum_mat, method='OLS', mse={})
+
+    # Put reconciled forecasts in nice DataFrame form
+    >>> revised_forecasts = pd.DataFrame(data=revised[0:,0:],    
+                                        index=forecasts.index,    
+                                        columns=sum_mat_labels)
 
