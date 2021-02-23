@@ -1,5 +1,5 @@
 from random import choice
-from typing import Dict
+from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas
@@ -8,7 +8,7 @@ from hts._t import MethodT, NAryTreeT
 from hts.hierarchy import make_iterable
 
 
-def to_sum_mat(ntree: NAryTreeT):
+def to_sum_mat(ntree: NAryTreeT) -> Tuple[np.ndarray, List[str]]:
     """
     This function creates a summing matrix for the bottom up and optimal combination approaches
     All the inputs are the same as above
@@ -21,34 +21,58 @@ def to_sum_mat(ntree: NAryTreeT):
 
     Returns
     -------
+    numpy.ndarray
+        Summing matrix.
+
+    List[str]
+        Row order list of the level in the hierarchy represented by each row in the summing matrix.
 
     """
     nodes = ntree.level_order_traversal()
+    node_labels = ntree.get_level_order_labels()
     num_at_level = list(map(sum, nodes))
     columns = num_at_level[-1]
-    bl_mat = np.identity(columns)
+
+    # Initialize summing matrix with bottom level rows
+    sum_mat = np.identity(columns)
+
+    # Names of each row in summing matrix.
+    sum_mat_labels = []
+
+    # Bottom level matrix labels, with indices correspoding to column in summing matrix
+    bl_mat_idx_ref = node_labels[-1]
+
+    # Skip total and bottom level of tree. Rows added outside of loop.
+    for level in node_labels[1:-1]:
+        for label in level:
+            # Exclude duplicates specified in tree
+            if label not in sum_mat_labels:
+                row = []
+                for bl_element in bl_mat_idx_ref:
+                    # Check if the bottom level element is part of label
+                    is_component = all(
+                        [True if l in bl_element else False for l in label.split("_")]
+                    )
+                    if is_component:
+                        row.append(1)
+                    else:
+                        row.append(0)
+
+                # Add row correspoding to label to top of summing matrix
+                row = np.array(row)
+                sum_mat = np.vstack((row, sum_mat))
+                sum_mat_labels.append(label)
+
+    # Add top as first row in summing matrix
     top = np.ones(columns)
-    final_mat = bl_mat
-    num_levels = len(num_at_level)
+    sum_mat = np.vstack((top, sum_mat))
 
-    for lev in range(num_levels - 1):
-        summing = nodes[-(lev + 1)]
-        count = 0
-        num2sum_ind = 0
-        B = np.zeros([num_at_level[-1]])
-        for num2sum in summing:
-            num2sum_ind += num2sum
-            a = bl_mat[count:num2sum_ind, :]
-            count += num2sum
-            if np.all(B == 0):
-                B = a.sum(axis=0)
-            else:
-                B = np.vstack((B, a.sum(axis=0)))
-        final_mat = np.vstack((B, final_mat))
-        bl_mat = B
+    # Reverse list of labels to match summing matrix, since vstack and append worked in the opposite order.
+    # Not currently returned, but could be for information or matrix alignment.
+    sum_mat_labels.reverse()
+    sum_mat_labels = ["total"] + sum_mat_labels + bl_mat_idx_ref
 
-    final_mat = np.vstack((top, final_mat))
-    return final_mat
+    return sum_mat, sum_mat_labels
 
 
 def project(

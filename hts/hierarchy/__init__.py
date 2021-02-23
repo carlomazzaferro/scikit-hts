@@ -316,6 +316,31 @@ class HierarchyTree(NAryTreeT):
             res[li].append(len(n.children))
         return res[:-1]
 
+    def get_level_order_labels(self: NAryTreeT) -> List[List[str]]:
+        """
+        Get the associated node labels from the NAryTreeT level_order_traversal().
+
+        Parameters
+        ----------
+        self: NAryTreeT
+            Tree being searched.
+
+        Returns
+        -------
+        List[List[str]]
+            Node labels corresponding to level order traversal.
+        """
+        labels = []
+        q = deque([(self, 0)])
+        while q:
+            n, li = q.popleft()
+            if len(labels) < li + 1:
+                labels.append([])
+            for i in n.children:
+                q.append((i, li + 1))
+            labels[li].append(n.key)
+        return labels
+
     def add_child(self, key=None, item=None, exogenous=None) -> NAryTreeT:
         child = HierarchyTree(key=key, item=item, exogenous=exogenous, parent=self)
         self.children.append(child)
