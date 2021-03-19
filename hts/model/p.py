@@ -34,7 +34,7 @@ class FBProphetModel(TimeSeriesModel):
     Methods
     -------
     fit(self, **fit_args)
-        Fits underlying models to the data, passes kwargs to ``SARIMAX``
+        Fits underlying models to the data, passes kwargs to ``fbprophet.Prophet``
 
     predict(self, node, steps_ahead: int = 10, freq: str = 'D', **predict_args)
         Predicts the n-step ahead forecast. Exogenous variables are required if models were

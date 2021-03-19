@@ -133,7 +133,7 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
                 nodes=nodes, df=df, exogenous=exogenous, root=root
             )
         self.exogenous = exogenous
-        self.sum_mat = to_sum_mat(self.nodes)
+        self.sum_mat, sum_mat_labels = to_sum_mat(self.nodes)
         self._set_model_instance()
         self._init_revision()
 

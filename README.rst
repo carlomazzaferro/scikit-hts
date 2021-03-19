@@ -52,6 +52,7 @@ Features
 * Supported and tested on ``python 3.6``, ``python 3.7`` and ``python 3.8``
 * Implementation of Bottom-Up, Top-Down, Middle-Out, Forecast Proportions, Average Historic Proportions,
   Proportions of Historic Averages and OLS revision methods
+* Support for representations of hierarchical and grouped time series
 * Support for a variety of underlying forecasting models, inlcuding: SARIMAX, ARIMA, Prophet, Holt-Winters
 * Scikit-learn-like API
 * Geo events handling functionality for geospatial data, including visualisation capabilities

@@ -63,11 +63,16 @@ def load_hierarchical_sine_data(start, end, n=10000):
     amplitude = numpy.sin(time) * 10
     amplitude += numpy.random.normal(2 * amplitude + 2, 5)
     df = pandas.DataFrame(index=dti, data={"total": amplitude[0 : len(dti)]})
-    df["a"], df["b"], df["c"], df["d"] = partition_column(df.total, n=4)
-    df["aa"], df["ab"] = partition_column(df.a, n=2)
-    df["aaa"], df["aab"] = partition_column(df.aa, n=2)
-    df["ba"], df["bb"], df["bc"] = partition_column(df.b, n=3)
-    df["ca"], df["cb"], df["cc"], df["cd"] = partition_column(df.c, n=4)
+    df["a"], df["b"], df["c"] = partition_column(df.total, n=3)
+    df["a_x"], df["a_y"] = partition_column(df.a, n=2)
+    df["b_x"], df["b_y"] = partition_column(df.b, n=2)
+    df["c_x"], df["c_y"] = partition_column(df.c, n=2)
+    df["a_x_1"], df["a_x_2"] = partition_column(df.a_x, n=2)
+    df["a_y_1"], df["a_y_2"] = partition_column(df.a_y, n=2)
+    df["b_x_1"], df["b_x_2"] = partition_column(df.b_x, n=2)
+    df["b_y_1"], df["b_y_2"] = partition_column(df.b_y, n=2)
+    df["c_x_1"], df["c_x_2"] = partition_column(df.c_x, n=2)
+    df["c_y_1"], df["c_y_2"] = partition_column(df.c_y, n=2)
     return df
 
 

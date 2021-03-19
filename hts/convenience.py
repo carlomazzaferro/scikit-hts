@@ -46,7 +46,7 @@ def revise_forecasts(
     """
 
     if nodes:
-        summing_matrix = to_sum_mat(nodes)
+        summing_matrix, sum_mat_labels = to_sum_mat(nodes)
 
     if method in [MethodT.AHP.name, MethodT.PHA.name, MethodT.FP.name] and not nodes:
         raise ValueError(f"Method {method} requires an NAryTree to be passed")
