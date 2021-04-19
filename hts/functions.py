@@ -51,7 +51,7 @@ def to_sum_mat(ntree: NAryTreeT) -> Tuple[np.ndarray, List[str]]:
                 for bl_element in bl_mat_idx_ref:
                     # Check if the bottom level element is part of label
                     is_component = all(
-                        [True if l in bl_element else False for l in label.split("_")]
+                        [True if x in bl_element else False for x in label.split("_")]
                     )
                     if is_component:
                         row.append(1)

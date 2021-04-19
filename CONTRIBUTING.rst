@@ -70,7 +70,9 @@ Ready to contribute? Here's how to set up `scikit-hts` for local development.
 
     $ mkvirtualenv scikit-hts
     $ cd scikit-hts/
-    $ python setup.py develop
+    $ pip install -e ."[all]"
+    $ pip install -e ."[dev]"
+    $ pip install -e ."[test]"
 
 4. Create a branch for local development::
 
@@ -78,13 +80,16 @@ Ready to contribute? Here's how to set up `scikit-hts` for local development.
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass flake8 and the
-   tests, including testing other Python versions with tox::
+5. When you're done making changes, check that your changes pass black, flake8 and isort and the
+   tests with `Make`::
 
-    $ python setup.py test
-    $ tox
+    $ REPORT=False make test
 
-   To get flake8 and tox, just pip install them into your virtualenv.
+   To get the linting done, run::
+
+    $ black .
+    $ isort --profile black .
+    $ flake8 hts
 
 6. Commit your changes and push your branch to GitHub::
 
@@ -105,7 +110,7 @@ Before you submit a pull request, check that it meets these guidelines:
    feature to the list in README.rst.
 3. The pull request should work for Python 3.6, unless it is a python compatibility request
    that targets a specific python release. Check
-   https://travis-ci.org/carlomazzaferro/scikit-hts/pull_requests
+   https://github.com/carlomazzaferro/scikit-hts/actions
    and make sure that the tests pass for all supported Python versions.
 
 Tips
@@ -127,4 +132,4 @@ $ bumpversion patch # possible: major / minor / patch
 $ git push
 $ git push --tags
 
-Travis will then deploy to PyPI if tests pass.
+Github Actions will then deploy to PyPI if tests pass.
