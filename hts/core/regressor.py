@@ -232,13 +232,13 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
     def __init_predict_step(self, exogenous_df: pandas.DataFrame, steps_ahead: int):
         if self.exogenous and not exogenous_df:
             raise MissingRegressorException(
-                f"Exogenous variables were provided at fit step, hence are required at "
-                f"predict step. Please pass the 'exogenous_df' variable to predict "
-                f"function"
+                "Exogenous variables were provided at fit step, hence are required at "
+                "predict step. Please pass the 'exogenous_df' variable to predict "
+                "function"
             )
         if not exogenous_df and not steps_ahead:
             logger.info(
-                f"No arguments passed for 'steps_ahead', defaulting to predicting 1-step-ahead"
+                "No arguments passed for 'steps_ahead', defaulting to predicting 1-step-ahead"
             )
             steps_ahead = 1
         elif exogenous_df:

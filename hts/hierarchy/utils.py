@@ -96,7 +96,7 @@ def groupify(
                 allowance = min_count
             else:
                 raise InvalidArgumentException(
-                    f"min_count must be either float or integer"
+                    "min_count must be either float or integer"
                 )
             if len(sub_df) < allowance:
                 continue

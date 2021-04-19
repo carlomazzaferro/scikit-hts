@@ -111,6 +111,9 @@ class NAryTreeT(metaclass=abc.ABCMeta):
     def level_order_traversal(self: "NAryTreeT") -> List[List[int]]:
         ...
 
+    def get_level_order_labels(self: "NAryTreeT") -> List[List[str]]:
+        ...
+
     def traversal_level(self) -> List["NAryTreeT"]:
         ...
 
