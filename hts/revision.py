@@ -27,7 +27,12 @@ class RevisionMethod(object):
 
     def _y_hat_matrix(self, forecasts) -> numpy.ndarray:
         n_cols = len(list(forecasts.keys())) + 1
-        keys = range(n_cols - self.sum_mat.shape[1] - 1, n_cols - 1)
+        if self.name == "BU":
+            keys = list(forecasts.keys())[
+                n_cols - self.sum_mat.shape[1] - 1 : n_cols - 1
+            ]
+        else:
+            keys = range(n_cols - self.sum_mat.shape[1] - 1, n_cols - 1)
         return y_hat_matrix(forecasts, keys=keys)
 
     def revise(self, forecasts=None, mse=None, nodes=None) -> numpy.ndarray:
