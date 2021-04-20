@@ -118,7 +118,7 @@ Tips
 
 To run a subset of tests::
 
-$ py.test tests.test_yor_test_file
+$ pytest tests.test_yor_test_file
 
 
 Deploying
@@ -128,8 +128,8 @@ A reminder for the maintainers on how to deploy.
 Make sure all your changes are committed (including an entry in HISTORY.rst).
 Then run::
 
-$ bumpversion patch # possible: major / minor / patch
-$ git push
-$ git push --tags
+    $ bump2version --new-version 0.5.X patch # X = current + 1
+    $ git push
+    $ git push --tags
 
 Github Actions will then deploy to PyPI if tests pass.
