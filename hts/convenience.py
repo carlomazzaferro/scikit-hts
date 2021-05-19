@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 import numpy
 import pandas
@@ -6,6 +6,31 @@ import pandas
 from hts._t import MethodT, NAryTreeT, TransformT
 from hts.functions import to_sum_mat
 from hts.revision import RevisionMethod
+
+
+def _sanitize_forecasts_dict(
+    forecasts: Dict[str, Union[numpy.ndarray, pandas.Series, pandas.DataFrame]]
+):
+    for k, v in forecasts.items():
+        if isinstance(v, numpy.ndarray):
+            if v.ndim > 1:
+                raise ValueError("Forecasts must be of a dimension 1")
+            forecasts[k] = pandas.DataFrame({"yhat": v})
+        elif isinstance(v, pandas.Series):
+            forecasts[k] = pandas.DataFrame({"yhat": v})
+        elif isinstance(v, pandas.DataFrame):
+            if len(v.columns) > 1:
+                raise ValueError(
+                    "If providing forecasts as a DataFrame, it must have one column only"
+                )
+            col_name = v.columns[0]
+            v.rename(columns={col_name: "yhat"}, inplace=True)
+            forecasts[k] = v
+        else:
+            raise ValueError(
+                "`forcasts` must be a dict mapping string to array, series or DataFrame"
+            )
+    return forecasts
 
 
 def revise_forecasts(
@@ -61,7 +86,7 @@ def revise_forecasts(
     revision = RevisionMethod(
         name=method, sum_mat=summing_matrix, transformer=transformer
     )
+    sanitized_forecasts = _sanitize_forecasts_dict(forecasts)
+    revised = revision.revise(forecasts=sanitized_forecasts, mse=errors, nodes=nodes)
 
-    revised = revision.revise(forecasts=forecasts, mse=errors, nodes=nodes)
-
-    return pandas.DataFrame(revised, columns=list(forecasts.keys()))
+    return pandas.DataFrame(revised, columns=list(sanitized_forecasts.keys()))
