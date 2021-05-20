@@ -7,7 +7,7 @@ from hts.convenience import _sanitize_forecasts_dict, revise_forecasts
 
 
 def test_convenience_error_handling(load_df_and_hier_uv):
-    hd, hier = load_df_and_hier_uv
+    _, _ = load_df_and_hier_uv
     dummy = numpy.array([1, 2, 3, 5])
     with pytest.raises(ValueError):
         revise_forecasts("FP", forecasts={"a": dummy}, nodes=None)
