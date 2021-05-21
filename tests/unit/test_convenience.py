@@ -3,17 +3,42 @@ import pandas
 import pytest
 
 from hts import HTSRegressor
-from hts.convenience import _sanitize_forecasts_dict, revise_forecasts
+from hts.convenience import (
+    _calculate_errors,
+    _sanitize_errors_dict,
+    _sanitize_forecasts_dict,
+    revise_forecasts,
+)
 
 
 def test_convenience_error_handling(load_df_and_hier_uv):
-    hd, hier = load_df_and_hier_uv
+    _, _ = load_df_and_hier_uv
     dummy = numpy.array([1, 2, 3, 5])
     with pytest.raises(ValueError):
         revise_forecasts("FP", forecasts={"a": dummy}, nodes=None)
 
     with pytest.raises(ValueError):
         revise_forecasts("OLS", summing_matrix=dummy, forecasts={"a": dummy})
+
+
+def test_errors_and_residuals_dicts():
+    res_a, res_b = [1, 2, 1, 3, 1], [0, 0, 1, 0, 0]
+    error_a, error_b = 0.1, 0.999
+    errors = {"a": error_a, "b": error_b}
+    residuals = {"a": numpy.array(res_a), "b": numpy.array(res_b)}
+    assert _sanitize_errors_dict(errors) == errors
+    assert _calculate_errors(method="A", errors=errors) == errors
+    calculated_errors_from_res = _calculate_errors(method="A", residuals=residuals)
+    assert isinstance(calculated_errors_from_res, dict)
+    assert (
+        _calculate_errors(method="A", errors=errors, residuals=residuals)
+        == calculated_errors_from_res
+    )
+    assert calculated_errors_from_res["a"] == numpy.mean(numpy.array(res_a) ** 2)
+    assert calculated_errors_from_res["b"] == numpy.mean(numpy.array(res_b) ** 2)
+
+    with pytest.raises(ValueError):
+        _sanitize_errors_dict(errors={"a": "12340"})  # pragma: nocover
 
 
 def test_sanitize_forecasts():
