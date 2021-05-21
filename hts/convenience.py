@@ -94,13 +94,13 @@ def revise_forecasts(
         A dict mapping key name to its forecasts (including in-sample forecasts). Required, can be
         of type ``numpy.ndarray`` of ``ndim == 1``, ``pandas.Series``, or single columned ``pandas.DataFrame``
     errors : Dict[str, float]
-        A dict mapping key name to the in-sample errors. Required for methods: ``OLS``, ``WLSS``, ``WLSV``, if `
+        A dict mapping key name to the in-sample errors. Required for methods: ``OLS``, ``WLSS``, ``WLSV`` if
         ``residuals`` is not passed
     residuals : Dict[str, ArrrayLike]
         A dict mapping key name to the residuals of in-sample forecasts. Required for methods: ``OLS``, ``WLSS``,
         ``WLSV``, can be of type ``numpy.ndarray`` of ndim == 1, ``pandas.Series``, or single columned
         ``pandas.DataFrame``. If passing residuals, ``errors`` dict is not required and will instead be calculated
-        using ``numpy.mean(numpy.array(residual) ** 2)``
+        using MSE metric: ``numpy.mean(numpy.array(residual) ** 2)``
     summing_matrix : numpy.ndarray
         Not required if ``nodes`` argument is passed, or if using ``BU`` approach
     nodes : NAryTreeT
