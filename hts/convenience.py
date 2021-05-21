@@ -53,11 +53,32 @@ def _sanitize_forecasts_dict(
     return forecasts
 
 
-def revise_forecasts(
+def _calculate_errors(
     method: str,
-    forecasts: Dict[str, numpy.ndarray],
     errors: Optional[Dict[str, float]] = None,
     residuals: Optional[Dict[str, numpy.ndarray]] = None,
+):
+    errors_or_residuals = (
+        True if (errors is not None or residuals is not None) else False
+    )
+    if not errors_or_residuals:
+        raise ValueError(
+            f"Method {method} requires either errors or residuals to be provided"
+        )
+    if residuals is not None:
+        residuals = _sanitize_residuals_dict(residuals)
+        if errors is None:
+            errors = {}
+        for k, v in residuals.items():
+            errors[k] = numpy.mean(numpy.array(v) ** 2)
+    return _sanitize_errors_dict(errors)
+
+
+def revise_forecasts(
+    method: str,
+    forecasts: Dict[str, ArrayLike],
+    errors: Optional[Dict[str, float]] = None,
+    residuals: Optional[Dict[str, ArrayLike]] = None,
     summing_matrix: numpy.ndarray = None,
     nodes: NAryTreeT = None,
     transformer: TransformT = None,
@@ -69,13 +90,13 @@ def revise_forecasts(
     ----------
     method : str
         The reconciliation method to use
-    forecasts : Dict[str, Union[numpy.ndarray, pandas.Series, pandas.DataFrame]]
+    forecasts : Dict[str, ArrrayLike]
         A dict mapping key name to its forecasts (including in-sample forecasts). Required, can be
         of type ``numpy.ndarray`` of ``ndim == 1``, ``pandas.Series``, or single columned ``pandas.DataFrame``
     errors : Dict[str, float]
         A dict mapping key name to the in-sample errors. Required for methods: ``OLS``, ``WLSS``, ``WLSV``, if `
         ``residuals`` is not passed
-    residuals : Dict[str, numpy.ndarray]
+    residuals : Dict[str, ArrrayLike]
         A dict mapping key name to the residuals of in-sample forecasts. Required for methods: ``OLS``, ``WLSS``,
         ``WLSV``, can be of type ``numpy.ndarray`` of ndim == 1, ``pandas.Series``, or single columned
         ``pandas.DataFrame``. If passing residuals, ``errors`` dict is not required and will instead be calculated
@@ -102,18 +123,7 @@ def revise_forecasts(
         raise ValueError(f"Method {method} requires an NAryTree to be passed")
 
     if method in [MethodT.OLS.name, MethodT.WLSS.name, MethodT.WLSV.name]:
-        errors_or_residuals = (
-            True if (errors is not None or residuals is not None) else False
-        )
-        if not errors_or_residuals:
-            raise ValueError(f"Method {method} requires either errors or residuals")
-        if residuals is not None:
-            residuals = _sanitize_residuals_dict(residuals)
-            if errors is None:
-                errors = {}
-            for k, v in residuals.items():
-                errors[k] = numpy.mean(numpy.array(v) ** 2)
-        errors = _sanitize_errors_dict(errors)
+        errors = _calculate_errors(method=method, errors=errors, residuals=residuals)
         if not (all([forecasts, errors]) or (not summing_matrix)):
             raise ValueError(
                 f"Method {method} requires forecasts, errors, and residuals to be passed, as "
