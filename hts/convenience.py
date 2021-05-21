@@ -90,13 +90,13 @@ def revise_forecasts(
     ----------
     method : str
         The reconciliation method to use
-    forecasts : Dict[str, ArrrayLike]
+    forecasts : Dict[str, ArrayLike]
         A dict mapping key name to its forecasts (including in-sample forecasts). Required, can be
         of type ``numpy.ndarray`` of ``ndim == 1``, ``pandas.Series``, or single columned ``pandas.DataFrame``
     errors : Dict[str, float]
         A dict mapping key name to the in-sample errors. Required for methods: ``OLS``, ``WLSS``, ``WLSV`` if
         ``residuals`` is not passed
-    residuals : Dict[str, ArrrayLike]
+    residuals : Dict[str, ArrayLike]
         A dict mapping key name to the residuals of in-sample forecasts. Required for methods: ``OLS``, ``WLSS``,
         ``WLSV``, can be of type ``numpy.ndarray`` of ndim == 1, ``pandas.Series``, or single columned
         ``pandas.DataFrame``. If passing residuals, ``errors`` dict is not required and will instead be calculated
@@ -105,7 +105,7 @@ def revise_forecasts(
         Not required if ``nodes`` argument is passed, or if using ``BU`` approach
     nodes : NAryTreeT
         The tree of nodes as specified in :py:class:`HierarchyTree <hts.hierarchy.HierarchyTree>`. Required if not
-        if using ``AHP``, ``PHA` ``FP`` methods, or if using  passing the ``OLS``, ``WLSS``, ``WLSV`` methods
+        if using ``AHP``, ``PHA``, ``FP`` methods, or if using  passing the ``OLS``, ``WLSS``, ``WLSV`` methods
         and not passing the ``summing_matrix`` parameter
     transformer : TransformT
         A transform with the method: ``inv_func`` that will be applied to the forecasts
