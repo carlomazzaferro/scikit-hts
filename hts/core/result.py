@@ -46,11 +46,3 @@ class HTSResult:
     def models(self, kv_tuple: Tuple) -> None:
         k, v = kv_tuple
         self._models[k] = v
-
-    def to_pandas(self, p: str) -> pandas.DataFrame:
-        kv = getattr(self, p)
-        return pandas.DataFrame(kv)
-
-    def get_series(self, p, key) -> pandas.Series:
-        prop = getattr(self, p)
-        return prop[key]

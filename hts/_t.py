@@ -111,6 +111,9 @@ class NAryTreeT(metaclass=abc.ABCMeta):
     def level_order_traversal(self: "NAryTreeT") -> List[List[int]]:
         ...
 
+    def get_level_order_labels(self: "NAryTreeT") -> List[List[str]]:
+        ...
+
     def traversal_level(self) -> List["NAryTreeT"]:
         ...
 
@@ -191,3 +194,4 @@ LowMemoryFitResultT = Tuple[str, str]
 ModelFitResultT = Union[TimeSeriesModelT, LowMemoryFitResultT]
 HTSFitResultT = List[ModelFitResultT]
 TransformT = Optional[Union[Transform, bool]]
+ArrayLike = Union[numpy.ndarray, pandas.Series, pandas.DataFrame]

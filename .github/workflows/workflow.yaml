@@ -31,10 +31,11 @@ jobs:
           path: ~/.cache/pip
           key: v1-deps-linter
       - name: Install needed python packages
-        run: pip install -q black==19.10b0 isort==5.2.1 mypy==0.790
+        run: pip install -q black==19.10b0 isort==5.2.1 flake8==3.8.4 mypy==0.790
       - name: Run checks
         run: |
           black --check . && isort --check --profile black .
+          flake8 hts
 #          mypy .
 
   test:

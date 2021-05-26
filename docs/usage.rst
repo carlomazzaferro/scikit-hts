@@ -9,7 +9,7 @@ Typical Usage
 strategy. Here you can find how to get started quickly with ``scikit-hts``. We'll use some sample (fake) data.
 
 
-.. code-block:: shell
+.. code-block:: python
 
     >>> from datetime import datetime
     >>> from hts import HTSRegressor
@@ -17,8 +17,20 @@ strategy. Here you can find how to get started quickly with ``scikit-hts``. We'l
 
     # load some data
     >>> s, e = datetime(2019, 1, 15), datetime(2019, 10, 15)
-    >>> df = load_hierarchical_sine_data(s, e).resample('1H').apply(sum)
-    >>> df.head()
+    >>> hsd = load_hierarchical_sine_data(s, e).resample('1H').apply(sum)
+    >>> hier = {'total': ['a', 'b', 'c'],
+            'a': ['a_x', 'a_y'],
+            'b': ['b_x', 'b_y'],
+            'c': ['c_x', 'c_y'],
+            'a_x': ['a_x_1', 'a_x_2'],
+            'a_y': ['a_y_1', 'a_y_2'],
+            'b_x': ['b_x_1', 'b_x_2'],
+            'b_y': ['b_y_1', 'b_y_2'],
+            'c_x': ['c_x_1', 'c_x_2'],
+            'c_y': ['c_y_1', 'c_y_2']
+        }
+
+    >>> hsd.head()
 
                              total         a         b         c         d        aa        ab  ...        ba        bb        bc        ca        cb        cc        cd
     2019-01-15 00:00:00  11.934729  0.638735  3.436469  5.195530  2.663996  0.218140  0.420594  ...  1.449734  1.727512  0.259222  0.593310  1.251554  2.217371  1.133295
@@ -29,8 +41,8 @@ strategy. Here you can find how to get started quickly with ``scikit-hts``. We'l
 
 
     >>> reg = HTSRegressor(model='prophet', revision_method='OLS')
-    >>> reg = reg.fit(df=hsd, nodes=sine_hier)
-    >>> preds = ht.predict(steps_ahead=10)
+    >>> reg = reg.fit(df=hsd, nodes=hier)
+    >>> preds = reg.predict(steps_ahead=10)
 
 
 More extensive usage, including a solution for Kaggle's `M5 Competition`_, can be found in the `scikit-hts-examples`_ repo.
@@ -79,7 +91,7 @@ reconciliation on the forecasts.
             fcst = list(model.forecast(1))
             forecasts[col] = fcst
 
-    >>> pred_dict = collections.OrderedDict()  
+    >>> pred_dict = collections.OrderedDict()
 
     # Add predictions to dictionary is same order as summing matrix
     >>> for label in sum_mat_labels:
@@ -88,7 +100,7 @@ reconciliation on the forecasts.
     >>> revised = hts.functions.optimal_combination(pred_dict, sum_mat, method='OLS', mse={})
 
     # Put reconciled forecasts in nice DataFrame form
-    >>> revised_forecasts = pd.DataFrame(data=revised[0:,0:],    
-                                        index=forecasts.index,    
+    >>> revised_forecasts = pd.DataFrame(data=revised[0:,0:],
+                                        index=forecasts.index,
                                         columns=sum_mat_labels)
 

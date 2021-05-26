@@ -47,3 +47,15 @@ History
 * Added support for no revision, thanks @ryanvolpi
 * Added multiple example at https://github.com/carlomazzaferro/scikit-hts-examples, thanks @vtoliveira
 * Logging fixes and usability improvements
+
+
+0.5.3 (2021-02-23)
+------------------
+
+* Support for grouped time series, thanks to @noahsa! See: https://github.com/carlomazzaferro/scikit-hts/pull/51
+
+0.5.4 (2021-04-20)
+------------------
+
+* Fixed long-standing BU forcasting bug, thanks to @javierhuertay! See: https://github.com/carlomazzaferro/scikit-hts/issues/35
+
