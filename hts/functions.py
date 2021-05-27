@@ -404,11 +404,11 @@ def get_hierarchichal_df(
     9  2020-02    B    Y   10
     >>> level_names = ['lev1', 'lev2']
     >>> hierarchy = [['lev1'], ['lev2']]
-    >>> wide_df = hts.functions.get_hierarchichal_df(hier_df,
-                                                    level_names=level_names,
-                                                    hierarchy=hierarchy,
-                                                    date_colname='ds',
-                                                    val_colname='val')
+    >>> wide_df, sum_mat, sum_mat_labels = hts.functions.get_hierarchichal_df(hier_df,
+                                                                              level_names=level_names,
+                                                                              hierarchy=hierarchy,
+                                                                              date_colname='ds',
+                                                                              val_colname='val')
     >>> wide_df
         lev1_lev2  A_X  A_Y  A_Z  B_X  B_Y  total   A   B   X   Y  Z
         ds
