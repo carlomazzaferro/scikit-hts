@@ -295,8 +295,7 @@ def test_grouped_create_df():
 
 def test_parent_child():
     grouped_df = pandas.DataFrame(
-        data={"lev1": ["A", "A", "B"],
-              "lev2": ["X", "Y", "Z"],}
+        data={"lev1": ["A", "A", "B"], "lev2": ["X", "Y", "Z"],}
     )
 
     levels = get_agg_series(grouped_df, [["lev1", "lev2"]])
@@ -306,8 +305,7 @@ def test_parent_child():
 
 def test_create_bl_str_col():
     grouped_df = pandas.DataFrame(
-        data={"lev1": ["A", "A", "B"],
-             "lev2": ["X", "Y", "Z"],}
+        data={"lev1": ["A", "A", "B"], "lev2": ["X", "Y", "Z"],}
     )
 
     col = _create_bl_str_col(grouped_df, ["lev1", "lev2"])

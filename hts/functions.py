@@ -9,7 +9,7 @@ from hts.hierarchy import make_iterable
 
 
 def to_sum_mat(
-    ntree: NAryTreeT=None, node_labels: List[str] = None
+    ntree: NAryTreeT = None, node_labels: List[str] = None
 ) -> Tuple[np.ndarray, List[str]]:
     """
     This function creates a summing matrix for the bottom up and optimal combination approaches
@@ -40,7 +40,9 @@ def to_sum_mat(
         num_at_level = list(map(sum, nodes))
         columns = num_at_level[-1]
     else:
-        raise ValueError("Must pass either ntree or node_labels to the function. Neither was received.")
+        raise ValueError(
+            "Must pass either ntree or node_labels to the function. Neither was received."
+        )
 
     # Initialize summing matrix with bottom level rows
     sum_mat = np.identity(columns)
