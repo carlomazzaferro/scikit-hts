@@ -232,14 +232,20 @@ def forecast_proportions(forecasts, nodes):
 
 
 def get_agg_series(df: pandas.DataFrame, levels: List[List[str]]) -> List[str]:
-    """Get aggregate level series names.
+    """
+    Get aggregate level series names.
 
-    Args:
-        df (pandas.DataFrame): Tabular data.
-        levels (List[List[str]]): List of lists containing the desired level of aggregation.
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Tabular data.
+    levels : List[List[str]]
+        List of lists containing the desired level of aggregation.
 
-    Returns:
-        List[str]: Aggregate series names.
+    Returns
+    -------
+    List[str]
+        Aggregate series names.
     """
     grouped_levels = []
     for level in levels:
@@ -251,14 +257,20 @@ def get_agg_series(df: pandas.DataFrame, levels: List[List[str]]) -> List[str]:
 
 
 def _create_bl_str_col(df: pandas.DataFrame, bl_colnames: List[str]) -> List[str]:
-    """Concatenate the column values of all the specified bl_colnames by row into a single column.
+    """
+    Concatenate the column values of all the specified bl_colnames by row into a single column.
 
-    Args:
-        df (pd.DataFrame): Tabular data.
-        bl_colnames (List[str]): Levels in the hierarchy.
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Tabular data.
+    bl_colnames : List[str]
+        Levels in the hierarchy.
 
-    Returns:
-        List[str]: Concatendated column values by row.
+    Returns
+    -------
+    List[str]
+        Concatendated column values by row.
     """
     return list("_".join(x for x in y) for y in df[bl_colnames].values)
 
@@ -266,15 +278,22 @@ def _create_bl_str_col(df: pandas.DataFrame, bl_colnames: List[str]) -> List[str
 def add_agg_series_to_df(
     df: pandas.DataFrame, grouped_levels: List[str], bottom_levels: List[str]
 ) -> pandas.DataFrame:
-    """Add aggregate series columns to wide dataframe.
+    """
+    Add aggregate series columns to wide dataframe.
 
-    Args:
-        df (pandas.DataFrame): Wide dataframe containing bottom level series.
-        grouped_levels (List[str]): Grouped level, underscore delimited, column names.
-        bottom_levels (List[str]): Bottom level, underscore delimited, column names.
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Wide dataframe containing bottom level series.
+    grouped_levels : List[str]
+        Grouped level, underscore delimited, column names.
+    bottom_levels : List[str]
+        Bottom level, underscore delimited, column names.
 
-    Returns:
-        pandas.DataFrame: Wide dataframe with all series in hierarchy.
+    Returns
+    -------
+    pandas.DataFrame
+        Wide dataframe with all series in hierarchy.
     """
     component_cols = _get_bl(grouped_levels, bottom_levels)
     # Add series as specified grouping levels
@@ -284,14 +303,20 @@ def add_agg_series_to_df(
 
 
 def _get_bl(grouped_levels: List[str], bottom_levels: List[str]) -> List[List[str]]:
-    """Get bottom level columns required to sum to create grouped columns
+    """
+    Get bottom level columns required to sum to create grouped columns.
 
-    Args:
-        grouped_levels (List[str]): Grouped level, underscore delimited, column names.
-        bottom_levels (List[str]): Bottom level, underscore delimited, column names.
+    Parameters
+    ----------
+    grouped_levels : List[str]
+        Grouped level, underscore delimited, column names.
+    bottom_levels : List[str]
+        Bottom level, underscore delimited, column names.
 
-    Returns:
-        List[List[str]]: Bottom level column names that make up each individual aggregated node in the hierarchy.
+    Returns
+    -------
+    List[List[str]]
+        Bottom level column names that make up each individual aggregated node in the hierarchy.
     """
     # Split groupings by "_" b/c this makes it possible to search column names
     grouped_levels_split = [lev.split("_") for lev in grouped_levels]
@@ -313,17 +338,32 @@ def get_hierarchichal_df(
     date_colname: str,
     val_colname: str,
 ) -> Tuple[pandas.DataFrame, np.array, List[str]]:
-    """Transform your tabular dataframe to a wide dataframe with desired levels a hierarchy.
+    """
+    Transform your tabular dataframe to a wide dataframe with desired levels a hierarchy.
 
-    Args:
-        df (pd.DataFrame): Tabular dataframe
-        bl_colnames (List[str]): Levels in the hierarchy.
-        hierarchical_struc (List[List[str]]): Desired levels in your hierarchy.
-        date_colname (str): Date column name
-        val_colname (str): Name of column containing series values.
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Tabular dataframe
+    bl_colnames : List[str]
+        Levels in the hierarchy.
+    hierarchical_struc : List[List[str]]
+        Desired levels in your hierarchy.
+    date_colname : str
+        Date column name
+    val_colname : str
+        Name of column containing series values.
 
-    Returns:
-        Tuple[pd.DataFrame, np.array, List[str]]: Wide dataframe with levels of specified aggregation. Summing matrix. Summing matrix labels.
+    Returns
+    -------
+    pd.DataFrame
+        Wide dataframe with levels of specified aggregation.
+
+    np.array
+        Summing matrix.
+
+    List[str]:
+        Summing matrix labels.
 
     Examples
     --------
