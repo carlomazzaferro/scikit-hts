@@ -256,15 +256,15 @@ def get_agg_series(df: pandas.DataFrame, levels: List[List[str]]) -> List[str]:
     return grouped_levels
 
 
-def _create_bl_str_col(df: pandas.DataFrame, bl_colnames: List[str]) -> List[str]:
+def _create_bl_str_col(df: pandas.DataFrame, level_names: List[str]) -> List[str]:
     """
-    Concatenate the column values of all the specified bl_colnames by row into a single column.
+    Concatenate the column values of all the specified level_names by row into a single column.
 
     Parameters
     ----------
     df : pandas.DataFrame
         Tabular data.
-    bl_colnames : List[str]
+    level_names : List[str]
         Levels in the hierarchy.
 
     Returns
@@ -272,7 +272,7 @@ def _create_bl_str_col(df: pandas.DataFrame, bl_colnames: List[str]) -> List[str
     List[str]
         Concatendated column values by row.
     """
-    return list("_".join(x for x in y) for y in df[bl_colnames].values)
+    return list("_".join(x for x in y) for y in df[level_names].values)
 
 
 def add_agg_series_to_df(
@@ -333,7 +333,7 @@ def _get_bl(grouped_levels: List[str], bottom_levels: List[str]) -> List[List[st
 
 def get_hierarchichal_df(
     df: pandas.DataFrame,
-    bl_colnames: List[str],
+    level_names: List[str],
     hierarchy: List[List[str]],
     date_colname: str,
     val_colname: str,
@@ -345,7 +345,7 @@ def get_hierarchichal_df(
     ----------
     df : pd.DataFrame
         Tabular dataframe
-    bl_colnames : List[str]
+    level_names : List[str]
         Levels in the hierarchy.
     hierarchy : List[List[str]]
         Desired levels in your hierarchy.
@@ -400,10 +400,10 @@ def get_hierarchichal_df(
     7  2020-02    B    X    8
     8  2020-01    B    Y    9
     9  2020-02    B    Y   10
-    >>> bl_colnames = ['lev1', 'lev2']
+    >>> level_names = ['lev1', 'lev2']
     >>> hierarchy = [['lev1'], ['lev2']]
     >>> wide_df = hts.functions.get_hierarchichal_df(hier_df,
-                                                    bl_colnames=bl_colnames,
+                                                    level_names=level_names,
                                                     hierarchy=hierarchy,
                                                     date_colname='ds',
                                                     val_colname='val')
@@ -414,20 +414,20 @@ def get_hierarchichal_df(
         2020-02      2    4    6    8   10     30  12  18  10  14  6
     """
     # Column names separated by underscores
-    bl_colnames_underscores = "_".join(bl_colnames)
+    level_names_underscores = "_".join(level_names)
 
     # Create a column representing the bottom level of aggregation
-    df[bl_colnames_underscores] = _create_bl_str_col(df, bl_colnames)
+    df[level_names_underscores] = _create_bl_str_col(df, level_names)
 
     # Pivot df to bottom level. We can create the aggregate these series to get all the higher levels.
     forecast_df = df.pivot(
-        index=date_colname, columns=bl_colnames_underscores, values=val_colname
+        index=date_colname, columns=level_names_underscores, values=val_colname
     )
 
     # Sum all bottom level series to get total
     forecast_df["total"] = forecast_df.sum(axis=1)
 
-    bottom_levels = list(df[bl_colnames_underscores].unique())
+    bottom_levels = list(df[level_names_underscores].unique())
 
     grouped_levels = get_agg_series(df, hierarchy)
 

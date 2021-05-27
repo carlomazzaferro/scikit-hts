@@ -251,8 +251,8 @@ def test_grouped():
         data={"lev1": ["A", "A", "A", "B", "B"], "lev2": ["X", "Y", "Z", "X", "Y"],}
     )
 
-    hier_struc = [["lev1"], ["lev2"], ["lev1", "lev2"]]
-    levels = get_agg_series(hier_df, hier_struc)
+    hierarchy = [["lev1"], ["lev2"], ["lev1", "lev2"]]
+    levels = get_agg_series(hier_df, hierarchy)
     expected_levels = ["A", "B", "X", "Y", "Z", "A_X", "A_Y", "A_Z", "B_X", "B_Y"]
     assert sorted(levels) == sorted(expected_levels)
 
@@ -267,12 +267,12 @@ def test_grouped_create_df():
         }
     )
 
-    bl_colnames = ["lev1", "lev2"]
-    hier_struc = [["lev1"], ["lev2"]]
+    level_names = ["lev1", "lev2"]
+    hierarchy = [["lev1"], ["lev2"]]
     gts_df, sum_mat, sum_mat_labels = get_hierarchichal_df(
         hier_df,
-        bl_colnames=bl_colnames,
-        hierarchical_struc=hier_struc,
+        level_names=level_names,
+        hierarchy=hierarchy,
         date_colname="ds",
         val_colname="val",
     )
