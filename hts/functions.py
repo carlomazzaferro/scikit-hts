@@ -20,6 +20,8 @@ def to_sum_mat(
     ----------
     ntree : NAryTreeT
 
+    node_labels : List[str]
+        Labels corresponing to node names/ summing matrix. Get from hts.functions.get_hierarchichal_df(...)
 
     Returns
     -------
