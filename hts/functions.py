@@ -334,7 +334,7 @@ def _get_bl(grouped_levels: List[str], bottom_levels: List[str]) -> List[List[st
 def get_hierarchichal_df(
     df: pandas.DataFrame,
     bl_colnames: List[str],
-    hierarchical_struc: List[List[str]],
+    hierarchy: List[List[str]],
     date_colname: str,
     val_colname: str,
 ) -> Tuple[pandas.DataFrame, np.array, List[str]]:
@@ -347,7 +347,7 @@ def get_hierarchichal_df(
         Tabular dataframe
     bl_colnames : List[str]
         Levels in the hierarchy.
-    hierarchical_struc : List[List[str]]
+    hierarchy : List[List[str]]
         Desired levels in your hierarchy.
     date_colname : str
         Date column name
@@ -367,6 +367,7 @@ def get_hierarchichal_df(
 
     Examples
     --------
+    >>> import hts.functions
     >>> hier_df = pandas.DataFrame(
         data={
             'ds': ['2020-01', '2020-02'] * 5,
@@ -400,13 +401,13 @@ def get_hierarchichal_df(
     8  2020-01    B    Y    9
     9  2020-02    B    Y   10
     >>> bl_colnames = ['lev1', 'lev2']
-    >>> hier_struc = [['lev1'], ['lev2']]
-    >>> gts_df = timewasted.gts.get_hierarchichal_df(hier_df,
-                                                     bl_colnames=bl_colnames,
-                                                     hierarchical_struc=hier_struc,
-                                                     date_colname='ds',
-                                                     val_colname='val')
-    >>> gts_df
+    >>> hierarchy = [['lev1'], ['lev2']]
+    >>> wide_df = hts.functions.get_hierarchichal_df(hier_df,
+                                                    bl_colnames=bl_colnames,
+                                                    hierarchy=hierarchy,
+                                                    date_colname='ds',
+                                                    val_colname='val')
+    >>> wide_df
         lev1_lev2  A_X  A_Y  A_Z  B_X  B_Y  total   A   B   X   Y  Z
         ds
         2020-01      1    3    5    7    9     25   9  16   8  12  5
@@ -428,7 +429,7 @@ def get_hierarchichal_df(
 
     bottom_levels = list(df[bl_colnames_underscores].unique())
 
-    grouped_levels = get_agg_series(df, hierarchical_struc)
+    grouped_levels = get_agg_series(df, hierarchy)
 
     sum_mat, sum_mat_labels = to_sum_mat(
         ntree=None, node_labels=[["total"], grouped_levels, bottom_levels]
