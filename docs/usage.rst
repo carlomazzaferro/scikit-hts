@@ -51,6 +51,141 @@ More extensive usage, including a solution for Kaggle's `M5 Competition`_, can b
 .. _scikit-hts-examples: https://github.com/carlomazzaferro/scikit-hts-examples
 
 
+Ground Up Example
+-----------------
+
+Here's a ground up walk through of taking raw data, making custom forecasts, and reconciling them using the example from `FPP <https://otexts.com/fpp3/hts.html>`_.
+
+This small block creates the raw data. We assume a good number of users begin with tabular data coming from database.
+
+.. code-block:: python
+
+    >>> import hts.functions
+    >>> import pandas
+    >>> import collections
+
+    >>> hier_df = pandas.DataFrame(
+        data={
+            'ds': ['2020-01', '2020-02'] * 5,
+            "lev1": ['A', 'A',
+                     'A', 'A',
+                     'A', 'A',
+                     'B', 'B',
+                     'B', 'B'],
+            "lev2": ['X', 'X',
+                     'Y', 'Y',
+                     'Z', 'Z',
+                     'X', 'X',
+                     'Y', 'Y'],
+            "val": [1, 2,
+                    3, 4,
+                    5, 6,
+                    7, 8,
+                    9, 10]
+            }
+        )
+    >>> hier_df
+            ds lev1 lev2  val
+    0  2020-01    A    X    1
+    1  2020-02    A    X    2
+    2  2020-01    A    Y    3
+    3  2020-02    A    Y    4
+    4  2020-01    A    Z    5
+    5  2020-02    A    Z    6
+    6  2020-01    B    X    7
+    7  2020-02    B    X    8
+    8  2020-01    B    Y    9
+    9  2020-02    B    Y   10
+
+
+Specify a hierarchy of your choosing. Where the ``level_names`` argument is a list of column names that represent levels in the hierarchy.
+The ``hierarchy`` argument consists of a list of lists, where you can specify what levels in your hierarchy to include in the hierarchy
+structure. You do not need to specify the bottom level of your hierarchy in the ``hierarchy`` argument. This is already included, since
+it is equivalent to ``level_names`` aggregation level.
+
+Through the ``hts.function.get_hierarchichal_df`` function you will get a wide ``pandas.DataFrame`` with the individual time series for
+you to create forecasts.
+
+.. code-block:: python
+
+    >>> level_names = ['lev1', 'lev2']
+    >>> hierarchy = [['lev1'], ['lev2']]
+    >>> wide_df, sum_mat, sum_mat_labels = hts.functions.get_hierarchichal_df(hier_df,
+                                                                              level_names=level_names,
+                                                                              hierarchy=hierarchy,
+                                                                              date_colname='ds',
+                                                                              val_colname='val')
+    >>> wide_df
+        lev1_lev2  A_X  A_Y  A_Z  B_X  B_Y  total   A   B   X   Y  Z
+        ds
+        2020-01      1    3    5    7    9     25   9  16   8  12  5
+        2020-02      2    4    6    8   10     30  12  18  10  14  6
+
+
+Here's an example showing how to easily change your hierarchy, without changing your underlying data.
+We do not want to save these results for the sake of following parts of the example.
+
+.. code-block:: python
+
+    >>> hierarchy = [['lev1']]
+
+    >>> a, b, c = hts.functions.get_hierarchichal_df(hier_df,
+                                                     level_names=level_names,
+                                                     hierarchy=hierarchy,
+                                                     date_colname='ds',
+                                                     val_colname='val')
+    >>> a
+    lev1_lev2  A_X  A_Y  A_Z  B_X  B_Y  total   A   B
+    ds
+    2020-01      1    3    5    7    9     25   9  16
+    2020-02      2    4    6    8   10     30  12  18
+
+
+Create your forecasts and store them in a new DataFrame with the same format. Here we just do an average, but
+you can get as complex as you'd like.
+
+.. code-block:: python
+
+    # Create a DataFrame to store new forecasts in
+    >>> forecasts = pandas.DataFrame(index=['2020-03'], columns=wide_df.columns)
+
+    >>> import statistics
+    >>> for col in wide_df.columns:
+            forecasts[col] = statistics.mean(wide_df[col])
+
+    >>> forecasts
+    lev1_lev2  A_X  A_Y  A_Z  B_X  B_Y  total     A   B  X   Y    Z
+    2020-03    1.5  3.5  5.5  7.5  9.5   27.5  10.5  17  9  13  5.5
+
+Store your forecasts in a dictionary to be passed to the reconciliation algorithm.
+
+.. code-block:: python
+
+    >>> pred_dict = collections.OrderedDict()
+
+    # Add predictions to dictionary is same order as summing matrix
+    >>> for label in sum_mat_labels:
+        pred_dict[label] = pandas.DataFrame(data=forecasts[label].values, columns=['yhat'])
+
+
+Reconcile your forecasts. Here we use OLS optimal reconciliation. The, put reconciled forecasts in the same wide DataFrame format.
+
+You'll notice the forecasts are the. Because we used an average to forecast, the forecasts were already coherent. Therefore,
+they remain the same/ coherent post-reconciliation. Demonstrating that the reconciliation is working.
+
+.. code-block:: python
+
+    >>> revised = hts.functions.optimal_combination(pred_dict, sum_mat, method='OLS', mse={})
+
+    >>> revised_forecasts = pandas.DataFrame(data=revised[0:,0:],
+                                             index=forecasts.index,
+                                             columns=sum_mat_labels)
+
+    >>> revised_forecasts
+            total     Z     Y    X     B     A  A_X  A_Y  A_Z  B_X  B_Y
+    2020-03   27.5  5.5  13.0  9.0  17.0  10.5  1.5  3.5  5.5  7.5  9.5
+
+
 Reconcile Pre-Computed Forecasts
 --------------------------------
 
@@ -103,4 +238,3 @@ reconciliation on the forecasts.
     >>> revised_forecasts = pd.DataFrame(data=revised[0:,0:],
                                         index=forecasts.index,
                                         columns=sum_mat_labels)
-
