@@ -2,7 +2,12 @@ import numpy
 import pandas
 
 import hts.hierarchy
-from hts.functions import to_sum_mat
+from hts.functions import (
+    _create_bl_str_col,
+    get_agg_series,
+    get_hierarchichal_df,
+    to_sum_mat,
+)
 
 
 def test_sum_mat_uv(uv_tree):
@@ -203,3 +208,106 @@ def test_demo_unique_constraint():
     )
 
     numpy.testing.assert_array_equal(sum_mat, expected_sum_mat)
+
+
+def test_1lev():
+    grouped_df = pandas.DataFrame(
+        data={"lev1": ["A", "A", "B", "B"], "lev2": ["X", "Y", "X", "Y"],}
+    )
+
+    levels = get_agg_series(grouped_df, [["lev1"]])
+    expected_levels = ["A", "B"]
+    assert sorted(levels) == sorted(expected_levels)
+
+    levels = get_agg_series(grouped_df, [["lev2"]])
+    expected_levels = ["X", "Y"]
+    assert sorted(levels) == sorted(expected_levels)
+
+
+def test_2lev():
+    grouped_df = pandas.DataFrame(
+        data={"lev1": ["A", "A", "B", "B"], "lev2": ["X", "Y", "X", "Y"],}
+    )
+
+    levels = get_agg_series(grouped_df, [["lev1", "lev2"]])
+
+    expected_levels = ["A_X", "A_Y", "B_X", "B_Y"]
+
+    assert sorted(levels) == sorted(expected_levels)
+
+
+def test_hierarchichal():
+    hier_df = pandas.DataFrame(
+        data={"lev1": ["A", "A", "A", "B", "B"], "lev2": ["X", "Y", "Z", "X", "Y"],}
+    )
+
+    levels = get_agg_series(hier_df, [["lev1"], ["lev1", "lev2"]])
+    expected_levels = ["A", "B", "A_X", "A_Y", "A_Z", "B_X", "B_Y"]
+    assert sorted(levels) == sorted(expected_levels)
+
+
+def test_grouped():
+    hier_df = pandas.DataFrame(
+        data={"lev1": ["A", "A", "A", "B", "B"], "lev2": ["X", "Y", "Z", "X", "Y"],}
+    )
+
+    hierarchy = [["lev1"], ["lev2"], ["lev1", "lev2"]]
+    levels = get_agg_series(hier_df, hierarchy)
+    expected_levels = ["A", "B", "X", "Y", "Z", "A_X", "A_Y", "A_Z", "B_X", "B_Y"]
+    assert sorted(levels) == sorted(expected_levels)
+
+
+def test_grouped_create_df():
+    hier_df = pandas.DataFrame(
+        data={
+            "ds": ["2020-01", "2020-02"] * 5,
+            "lev1": ["A", "A", "A", "A", "A", "A", "B", "B", "B", "B"],
+            "lev2": ["X", "X", "Y", "Y", "Z", "Z", "X", "X", "Y", "Y"],
+            "val": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        }
+    )
+
+    level_names = ["lev1", "lev2"]
+    hierarchy = [["lev1"], ["lev2"]]
+    gts_df, sum_mat, sum_mat_labels = get_hierarchichal_df(
+        hier_df,
+        level_names=level_names,
+        hierarchy=hierarchy,
+        date_colname="ds",
+        val_colname="val",
+    )
+
+    expected_columns = [
+        "A_X",
+        "A_Y",
+        "A_Z",
+        "B_X",
+        "B_Y",
+        "A",
+        "B",
+        "X",
+        "Y",
+        "Z",
+        "total",
+    ]
+    assert sorted(list(gts_df.columns)) == sorted(expected_columns)
+
+
+def test_parent_child():
+    grouped_df = pandas.DataFrame(
+        data={"lev1": ["A", "A", "B"], "lev2": ["X", "Y", "Z"],}
+    )
+
+    levels = get_agg_series(grouped_df, [["lev1", "lev2"]])
+    expected_levels = ["A_X", "A_Y", "B_Z"]
+    assert sorted(levels) == sorted(expected_levels)
+
+
+def test_create_bl_str_col():
+    grouped_df = pandas.DataFrame(
+        data={"lev1": ["A", "A", "B"], "lev2": ["X", "Y", "Z"],}
+    )
+
+    col = _create_bl_str_col(grouped_df, ["lev1", "lev2"])
+
+    assert col == ["A_X", "A_Y", "B_Z"]
