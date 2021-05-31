@@ -18,18 +18,12 @@ jobs:
   lint:
     name: Lint scikit-hts
     runs-on: ubuntu-latest
-    container: python:3.8
     steps:
-      - name: Checkout
-        uses: actions/checkout@master
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
         with:
-          fetch-depth: 1
-      - name: Cache linter dependencies
-        id: cache-linter-deps
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: v1-deps-linter
+          python-version: "3.8"
       - name: Install needed python packages
         run: pip install -q black==19.10b0 isort==5.2.1 flake8==3.8.4 mypy==0.790
       - name: Run checks
@@ -39,25 +33,27 @@ jobs:
 #          mypy .
 
   test:
-    name: Test package
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    env:
+      REPORT: true
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: [3.5, 3.6, 3.7, 3.8]
+        exclude:
+          - os: macos-latest
+            python-version: '3.8'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
         with:
-          lfs: true
-          fetch-depth: 1
-
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v1
-        with:
-          python-version: "3.7"
-
-      - name: Run unit tests
+          python-version: ${{ matrix.python-version }}
+      - name: Run checks
         run: |
           pip install wheel
           make install-test
-          REPORT=true make test
+          make test
 
   publish:
     name: Publish Release
