@@ -18,12 +18,12 @@ jobs:
   lint:
     name: Lint scikit-hts
     runs-on: ubuntu-latest
-    container: python:3.8
     steps:
-      - name: Checkout
-        uses: actions/checkout@master
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
         with:
-          fetch-depth: 1
+          python-version: "3.8"
       - name: Cache linter dependencies
         id: cache-linter-deps
         uses: actions/cache@v2
@@ -39,25 +39,38 @@ jobs:
 #          mypy .
 
   test:
-    name: Test package
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    env:
+      REPORT: true
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: [3.6, 3.7, 3.8]
+        include:
+          - os: ubuntu-latest
+            path: ~/.cache/pip
+          - os: macos-latest
+            path: ~/Library/Caches/pip
+        exclude:
+          - os: macos-latest
+            python-version: '3.8'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
         with:
-          lfs: true
-          fetch-depth: 1
-
-      - name: Set up Python 3.7
-        uses: actions/setup-python@v1
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/cache@v2
         with:
-          python-version: "3.7"
-
-      - name: Run unit tests
+          path: ${{ matrix.path }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('setup.py','reqs/all.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Run checks
         run: |
           pip install wheel
           make install-test
-          REPORT=true make test
+          make test
 
   publish:
     name: Publish Release
