@@ -63,7 +63,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: ${{ matrix.path }}
-          key: ${{ runner.os }}-pip-${{ hashFiles('reqs/base.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('setup.py','reqs/all.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Run checks
