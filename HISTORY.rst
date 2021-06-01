@@ -59,3 +59,15 @@ History
 
 * Fixed long-standing BU forcasting bug, thanks to @javierhuertay! See: https://github.com/carlomazzaferro/scikit-hts/issues/35
 
+
+0.5.6 (2021-04-20)
+------------------
+
+* Fixed input sanitization for convenience methods. See: https://github.com/carlomazzaferro/scikit-hts/issues/65
+
+0.5.7 (2021-05-30)
+------------------
+
+* Ability to build hierarchies from tabular data. Thanks @noahsa! See: https://github.com/carlomazzaferro/scikit-hts/pull/70
+
+
