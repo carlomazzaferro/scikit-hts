@@ -85,7 +85,18 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
             fitting.
             If False (default), no transform is applied.
             If you desired to use custom functions, use a NamedTuple like:
-            ``{'func': transform_func, 'inv_func': inverse_transform_func}``. The signatures for the functions are both
+
+            .. highlight:: python
+            .. code-block:: python
+
+                from collections import namedtuple
+
+                Transform = namedtuple('Transform', ['func', 'inv_func']
+                transform = Transform(func=numpy.exp, inv_func=numpy.log)
+
+                ht = HTSRegressor(transform=transform, ...)
+
+            The signatures for the ``func`` as well as ``inv_func`` parameters must both be
             ``Callable[[numpy.ndarry], numpy.ndarray]``, i.e. they must take an array and return an array, both of equal
             dimensions
         n_jobs : int
@@ -285,7 +296,7 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
 
         Returns
         -------
-        Revised Forescasts, as a pandas.DataFrame in the same format as the one passed for fitting, extended by `steps_ahead`
+        Revised Forecasts, as a pandas.DataFrame in the same format as the one passed for fitting, extended by `steps_ahead`
         time steps`
         """
 

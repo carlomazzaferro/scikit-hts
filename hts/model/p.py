@@ -78,9 +78,7 @@ class FBProphetModel(TimeSeriesModel):
         if isinstance(node, pandas.Series):
             node = pandas.DataFrame(node)
         df = node.rename(columns={self.node.key: "y"})
-        if self.transform:
-            df["y"] = self.transformer.transform(df["y"])
-
+        df["y"] = self.transform_function.transform(df["y"])
         df["ds"] = pandas.to_datetime(df.index)
         return df.reset_index(drop=True)
 
@@ -108,15 +106,16 @@ class FBProphetModel(TimeSeriesModel):
         self.mse = numpy.mean(numpy.array(self.residual) ** 2)
         if self.cap is not None:
             self.forecast.yhat = numpy.exp(self.forecast.yhat)
-        if self.transform:
-            self.forecast.yhat = self.transformer.inverse_transform(self.forecast.yhat)
-            self.forecast.trend = self.transformer.inverse_transform(
-                self.forecast.trend
-            )
-            for component in ["seasonal", "daily", "weekly", "yearly", "holidays"]:
-                if component in self.forecast.columns.tolist():
-                    inv_transf = self.transformer.inverse_transform(
-                        getattr(self.forecast, component)
-                    )
-                    setattr(self.forecast, component, inv_transf)
+        self.forecast.yhat = self.transform_function.inverse_transform(
+            self.forecast.yhat
+        )
+        self.forecast.trend = self.transform_function.inverse_transform(
+            self.forecast.trend
+        )
+        for component in ["seasonal", "daily", "weekly", "yearly", "holidays"]:
+            if component in self.forecast.columns.tolist():
+                inv_transf = self.transform_function.inverse_transform(
+                    getattr(self.forecast, component)
+                )
+                setattr(self.forecast, component, inv_transf)
         return self

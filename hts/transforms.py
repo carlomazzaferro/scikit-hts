@@ -39,8 +39,9 @@ class BoxCoxTransformer(BaseEstimator, TransformerMixin):
 
 
 class FunctionTransformer(BaseEstimator, TransformerMixin):
-    def __init__(self, func: callable = boxcox, inv_func: callable = inv_boxcox):
-
+    def __init__(self, func: callable = None, inv_func: callable = None):
+        if not func or not inv_func:
+            raise ValueError("`func` and `inv_func` must be passed")
         self.func = func
         self.inv_func = inv_func
 
