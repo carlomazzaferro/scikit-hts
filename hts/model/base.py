@@ -1,16 +1,15 @@
 import logging
+from typing import Union
 
 import numpy
 import pandas
-from scipy.special._ufuncs import inv_boxcox
-from scipy.stats import boxcox
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 
-from hts._t import ModelT, TimeSeriesModelT, TransformT
+from hts._t import ModelT, NAryTreeT, TimeSeriesModelT, TransformT
 from hts.core.exceptions import InvalidArgumentException
 from hts.hierarchy import HierarchyTree
-from hts.transforms import FunctionTransformer
+from hts.transforms import BoxCoxTransformer, FunctionTransformer
 
 logger = logging.getLogger(__name__)
 
@@ -47,11 +46,11 @@ class TimeSeriesModel(TimeSeriesModelT):
         self.forecast = None
         self.residual = None
         self.mse = None
-
         self.transform = transform
+
         if self.transform:
             if transform is True:
-                self.transformer = FunctionTransformer(func=boxcox, inv_func=inv_boxcox)
+                self.transformer = BoxCoxTransformer()
             else:
                 self.transformer = FunctionTransformer(
                     func=transform.func, inv_func=transform.inv_func
@@ -66,17 +65,30 @@ class TimeSeriesModel(TimeSeriesModelT):
         return x, None
 
     def _set_results_return_self(self, in_sample, y_hat):
+        in_sample = self.transformer.inverse_transform(in_sample)
+        y_hat = self.transformer.inverse_transform(y_hat)
         self.forecast = pandas.DataFrame(
             {"yhat": numpy.concatenate([in_sample, y_hat])}
         )
-        self.residual = (in_sample - self.node.get_series()).values
+        self.residual = (in_sample - self._get_transformed_data(as_series=True)).values
         self.mse = numpy.mean(numpy.array(self.residual) ** 2)
         return self
+
+    def _get_transformed_data(
+        self, as_series: bool = False
+    ) -> Union[pandas.DataFrame, pandas.Series]:
+        key = self.node.key
+        value = self.node.item
+        transformed = self.transformer.transform(value[key])
+        if as_series:
+            return pandas.Series(transformed)
+        else:
+            return pandas.DataFrame(data={key: transformed})
 
     def create_model(self, **kwargs):
 
         if self.kind == ModelT.holt_winters.name:
-            data = self.node.item
+            data = self._get_transformed_data()
             model = ExponentialSmoothing(endog=data, **kwargs)
 
         elif self.kind == ModelT.auto_arima.name:
@@ -92,7 +104,7 @@ class TimeSeriesModel(TimeSeriesModelT):
 
         elif self.kind == ModelT.sarimax.name:
             as_df = self.node.item
-            end = self.node.get_series()
+            end = self._get_transformed_data(as_series=True)
             if self.node.exogenous:
                 ex = as_df[self.node.exogenous]
             else:

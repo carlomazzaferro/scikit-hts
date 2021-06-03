@@ -74,15 +74,18 @@ class FBProphetModel(TimeSeriesModel):
                 model.add_regressor(ex)
         return model
 
-    def _reformat(self, node):
+    def _pre_process(self, node):
         if isinstance(node, pandas.Series):
             node = pandas.DataFrame(node)
         df = node.rename(columns={self.node.key: "y"})
+        if self.transform:
+            df["y"] = self.transformer.transform(df["y"])
+
         df["ds"] = pandas.to_datetime(df.index)
         return df.reset_index(drop=True)
 
     def fit(self, **fit_args) -> "TimeSeriesModel":
-        df = self._reformat(self.node.item)
+        df = self._pre_process(self.node.item)
         with suppress_stdout_stderr():
             self.model = self.model.fit(df)
             self.model.stan_backend = None
@@ -90,7 +93,7 @@ class FBProphetModel(TimeSeriesModel):
 
     def predict(self, node: HierarchyTree, freq: str = "D", steps_ahead: int = 1):
 
-        df = self._reformat(node.item)
+        df = self._pre_process(node.item)
         future = self.model.make_future_dataframe(
             periods=steps_ahead, freq=freq, include_history=True
         )
