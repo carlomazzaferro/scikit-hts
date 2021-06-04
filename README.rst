@@ -2,7 +2,13 @@
 scikit-hts
 ##########
 
-Hierarchical Time Series with a familiar API
+Hierarchical Time Series with a familiar API. This is the result from not having found any good implementations
+of HTS on-line, and my work in the mobility space while working at Circ (acquired by Bird scooters).
+
+My work on this is purely out of passion, so contributions are always
+welcomed. You can also buy me a coffee if you'd like:
+
+     ETH/BSC Address:  ``0xbF42b9c8F7B69D52b8b986AA4E0BAc6838Af6698``
 
 
 .. image:: https://github.com/carlomazzaferro/scikit-hts/workflows/main%20workflow/badge.svg?branch=master
