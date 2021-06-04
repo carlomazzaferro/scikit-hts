@@ -41,7 +41,7 @@ class AutoArimaModel(TimeSeriesModel):
 
     def fit(self, **fit_args) -> "TimeSeriesModel":
         as_df = self.node.item
-        end = self.node.get_series()
+        end = self._get_transformed_data(as_series=True)
         if self.node.exogenous:
             ex = as_df[self.node.exogenous]
         else:

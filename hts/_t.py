@@ -161,7 +161,7 @@ class TimeSeriesModelT(BaseEstimator, RegressorMixin, metaclass=abc.ABCMeta):
 
     @staticmethod
     def _no_func(x):
-        ...
+        return x
 
     def _set_results_return_self(self, in_sample, y_hat) -> "TimeSeriesModelT":
         ...
@@ -193,5 +193,5 @@ NodesT = ExogT = Dict[str, List[str]]
 LowMemoryFitResultT = Tuple[str, str]
 ModelFitResultT = Union[TimeSeriesModelT, LowMemoryFitResultT]
 HTSFitResultT = List[ModelFitResultT]
-TransformT = Optional[Union[Transform, bool]]
+TransformT = Union[Transform, bool]
 ArrayLike = Union[numpy.ndarray, pandas.Series, pandas.DataFrame]

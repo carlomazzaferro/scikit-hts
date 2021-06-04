@@ -68,7 +68,7 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         self,
         model: str = defaults.MODEL,
         revision_method: str = defaults.REVISION,
-        transform: Optional[Union[Transform, bool]] = None,
+        transform: Optional[Union[Transform, bool]] = False,
         n_jobs: int = defaults.N_PROCESSES,
         low_memory: bool = defaults.LOW_MEMORY,
         **kwargs: Any,
@@ -83,8 +83,22 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         transform : Boolean or NamedTuple
             If True, ``scipy.stats.boxcox`` and ``scipy.special._ufuncs.inv_boxcox`` will be applied prior and after
             fitting.
-            If False, no transform is applied.
-            If you desired to use custom functions, use a NamedTuple like: ``{'func': Callable, 'inv_func': Callable}``
+            If False (default), no transform is applied.
+            If you desired to use custom functions, use a NamedTuple like:
+
+            .. highlight:: python
+            .. code-block:: python
+
+                from collections import namedtuple
+
+                Transform = namedtuple('Transform', ['func', 'inv_func']
+                transform = Transform(func=numpy.exp, inv_func=numpy.log)
+
+                ht = HTSRegressor(transform=transform, ...)
+
+            The signatures for the ``func`` as well as ``inv_func`` parameters must both be
+            ``Callable[[numpy.ndarry], numpy.ndarray]``, i.e. they must take an array and return an array, both of equal
+            dimensions
         n_jobs : int
             Number of parallel jobs to run the forecasting on
         low_memory : Bool
@@ -282,7 +296,7 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
 
         Returns
         -------
-        Revised Forescasts, as a pandas.DataFrame in the same format as the one passed for fitting, extended by `steps_ahead`
+        Revised Forecasts, as a pandas.DataFrame in the same format as the one passed for fitting, extended by `steps_ahead`
         time steps`
         """
 
