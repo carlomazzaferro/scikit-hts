@@ -161,7 +161,7 @@ class TimeSeriesModelT(BaseEstimator, RegressorMixin, metaclass=abc.ABCMeta):
 
     @staticmethod
     def _no_func(x):
-        ...
+        return x
 
     def _set_results_return_self(self, in_sample, y_hat) -> "TimeSeriesModelT":
         ...

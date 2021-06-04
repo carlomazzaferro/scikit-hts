@@ -86,7 +86,7 @@ class TimeSeriesModel(TimeSeriesModelT):
         if as_series:
             return pandas.Series(transformed)
         else:
-            return pandas.DataFrame(data={key: transformed})
+            return pandas.DataFrame({key: transformed})
 
     def create_model(self, **kwargs):
 
