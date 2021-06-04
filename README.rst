@@ -8,7 +8,8 @@ of HTS on-line, and my work in the mobility space while working at Circ (acquire
 My work on this is purely out of passion, so contributions are always
 welcomed. You can also buy me a coffee if you'd like:
 
-     ETH/BSC Address:  ``0xbF42b9c8F7B69D52b8b986AA4E0BAc6838Af6698``
+
+     ETH / BSC Address:  ``0xbF42b9c8F7B69D52b8b986AA4E0BAc6838Af6698``
 
 
 .. image:: https://github.com/carlomazzaferro/scikit-hts/workflows/main%20workflow/badge.svg?branch=master
