@@ -80,4 +80,10 @@ History
 
 * Fix long-standing bugs related to handling exogenous variables. See: https://github.com/carlomazzaferro/scikit-hts/issues/55
 
+0.5.10 (2021-06-5)
+------------------
+
+* Minor bug fix for transforms fixed: https://github.com/carlomazzaferro/scikit-hts/issues/66#issuecomment-855223892
+
+
 
