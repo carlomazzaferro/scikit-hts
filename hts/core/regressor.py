@@ -178,7 +178,8 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
     ) -> "HTSRegressor":
 
         """
-        Fit hierarchical model to dataframe containing hierarchical data as specified in the ``nodes`` parameter
+        Fit hierarchical model to dataframe containing hierarchical data as specified in the ``nodes`` parameter.
+
         Exogenous can also be passed as a dict of (string, list), where string is the specific node key and the list
         contains the names of the columns to be used as exogenous variables for that node.
 
@@ -303,9 +304,13 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
             Any arguments to be passed to the underlying forecasting model's predict function
         exogenous_df : pandas.DataFrame
             A dataframe of length == steps_ahead containing the exogenous data for each of the nodes.
-            Only required when using "prophet" model. See
+            Only required when using ``prophet`` or ``auto_arima`` models. See
             `fbprophet's additional regression docs <https://facebook.github.io/prophet/docs/seasonality,_holiday_effects,_and_regressors.html#additional-regressors>`_
-            for more information. Other models do not require additional regressors at predict time.
+            and
+            `AutoARIMA's exogenous handling docs <https://alkaline-ml.com/pmdarima/modules/generated/pmdarima.arima.AutoARIMA.html>`_
+            for more information.
+
+            Other models do not require additional regressors at predict time.
         steps_ahead : int
             The number of forecasting steps for which to produce a forecast
 
