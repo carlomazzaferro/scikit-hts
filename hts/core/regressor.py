@@ -244,13 +244,13 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         return self
 
     def __init_predict_step(self, exogenous_df: pandas.DataFrame, steps_ahead: int):
-        if self.exogenous and not exogenous_df:
+        if self.exogenous and exogenous_df is None:
             raise MissingRegressorException(
                 "Exogenous variables were provided at fit step, hence are required at "
                 "predict step. Please pass the 'exogenous_df' variable to predict "
                 "function"
             )
-        if not exogenous_df and not steps_ahead:
+        if exogenous_df is None and not steps_ahead:
             logger.info(
                 "No arguments passed for 'steps_ahead', defaulting to predicting 1-step-ahead"
             )
@@ -290,7 +290,10 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         predict_kwargs : Any
             Any arguments to be passed to the underlying forecasting model's predict function
         exogenous_df : pandas.DataFrame
-            A dataframe of lenght == steps_ahead containing the exogenous data for each of the nodes
+            A dataframe of length == steps_ahead containing the exogenous data for each of the nodes.
+            Only required when using "prophet" model. See
+            `fbprophet's additional regression docs <https://facebook.github.io/prophet/docs/seasonality,_holiday_effects,_and_regressors.html#additional-regressors>`_
+            for more information. Other models do not require additional regressors at predict time.
         steps_ahead : int
             The number of forecasting steps for which to produce a forecast
 
@@ -299,8 +302,15 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         Revised Forecasts, as a pandas.DataFrame in the same format as the one passed for fitting, extended by `steps_ahead`
         time steps`
         """
-
         steps_ahead = self.__init_predict_step(exogenous_df, steps_ahead)
+
+        if exogenous_df is not None:
+            if self.model != ModelT.prophet.value:
+                logger.warning(
+                    "Providing `exogenous_df` with a model that is not `prophet` has no effect"
+                )
+            predict_kwargs["exogenous_df"] = exogenous_df
+
         predict_function_kwargs = {
             "fit_kwargs": predict_kwargs,
             "steps_ahead": steps_ahead,

@@ -16,9 +16,15 @@ def test_instantiate_fb_model_uv(uv_tree):
     assert isinstance(fb, TimeSeriesModel)
 
 
-def test_instantiate_fb_model_mv(mv_tree):
+def test_fit_predict_fb_model_mv(mv_tree):
+    exog = pandas.DataFrame({"precipitation": [1], "temp": [20]})
     fb = FBProphetModel(node=mv_tree)
     assert isinstance(fb, TimeSeriesModel)
+    fb.fit()
+    fb.predict(mv_tree, exogenous_df=exog)
+    assert isinstance(fb.forecast, pandas.DataFrame)
+    assert isinstance(fb.residual, numpy.ndarray)
+    assert isinstance(fb.mse, float)
 
 
 def test_fit_predict_fb_model_uv(uv_tree):

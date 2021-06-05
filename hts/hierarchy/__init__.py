@@ -357,8 +357,9 @@ class HierarchyTree(NAryTreeT):
         df : pandas.DataFrame
             Dataframe representation of the tree
         """
-
-        df = pandas.concat([self.item] + [c.item for c in self.traversal_level()], 1)
+        df = pandas.concat(
+            [self.item] + [c.item[c.key] for c in self.traversal_level()], 1
+        )
         df.index.name = "ds"
         return df
 

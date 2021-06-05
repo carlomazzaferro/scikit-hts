@@ -89,12 +89,27 @@ class FBProphetModel(TimeSeriesModel):
             self.model.stan_backend = None
         return self
 
-    def predict(self, node: HierarchyTree, freq: str = "D", steps_ahead: int = 1):
-
+    def predict(
+        self,
+        node: HierarchyTree,
+        freq: str = "D",
+        steps_ahead: int = 1,
+        exogenous_df: pandas.DataFrame = None,
+    ):
         df = self._pre_process(node.item)
         future = self.model.make_future_dataframe(
             periods=steps_ahead, freq=freq, include_history=True
         )
+        if exogenous_df is not None:
+            previous_exogenous_values = node.to_pandas()[node.exogenous].reset_index(
+                drop=True
+            )
+            future_exogenous = pandas.concat(
+                [previous_exogenous_values, exogenous_df]
+            ).reset_index(drop=True)
+            future = pandas.concat(
+                [future, future_exogenous.reindex(future.index)], axis=1
+            )
         if self.cap:
             future["cap"] = self.cap
         if self.floor:
