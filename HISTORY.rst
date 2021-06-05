@@ -70,10 +70,14 @@ History
 
 * Ability to build hierarchies from tabular data. Thanks @noahsa! See: https://github.com/carlomazzaferro/scikit-hts/pull/70
 
-
 0.5.8 (2021-05-30)
 ------------------
 
 * Fix long-standing bugs related to transformers implementation. See: https://github.com/carlomazzaferro/scikit-hts/issues/66, https://github.com/carlomazzaferro/scikit-hts/issues/33, https://github.com/carlomazzaferro/scikit-hts/issues/38
+
+0.5.9 (2021-05-30)
+------------------
+
+* Fix long-standing bugs related to handling exogenous variables. See: https://github.com/carlomazzaferro/scikit-hts/issues/55
 
 

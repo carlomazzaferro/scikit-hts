@@ -126,6 +126,7 @@ def mv_tree(hierarchical_mv_data):
         for k in hierarchical_mv_data.columns
         if k not in ["precipitation", "temp"]
     }
+
     return HierarchyTree.from_nodes(hier, hierarchical_mv_data, exogenous=exogenous)
 
 

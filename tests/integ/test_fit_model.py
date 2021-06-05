@@ -16,9 +16,15 @@ def test_instantiate_fb_model_uv(uv_tree):
     assert isinstance(fb, TimeSeriesModel)
 
 
-def test_instantiate_fb_model_mv(mv_tree):
+def test_fit_predict_fb_model_mv(mv_tree):
+    exog = pandas.DataFrame({"precipitation": [1], "temp": [20]})
     fb = FBProphetModel(node=mv_tree)
     assert isinstance(fb, TimeSeriesModel)
+    fb.fit()
+    fb.predict(mv_tree, exogenous_df=exog)
+    assert isinstance(fb.forecast, pandas.DataFrame)
+    assert isinstance(fb.residual, numpy.ndarray)
+    assert isinstance(fb.mse, float)
 
 
 def test_fit_predict_fb_model_uv(uv_tree):
@@ -29,6 +35,17 @@ def test_fit_predict_fb_model_uv(uv_tree):
     assert isinstance(fb.forecast, pandas.DataFrame)
     assert isinstance(fb.residual, numpy.ndarray)
     assert isinstance(fb.mse, float)
+
+
+def test_fit_predict_ar_model_mv(mv_tree):
+    ar = AutoArimaModel(node=mv_tree)
+    ar.fit(max_iter=1)
+    assert isinstance(ar.model, AutoARIMA)
+    exog = pandas.DataFrame({"precipitation": [1], "temp": [20]})
+    ar.predict(mv_tree, steps_ahead=1, exogenous_df=exog)
+    assert isinstance(ar.forecast, pandas.DataFrame)
+    assert isinstance(ar.residual, numpy.ndarray)
+    assert isinstance(ar.mse, float)
 
 
 def test_fit_predict_ar_model_uv(uv_tree):
