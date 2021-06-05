@@ -53,7 +53,7 @@ class TimeSeriesModel(TimeSeriesModelT):
             return FunctionTransformer(func=self._no_func, inv_func=self._no_func)
         elif transform is True:
             return BoxCoxTransformer()
-        elif isinstance(transform, NamedTuple):
+        elif isinstance(transform, tuple):
             if not hasattr(transform, "func") or not hasattr(transform, "inv_func"):
                 raise ValueError(
                     "If passing a NamedTuple, it must have a `func` and `inv_func` parameters"

@@ -1,5 +1,8 @@
+from collections import namedtuple
+
 import numpy
 import pandas
+import pytest
 from fbprophet import Prophet
 from pmdarima import AutoARIMA
 
@@ -76,3 +79,25 @@ def test_fit_predict_hw_model_uv(uv_tree):
     assert isinstance(hw.forecast, pandas.DataFrame)
     assert isinstance(hw.residual, numpy.ndarray)
     assert isinstance(hw.mse, float)
+
+
+def test_fit_predict_hw_model_uv_with_transform(uv_tree):
+    Transform = namedtuple("Transform", ["func", "inv_func"])
+    transform_pos_neg = Transform(func=numpy.exp, inv_func=lambda x: -x)
+
+    hw = HoltWintersModel(node=uv_tree, transform=transform_pos_neg)
+    fitted_hw = hw.fit()
+    assert isinstance(fitted_hw, HoltWintersModel)
+    preds = hw.predict(uv_tree)
+    assert not (preds.forecast.values > 0).any()
+
+    assert isinstance(hw.forecast, pandas.DataFrame)
+    assert isinstance(hw.residual, numpy.ndarray)
+    assert isinstance(hw.mse, float)
+
+
+def test_fit_predict_model_invalid_transform(uv_tree):
+    Transform = namedtuple("Transform", ["func_invalid_arg", "inv_func"])
+    transform_pos_neg = Transform(func_invalid_arg=numpy.exp, inv_func=lambda x: -x)
+    with pytest.raises(ValueError):
+        HoltWintersModel(node=uv_tree, transform=transform_pos_neg)
