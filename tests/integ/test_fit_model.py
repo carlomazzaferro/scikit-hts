@@ -37,6 +37,17 @@ def test_fit_predict_fb_model_uv(uv_tree):
     assert isinstance(fb.mse, float)
 
 
+def test_fit_predict_ar_model_mv(mv_tree):
+    ar = AutoArimaModel(node=mv_tree)
+    ar.fit(max_iter=1)
+    assert isinstance(ar.model, AutoARIMA)
+    exog = pandas.DataFrame({"precipitation": [1], "temp": [20]})
+    ar.predict(mv_tree, steps_ahead=1, exogenous_df=exog)
+    assert isinstance(ar.forecast, pandas.DataFrame)
+    assert isinstance(ar.residual, numpy.ndarray)
+    assert isinstance(ar.mse, float)
+
+
 def test_fit_predict_ar_model_uv(uv_tree):
     ar = AutoArimaModel(node=uv_tree,)
     ar.fit(max_iter=1)

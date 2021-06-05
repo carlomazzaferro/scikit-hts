@@ -243,13 +243,25 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
                 self.hts_result.models = (model.node.key, model)
         return self
 
-    def __init_predict_step(self, exogenous_df: pandas.DataFrame, steps_ahead: int):
+    def __validate_exogenous(
+        self, exogenous_df: pandas.DataFrame
+    ) -> Optional[pandas.DataFrame]:
+        if exogenous_df is not None:
+            if self.model not in [ModelT.prophet.value, ModelT.auto_arima.value]:
+                logger.warning(
+                    "Providing `exogenous_df` with a model that is not `prophet` or `auto_arima` has no effect"
+                )
         if self.exogenous and exogenous_df is None:
             raise MissingRegressorException(
                 "Exogenous variables were provided at fit step, hence are required at "
                 "predict step. Please pass the 'exogenous_df' variable to predict "
                 "function"
             )
+        return exogenous_df
+
+    def __validate_steps_ahead(
+        self, exogenous_df: pandas.DataFrame, steps_ahead: int
+    ) -> int:
         if exogenous_df is None and not steps_ahead:
             logger.info(
                 "No arguments passed for 'steps_ahead', defaulting to predicting 1-step-ahead"
@@ -302,13 +314,12 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
         Revised Forecasts, as a pandas.DataFrame in the same format as the one passed for fitting, extended by `steps_ahead`
         time steps`
         """
-        steps_ahead = self.__init_predict_step(exogenous_df, steps_ahead)
+        exogenous_df = self.__validate_exogenous(exogenous_df)
+        steps_ahead = self.__validate_steps_ahead(
+            exogenous_df=exogenous_df, steps_ahead=steps_ahead
+        )
 
         if exogenous_df is not None:
-            if self.model != ModelT.prophet.value:
-                logger.warning(
-                    "Providing `exogenous_df` with a model that is not `prophet` has no effect"
-                )
             predict_kwargs["exogenous_df"] = exogenous_df
 
         predict_function_kwargs = {

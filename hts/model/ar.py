@@ -1,6 +1,7 @@
 import logging
 import warnings
 
+import pandas
 from statsmodels.tools.sm_exceptions import ConvergenceWarning
 
 from hts._t import ModelT
@@ -49,16 +50,18 @@ class AutoArimaModel(TimeSeriesModel):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning)
             warnings.filterwarnings("ignore", category=ConvergenceWarning)
-            self.model = self.model.fit(y=end, exogenous=ex, **fit_args)
+            self.model = self.model.fit(y=end, X=ex, **fit_args)
         return self
 
-    def predict(self, node, steps_ahead=10, alpha=0.05):
+    def predict(
+        self, node, steps_ahead=10, alpha=0.05, exogenous_df: pandas.DataFrame = None
+    ):
         if self.node.exogenous:
             ex = node.item
         else:
             ex = None
-        y_hat = self.model.predict(exogenous=ex, alpha=alpha, n_periods=steps_ahead)
-        in_sample_preds = self.model.predict_in_sample()
+        in_sample_preds = self.model.predict_in_sample(X=ex, alpha=alpha)
+        y_hat = self.model.predict(X=exogenous_df, alpha=alpha, n_periods=steps_ahead)
         return self._set_results_return_self(in_sample_preds, y_hat)
 
     def fit_predict(self, node: HierarchyTree, steps_ahead=10, alpha=0.05, **fit_args):
