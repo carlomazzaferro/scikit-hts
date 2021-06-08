@@ -85,7 +85,7 @@ def test_exog_fit_predict_fb_model(hierarchical_mv_data, mv_tree_empty):
         if k not in ["precipitation", "temp"]
     }
     train = hierarchical_mv_data[:500]
-    test = hierarchical_mv_data[500:507]  # .loc[:, ["temp", "precipitation"]]
+    test = hierarchical_mv_data[500:507]
     clf = HTSRegressor(model="prophet", revision_method="OLS", n_jobs=0)
     model = clf.fit(train, mv_tree_empty, exogenous=exogenous)
-    model.predict(steps_ahead=7, exogenous_df=test)
+    model.predict(exogenous_df=test)
