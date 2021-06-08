@@ -1,8 +1,9 @@
+from datetime import timedelta
+
 import pandas
 
 from hts import HTSRegressor
 from hts.core.result import HTSResult
-from datetime import timedelta
 
 
 def test_instantiate_regressor():

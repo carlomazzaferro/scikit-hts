@@ -6,7 +6,6 @@ import pytest
 from fbprophet import Prophet
 from pmdarima import AutoARIMA
 
-
 from hts.model import AutoArimaModel, FBProphetModel, HoltWintersModel, SarimaxModel
 from hts.model.base import TimeSeriesModel
 
