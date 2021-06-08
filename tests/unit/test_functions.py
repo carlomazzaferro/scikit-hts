@@ -19,7 +19,7 @@ def test_sum_mat_uv(uv_tree):
 
 
 def test_sum_mat_mv(mv_tree):
-    mat, sum_mat_labels = to_sum_mat(mv_tree)
+    mat, _ = to_sum_mat(mv_tree)
     assert isinstance(mat, numpy.ndarray)
     shp = mat.shape
     assert shp[0] == mv_tree.num_nodes() + 1
@@ -212,7 +212,10 @@ def test_demo_unique_constraint():
 
 def test_1lev():
     grouped_df = pandas.DataFrame(
-        data={"lev1": ["A", "A", "B", "B"], "lev2": ["X", "Y", "X", "Y"],}
+        data={
+            "lev1": ["A", "A", "B", "B"],
+            "lev2": ["X", "Y", "X", "Y"],
+        }
     )
 
     levels = get_agg_series(grouped_df, [["lev1"]])
@@ -226,7 +229,10 @@ def test_1lev():
 
 def test_2lev():
     grouped_df = pandas.DataFrame(
-        data={"lev1": ["A", "A", "B", "B"], "lev2": ["X", "Y", "X", "Y"],}
+        data={
+            "lev1": ["A", "A", "B", "B"],
+            "lev2": ["X", "Y", "X", "Y"],
+        }
     )
 
     levels = get_agg_series(grouped_df, [["lev1", "lev2"]])
@@ -238,7 +244,10 @@ def test_2lev():
 
 def test_hierarchichal():
     hier_df = pandas.DataFrame(
-        data={"lev1": ["A", "A", "A", "B", "B"], "lev2": ["X", "Y", "Z", "X", "Y"],}
+        data={
+            "lev1": ["A", "A", "A", "B", "B"],
+            "lev2": ["X", "Y", "Z", "X", "Y"],
+        }
     )
 
     levels = get_agg_series(hier_df, [["lev1"], ["lev1", "lev2"]])
@@ -248,7 +257,10 @@ def test_hierarchichal():
 
 def test_grouped():
     hier_df = pandas.DataFrame(
-        data={"lev1": ["A", "A", "A", "B", "B"], "lev2": ["X", "Y", "Z", "X", "Y"],}
+        data={
+            "lev1": ["A", "A", "A", "B", "B"],
+            "lev2": ["X", "Y", "Z", "X", "Y"],
+        }
     )
 
     hierarchy = [["lev1"], ["lev2"], ["lev1", "lev2"]]
@@ -295,7 +307,10 @@ def test_grouped_create_df():
 
 def test_parent_child():
     grouped_df = pandas.DataFrame(
-        data={"lev1": ["A", "A", "B"], "lev2": ["X", "Y", "Z"],}
+        data={
+            "lev1": ["A", "A", "B"],
+            "lev2": ["X", "Y", "Z"],
+        }
     )
 
     levels = get_agg_series(grouped_df, [["lev1", "lev2"]])
@@ -305,7 +320,10 @@ def test_parent_child():
 
 def test_create_bl_str_col():
     grouped_df = pandas.DataFrame(
-        data={"lev1": ["A", "A", "B"], "lev2": ["X", "Y", "Z"],}
+        data={
+            "lev1": ["A", "A", "B"],
+            "lev2": ["X", "Y", "Z"],
+        }
     )
 
     col = _create_bl_str_col(grouped_df, ["lev1", "lev2"])

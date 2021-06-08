@@ -13,7 +13,10 @@ from hts.hierarchy.utils import make_iterable
 
 class RevisionMethod(object):
     def __init__(
-        self, name: str, sum_mat: numpy.ndarray, transformer,
+        self,
+        name: str,
+        sum_mat: numpy.ndarray,
+        transformer,
     ):
         self.name = name
         self.transformer = transformer

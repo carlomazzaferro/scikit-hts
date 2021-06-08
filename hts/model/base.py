@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 class TimeSeriesModel(TimeSeriesModelT):
-    """ Base class for the implementation of the underlying models.
-        Inherits from scikit-learn base classes
+    """Base class for the implementation of the underlying models.
+    Inherits from scikit-learn base classes
     """
 
     def __init__(

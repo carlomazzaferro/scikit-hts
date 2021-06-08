@@ -2,6 +2,7 @@ import pandas
 
 from hts import HTSRegressor
 from hts.core.result import HTSResult
+from datetime import timedelta
 
 
 def test_instantiate_regressor():
@@ -74,3 +75,16 @@ def test_predict_regressor_visnights(load_df_and_hier_visnights):
         assert "NSW" in ht.hts_result.errors
         assert "NSW" in ht.hts_result.forecasts
         assert "NSW" in ht.hts_result.residuals
+
+
+def test_exog_fit_predict_fb_model(hierarchical_mv_data, mv_tree_empty):
+    exogenous = {
+        k: ["precipitation", "temp"]
+        for k in hierarchical_mv_data.columns
+        if k not in ["precipitation", "temp"]
+    }
+    train = hierarchical_mv_data[:500]
+    test = hierarchical_mv_data[500:507]  # .loc[:, ["temp", "precipitation"]]
+    clf = HTSRegressor(model="prophet", revision_method="OLS", n_jobs=0)
+    model = clf.fit(train, mv_tree_empty, exogenous=exogenous)
+    model.predict(steps_ahead=7, exogenous_df=test)
