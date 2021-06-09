@@ -86,16 +86,15 @@ def test_exog_fit_predict_fb_model(hierarchical_mv_data, mv_tree_empty):
     }
     horizon = 7
     train = hierarchical_mv_data[:500]
-    test = hierarchical_mv_data[500:500 + horizon]
+    test = hierarchical_mv_data[500 : 500 + horizon]
     clf = HTSRegressor(model="prophet", revision_method="OLS", n_jobs=0)
     model = clf.fit(train, mv_tree_empty, exogenous=exogenous)
     preds = model.predict(exogenous_df=test)
     assert isinstance(preds, pandas.DataFrame)
 
-        # base + steps ahead
+    # base + steps ahead
     assert len(preds) == len(train) + horizon
     assert len(model.hts_result.forecasts["total"]) == len(train) + horizon
-
 
     assert len(model.hts_result.errors) == len(train.columns) - 2
 
