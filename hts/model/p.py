@@ -96,7 +96,9 @@ class FBProphetModel(TimeSeriesModel):
         steps_ahead: int = 1,
         exogenous_df: pandas.DataFrame = None,
     ):
+
         df = self._pre_process(node.item)
+
         future = self.model.make_future_dataframe(
             periods=steps_ahead, freq=freq, include_history=True
         )

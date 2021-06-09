@@ -1,5 +1,6 @@
 import logging
 import tempfile
+from datetime import timedelta
 from typing import Any, Dict, List, Optional, Union
 
 import numpy
@@ -268,12 +269,12 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
                 "No arguments passed for 'steps_ahead', defaulting to predicting 1-step-ahead"
             )
             steps_ahead = 1
-        elif exogenous_df:
+        elif exogenous_df is not None:
             steps_ahead = len(exogenous_df)
             for node in make_iterable(self.nodes, prop=None):
                 exog_cols = node.exogenous
                 try:
-                    node.item = exogenous_df[exog_cols]
+                    _ = exogenous_df[exog_cols]
                 except KeyError:
                     raise MissingRegressorException(
                         f"Node {node.key} has as exogenous variables {node.exogenous} but "
@@ -364,10 +365,14 @@ class HTSRegressor(BaseEstimator, RegressorMixin):
 
     def _get_predict_index(self, steps_ahead=1) -> Any:
 
-        freq = getattr(self.nodes.item.index, "freq", 1)
-        start = self.nodes.item.index[-1] + freq
-        end = self.nodes.item.index[-1] + (steps_ahead * freq)
-
-        future = pandas.date_range(freq=freq, start=start, end=end)
+        freq = getattr(self.nodes.item.index, "freq", 1) or 1
+        try:
+            start = self.nodes.item.index[-1] + timedelta(freq)
+            end = self.nodes.item.index[-1] + timedelta(steps_ahead * freq)
+            future = pandas.date_range(start=start, end=end)
+        except TypeError:
+            start = self.nodes.item.index[-1] + freq
+            end = self.nodes.item.index[-1] + (steps_ahead * freq)
+            future = pandas.date_range(freq=freq, start=start, end=end)
 
         return self.nodes.item.index.append(future)

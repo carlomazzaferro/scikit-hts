@@ -113,7 +113,7 @@ def hierarchical_mv_data():
 
 
 @pytest.fixture
-def mv_tree(hierarchical_mv_data):
+def mv_tree_empty():
     hier = {
         "total": ["CH", "SLU", "BT", "OTHER"],
         "CH": ["CH-07", "CH-02", "CH-08", "CH-05", "CH-01"],
@@ -121,13 +121,20 @@ def mv_tree(hierarchical_mv_data):
         "BT": ["BT-01", "BT-03"],
         "OTHER": ["WF-01", "CBD-13"],
     }
+    return hier
+
+
+@pytest.fixture
+def mv_tree(hierarchical_mv_data, mv_tree_empty):
+
     exogenous = {
         k: ["precipitation", "temp"]
         for k in hierarchical_mv_data.columns
         if k not in ["precipitation", "temp"]
     }
-
-    return HierarchyTree.from_nodes(hier, hierarchical_mv_data, exogenous=exogenous)
+    return HierarchyTree.from_nodes(
+        mv_tree_empty, hierarchical_mv_data, exogenous=exogenous
+    )
 
 
 @pytest.fixture
