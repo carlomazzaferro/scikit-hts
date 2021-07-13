@@ -61,7 +61,7 @@ class AutoArimaModel(TimeSeriesModel):
         else:
             ex = None
         in_sample_preds = self.model.predict_in_sample(X=ex, alpha=alpha)
-        y_hat = self.model.predict(X=exogenous_df, alpha=alpha, n_periods=steps_ahead)
+        y_hat = self.model.predict(X=exogenous_df[self.node.exogenous], alpha=alpha, n_periods=steps_ahead)
         return self._set_results_return_self(in_sample_preds, y_hat)
 
     def fit_predict(self, node: HierarchyTree, steps_ahead=10, alpha=0.05, **fit_args):
