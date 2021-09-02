@@ -94,6 +94,7 @@ dist: clean ## builds source and wheel package
 install: clean ## install the package to the active Python's site-packages
 	pip install -U pip
 	pip install -e ".[all]"
+	pip install -U distributed
 
 
 install-test: install
