@@ -10,3 +10,4 @@ h3==3.4.3
 pmdarima>=1.8.0
 tqdm==4.43
 distributed==2021.3.0
+dask==2021.3.1
