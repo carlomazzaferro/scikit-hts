@@ -1,3 +1,5 @@
+NOTE: I unfortunately do not have time anymore to dedicate to this project, contributions are welcome.
+
 ##########
 scikit-hts
 ##########
