@@ -46,7 +46,7 @@ This allows to train models using Alkaline-ml's excellent `auto arima implementa
 
 .. code-block:: console
 
-    $ pip install scikit-hts[auto-arima]
+    $ pip install scikit-hts[auto_arima]
 
 
 
